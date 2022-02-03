@@ -25,13 +25,17 @@
     <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
     <script src="./assets/reveal/infragistics.reveal.js"></script>   
 
-    <script type="text/javascript">
-        
+    <script type="text/javascript">        
         //set this to your server url
         $.ig.RevealSdkSettings.setBaseUrl("https://localhost:7111/");   
+
+        let revealView;
     
         $.ig.RevealSdkSettings.ensureFontsLoadedAsync().then(() => {
-            this.loadDashboard();
+            $.ig.RVDashboard.loadDashboard("Sales", (dashboard) => {
+                revealView = new $.ig.RevealView("#revealView");
+                revealView.dashboard = dashboard;
+            });  
         });
 
         function onThemeSelected(theme) {
@@ -58,14 +62,7 @@
 
             $.ig.RevealSdkSettings.theme = theme;
 
-            this.loadDashboard();           
-        }
-
-        function loadDashboard() {
-            $.ig.RVDashboard.loadDashboard("Sales", (dashboard) => {
-                var revealView = new $.ig.RevealView("#revealView");
-                revealView.dashboard = dashboard;
-            });   
+            revealView.refreshTheme();          
         }
 
         function cloneCurrentTheme() {
