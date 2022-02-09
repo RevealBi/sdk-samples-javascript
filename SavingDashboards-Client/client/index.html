@@ -28,33 +28,37 @@
         //set this to your server url
         $.ig.RevealSdkSettings.setBaseUrl("https://localhost:7111/");
 
-        let revealView;
-
         $.ig.RevealSdkSettings.ensureFontsLoadedAsync().then(() => {
             $.ig.RVDashboard.loadDashboard("Sales", (dashboard) => {
-                revealView = new $.ig.RevealView("#revealView");
+                var revealView = new $.ig.RevealView("#revealView");
+                revealView.serverSideSave = false;
                 revealView.dashboard = dashboard;
 
                 revealView.onSave = (rv, args) => {
                     if (args.saveAs) {
                         var newName = prompt("Please enter the dashboard name");
                         isDuplicateName(newName).then(isDuplicate => {
-                            if (isDuplicate === "false") {
-                                args.name = newName;
-                                args.dashboardId = newName;
-                                args.saveFinished();
-                            }
-                            else {
-                                if (window.confirm("A dashboard with name:" + newName + " already exists. Do you want to override it?")) {
-                                    args.name = newName;
-                                    args.dashboardId = newName;
-                                    args.saveFinished();                                  
+                            if (isDuplicate === "true") {
+                                if (!window.confirm("A dashboard with name: " + newName + " already exists. Do you want to override it?")) {
+                                    args.saveFinished();
+                                    return;
                                 }
                             }
+
+                            args.dashboardId = args.name = newName;
+                            args.serializeWithNewName(newName, bytes => {
+                                this.saveDashboard(newName, bytes, true).then(() => {
+                                    args.saveFinished();
+                                });
+                            });
                         });
                     }
                     else {
-                        args.saveFinished();
+                        args.serialize(bytes => {
+                            this.saveDashboard(args.name, bytes).then(() => {
+                                args.saveFinished();
+                            });
+                        });
                     }
                 };
             });
@@ -62,6 +66,21 @@
 
         function isDuplicateName(name) {
             return fetch(`https://localhost:7111/isduplicatename/${name}`).then(resp => resp.text());
+        }
+
+        function saveDashboard(name, bytes, isSaveAs = false) {
+
+            let url = `https://localhost:7111/dashboards/${name}`;
+            let params = {
+                body: bytes,
+                method: "PUT"
+            }
+
+            if (isSaveAs) {
+                params.method = "POST"
+            }
+
+            return fetch(url, params);
         }
 
     </script>

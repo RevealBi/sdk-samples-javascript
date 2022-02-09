@@ -42,4 +42,36 @@ app.Map("/isduplicatename/{name}", (string name) =>
     return File.Exists($"{filePath}/{name}.rdash");
 });
 
+app.MapPost("/dashboards/{name}", async (HttpRequest request, string name) =>
+{
+    var ms = new MemoryStream();
+    await request.Body.CopyToAsync(ms);
+    var bytes = ms.ToArray();
+
+    var filePath = Path.Combine(Environment.CurrentDirectory, $"Dashboards/{name}.rdash");
+    using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+    {
+        await stream.WriteAsync(bytes, 0, bytes.Length);
+    }
+});
+
+app.MapPut("/dashboards/{name}", async (HttpRequest request, string name) =>
+{
+    var filePath = Path.Combine(Environment.CurrentDirectory, $"Dashboards/{name}.rdash");
+    if (!File.Exists(filePath))
+        return;
+
+    byte[] bytes;
+    using (var ms = new MemoryStream())
+    {
+        await request.Body.CopyToAsync(ms);
+        bytes = ms.ToArray();
+    }
+
+    using (var stream = File.Open(filePath, FileMode.Open))
+    {
+        stream.Write(bytes, 0, bytes.Length);
+    }
+});
+
 app.Run();
