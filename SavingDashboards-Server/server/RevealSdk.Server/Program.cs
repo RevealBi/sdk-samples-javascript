@@ -43,7 +43,7 @@ app.MapControllers();
 
 app.Map("/isduplicatename/{name}", (string name) =>
 {
-    var filePath = Path.Combine(Environment.CurrentDirectory, "Dashboards");
+    var filePath = Path.Combine(Environment.CurrentDirectory, "MyDashboards");
     return File.Exists($"{filePath}/{name}.rdash");
 });
 

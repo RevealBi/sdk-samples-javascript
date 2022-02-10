@@ -28,14 +28,37 @@
         //set this to your server url
         $.ig.RevealSdkSettings.setBaseUrl("https://localhost:7111/");
 
-        let revealView;
-
         $.ig.RevealSdkSettings.ensureFontsLoadedAsync().then(() => {
-            $.ig.RVDashboard.loadDashboard("Sales", (dashboard) => {
-                revealView = new $.ig.RevealView("#revealView");
+            $.ig.RVDashboard.loadDashboard("Sales2", (dashboard) => {
+                let revealView = new $.ig.RevealView("#revealView");
                 revealView.dashboard = dashboard;
+
+                revealView.onSave = (rv, args) => {
+                    if (args.saveAs) {
+                        var newName = prompt("Please enter the dashboard name");
+                        isDuplicateName(newName).then(isDuplicate => {
+                            if (isDuplicate === "true") {
+                                if (!window.confirm("A dashboard with name: " + newName + " already exists. Do you want to override it?")) {
+                                    return;
+                                }
+                            }
+
+                            args.dashboardId = args.name = newName;
+                            args.saveFinished();
+                        });
+
+                    }
+                    else {
+                        args.saveFinished();
+                    }
+                }
             });
         });
+
+
+        function isDuplicateName(name) {
+            return fetch(`https://localhost:7111/isduplicatename/${name}`).then(resp => resp.text());
+        }
 
     </script>
 </body>
