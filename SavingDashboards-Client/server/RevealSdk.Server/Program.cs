@@ -57,16 +57,9 @@ app.MapPut("/dashboards/{name}", async (HttpRequest request, string name) =>
     if (!File.Exists(filePath))
         return;
 
-    byte[] bytes;
-    using (var ms = new MemoryStream())
-    {
-        await request.Body.CopyToAsync(ms);
-        bytes = ms.ToArray();
-    }
-
     using (var stream = File.Open(filePath, FileMode.Open))
     {
-        stream.Write(bytes, 0, bytes.Length);
+        request.Body.CopyToAsync(stream);
     }
 });
 
