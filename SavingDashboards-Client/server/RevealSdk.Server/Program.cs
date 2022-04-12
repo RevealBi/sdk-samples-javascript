@@ -44,14 +44,10 @@ app.Map("/isduplicatename/{name}", (string name) =>
 
 app.MapPost("/dashboards/{name}", async (HttpRequest request, string name) =>
 {
-    var ms = new MemoryStream();
-    await request.Body.CopyToAsync(ms);
-    var bytes = ms.ToArray();
-
     var filePath = Path.Combine(Environment.CurrentDirectory, $"Dashboards/{name}.rdash");
     using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
     {
-        await stream.WriteAsync(bytes, 0, bytes.Length);
+        await request.Body.CopyToAsync(stream);
     }
 });
 
