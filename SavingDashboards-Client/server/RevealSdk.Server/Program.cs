@@ -59,7 +59,7 @@ app.MapPut("/dashboards/{name}", async (HttpRequest request, string name) =>
 
     using (var stream = File.Open(filePath, FileMode.Open))
     {
-        request.Body.CopyToAsync(stream);
+        await request.Body.CopyToAsync(stream);
     }
 });
 
