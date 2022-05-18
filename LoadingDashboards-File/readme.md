@@ -21,9 +21,9 @@ In the `loadDashboard` method, you can change **Sales** to:
 
 This will give you a feel for loading different dashboards.
 
-This video will show you how to create a Reveal Server with the .NET Core SDK:
+To learn how to create a Reveal Server with the .NET Core SDK, so you can use this same sample with `localhost` and your own dashboards, watch this video:
 
 https://youtu.be/nYKSOG1dCNc
 
-To watch a video that walks through this example of loading a dashboard from a cloud-deployed Reveal Server, click here:
+To watch a video that walks through creating this example of loading a dashboard from a cloud-deployed Reveal Server, click here:
 
