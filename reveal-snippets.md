@@ -1,11 +1,12 @@
-## Snippets for Visual Studio Code
+{
+	// Place your global snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
 
-Copy the following in the User Snippets folder in Visual Studio Code to accelerate adding Reveal to your apps.
-
-[https://code.visualstudio.com/docs/editor/userdefinedsnippets](https://code.visualstudio.com/docs/editor/userdefinedsnippets)
-
-
-"{
 	"Reveal -- Add <div> Container in <name>.component.html": {
 		"scope": "html",
 		"prefix": "Reveal -- Insert 'div' Container for Dashboard Viewer'",
@@ -101,4 +102,4 @@ Copy the following in the User Snippets folder in Visual Studio Code to accelera
 
 		],
 		"description": "Insert RevealView in JavaScript / HTML app"
-	}}"
+	}}
