@@ -4,7 +4,9 @@ In this source, you can change the following line to use an existing cloud-deplo
 
 In the:  **/LoadingDashboards-File/client/index.html**
 
-Replace the `setBaseUrl` from:
+Replace the `setBaseUrl` 
+
+from:
 `$.ig.RevealSdkSettings.setBaseUrl("https://localhost:7111/");`   
 
 to: 
