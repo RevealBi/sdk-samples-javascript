@@ -7,12 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Reveal.Sdk.Web.AspNetCore.Trial" Version="1.1.2" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <Compile Remove="Dashboards\**" />
+    <Content Remove="Dashboards\**" />
+    <EmbeddedResource Remove="Dashboards\**" />
+    <None Remove="Dashboards\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dashboards\" />
+    <PackageReference Include="Reveal.Sdk.Web.AspNetCore.Trial" Version="1.1.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
 </Project>
