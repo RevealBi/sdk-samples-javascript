@@ -29,7 +29,7 @@
                 .onDataSourcesRequested = (callback) => {
                     var localSQLDataSource = new $.ig.RVSqlServerDataSource(); // indicate type of source
                     localSQLDataSource.host = "localhost"; // for this example we will work on "Localhost"
-                    localSQLDataSource.database = "NorthwindTraders"; // you must enter the name of the database you have created for the example, in this case "NorthwindTraders"
+                    localSQLDataSource.database = "Northwind"; // you must enter the name of the database you have created for this example, in this case "Northwind"
                     localSQLDataSource.title = "Local SQL Server"; // enter name to display in selection menu
 
                     callback(new $.ig.RevealDataSources([localSQLDataSource], [], true));
