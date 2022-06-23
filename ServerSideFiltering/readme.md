@@ -10,6 +10,7 @@ In this example the DB login is done with SQL Server credentials instead of Wind
 The credentials used are: 
 - User: Reveal 
 - Password: Reveal
+
 If you do not know how to enable this option, follow the instructions in the following link: https://docs.microsoft.com/en-us/sql/relational-databases/security/authentication-access/create-a-login?view=sql-server-ver16
 
 In case you want to use an already existing database, we indicate below which elements should be modified:
