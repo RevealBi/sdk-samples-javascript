@@ -2,9 +2,7 @@
 
 This example was done with a local SQL Server DataBase Source. In case you do not have SQL Server installed, you can download it from the following link:  https://www.microsoft.com/es-es/sql-server/sql-server-downloads
 
-It is necessary to create a database in your local SQL Server, for this example we will use `Northwind`. The script can be downloaded from following links: 
-- Instructions: https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/linq/downloading-sample-databases
-- Script: https://github.com/microsoft/sql-server-samples/raw/master/samples/databases/northwind-pubs/instnwnd.sql
+It is necessary to create a database in your local SQL Server, for this example we will use `Northwind`. The instructions to create this database can be found here:  https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql/linq/downloading-sample-databases. Please use the script "instnwnd.sql".
 
 In this example the DB login is done with SQL Server credentials instead of Windows Authentication mode.  
 The credentials used are: 
