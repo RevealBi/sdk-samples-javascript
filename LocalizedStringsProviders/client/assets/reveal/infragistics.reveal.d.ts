@@ -90,6 +90,17 @@ class RVVisualization {
      * The chart used in this visualization
      */
     get chartType(): RVChartType;
+    /**
+     * Returns the ID of the data source referenced by this visualization (if any).
+     */
+    get referencedDataSourceId(): string | null;
+    /**
+     * Returns the ID of the data source used by the resource refenced by this visualization (if any).
+     * For a visualization getting data from a JSON document loaded from a REST services, this ID
+     * will be the ID of the REST data source.
+     */
+    get referencedResourceDataSourceId(): string | null;
+    private getReferenceDataSourceItem;
 }
 
 /** Class that represents all visualizations in a dashboard as an array. */
@@ -569,6 +580,7 @@ interface IKnownType {
  */
 abstract class RVDashboardDataSource implements IKnownType {
     private _id;
+    private _defaultRefreshRate;
     /**
      * The ID of the data source
      */
@@ -586,6 +598,18 @@ abstract class RVDashboardDataSource implements IKnownType {
     */
     get subtitle(): nullableString;
     set subtitle(value: nullableString);
+    get defaultRefreshRate(): number | null;
+    /**
+    * Default value to use for "Refresh Data" setting for visualizations created using this item, expressed in minutes (e.g. 1440 = 1 day).
+    * A value of N means that whenever the visualization requests data, the engine will return data found in the cache if it's not older than N minutes -this means, if the engine fetched it from the datasource no more than N minutes before-. Set it to override the widget editor default behavior.
+    */
+    set defaultRefreshRate(v: number | null);
+    /** @hidden */
+    constructor(json?: any);
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    abstract getProviderKey(): string;
     /** @hidden */
     abstract getType(): string;
     /** @hidden */
@@ -610,10 +634,15 @@ enum RVProviderType {
     WebResource = 9,
     Rest = 10,
     S3 = 11,
-    MicrosoftDynamics = 12,
-    MicrosoftAnalysisServices = 13,
-    MicrosoftReportingServices = 14,
-    AmazonRedshift = 15
+    GoogleDrive = 12,
+    GoogleSearchConsole = 13,
+    OneDrive = 14,
+    Dropbox = 15,
+    Box = 16,
+    MicrosoftDynamics = 17,
+    MicrosoftAnalysisServices = 18,
+    MicrosoftReportingServices = 19,
+    AmazonRedshift = 20
 }
 //# sourceMappingURL=rvProviderType.d.ts.map
 
@@ -633,7 +662,16 @@ class DashboardSelectorRequestedEventArgs {
  * the information required to get the dataset itself (like table name or view name).
  */
 abstract class RVDataSourceItem implements IKnownType {
+    private _defaultRefreshRate;
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVDashboardDataSource);
+    /** @hidden */
+    static dataSourceFactory: (json: any) => RVDashboardDataSource;
+    /** @hidden */
+    static dataSourceItemFactory: (json: any) => RVDataSourceItem;
+    /** @hidden */
+    toJson(): any;
     private _title;
     /** The title of the item, as displayed to the user, it might be for example the name of the table in a database. */
     get title(): nullableString;
@@ -656,6 +694,12 @@ abstract class RVDataSourceItem implements IKnownType {
      */
     get dataSource(): RVDashboardDataSource;
     set dataSource(value: RVDashboardDataSource);
+    /**
+     * Default value to use for "Refresh Data" setting for visualizations created using this item, expressed in minutes (e.g. 1440 = 1 day).
+     * A value of N means that whenever the visualization requests data, the engine will return data found in the cache if it's not older than N minutes -this means, if the engine fetched it from the datasource no more than N minutes before-. If not set it will use the default value set in the data source object.
+     */
+    set defaultRefreshRate(v: number | null);
+    get defaultRefreshRate(): number | null;
     /** @hidden */
     abstract getType(): string;
     /** @hidden */
@@ -664,15 +708,99 @@ abstract class RVDataSourceItem implements IKnownType {
     _getWrapper(isResourceBased?: Boolean): any;
 }
 
+/**
+ * Object indicating what was selected by the end user, it could be a data source (like a database) or a data source item (like a table in a database).
+ * This selection object can also be used to indicate the UI to create a new data source should be displayed.
+ */
+class RVDataSourceSelection {
+    /** @ignore */
+    private _dataSource;
+    /** @ignore */
+    private _dataSourceItem;
+    /** @ignore */
+    private _newDataSourceProvider;
+    /** @ignore */
+    private _onDataSourceCreated;
+    /** @ignore */
+    private constructor();
+    /**
+     * Creates a selection object for a data source.
+     * @param ds the selected data source.
+     * @returns A new selection object with a data source selected.
+     */
+    static withDataSource(ds: RVDashboardDataSource): RVDataSourceSelection;
+    /**
+     * Creates a selection object with a data source item.
+     * @param dsItem the selected data source item.
+     * @returns A new selection object with a data source item selected.
+     */
+    static withDataSourceItem(dsItem: RVDataSourceItem): RVDataSourceSelection;
+    /**
+     * Creates a selection object indicating the UI to create a new data source should be displayed,
+     * the data source will be created for the indicated provider (from RVProviderType, like SQLServer, REST, etc.)
+     * @param provider The data source provider to use to create the new data source (@see RVProviderType)
+     * @param onDataSourceCreated An optional callback to be called when the creation of the new data source completes (it won't be called if the user cancels the creation flow).
+     * @returns A new selection object indicating a new data source should be created.
+     */
+    static withNewDataSource(provider: RVProviderType, onDataSourceCreated?: ((provider: RVProviderType) => void) | null): RVDataSourceSelection;
+    /**
+     * The selected data source or null if a data source item is selected.
+     */
+    get dataSource(): RVDashboardDataSource | null;
+    /**
+     * The selected data source item or null if a data source is selected.
+     */
+    get dataSourceItem(): RVDataSourceItem | null;
+    /**
+     * The selected provider to create a new data source, if that was the option selected.
+     */
+    get newDataSourceProvider(): RVProviderType | null;
+    get onDataSourceCreated(): ((provider: RVProviderType) => void) | null;
+}
+//# sourceMappingURL=rvDataSourceSelection.d.ts.map
+
+/**
+ * The class used as the argument to the onDataSourceSelection event with the trigger and list of data sources in use in the dashboard.
+ */
+class DataSourceSelectionEventArgs {
+    /**
+     * Set this to true to cancel the display of the standard UI for selecting data sources
+     */
+    cancel: boolean;
+    private _callback;
+    private _dataSources;
+    private _trigger;
+    constructor(callback: (selection: RVDataSourceSelection) => void, dataSources: any, trigger: RVDataSourcesRequestedTriggerType);
+    /**
+     * Event that originated the data sources selection, one of visualization, dashboard filter or data blending.
+     */
+    get trigger(): RVDataSourcesRequestedTriggerType;
+    /**
+     * List of data sources returned by onDataSourcesRequested.
+     */
+    get dataSources(): any;
+    /**
+     * The callback to use when the selection is ready. Receives a RVDataSourceSelection object created using the
+     * helper methods RVDataSourceSelection.withDataSource or RVDataSourceSelection.withDataSourceItem.
+     */
+    get callback(): (selection: RVDataSourceSelection) => void;
+}
+//# sourceMappingURL=dataSourceSelectionEventArgs.d.ts.map
+
 class RevealDataSources {
-    _dataSources: any[];
-    _dataSourceItems: any[];
+    _dataSources: RVDashboardDataSource[];
+    _dataSourceItems: RVDataSourceItem[];
     _useDataInDashboard: boolean;
+    _filter: ((item: any) => Boolean) | null;
     constructor(dataSources: RVDashboardDataSource[], dataSourceItems: RVDataSourceItem[], useDataInDashboard: boolean);
-    dataSourceItems(v: any): any[];
-    dataSources(v: any): any[];
-    useDataInDashboard(v: any): boolean;
+    get dataSourceItems(): RVDataSourceItem[];
+    get dataSources(): RVDashboardDataSource[];
+    get useDataInDashboard(): boolean;
+    get filter(): ((item: any) => Boolean) | null;
+    set filter(f: ((item: any) => Boolean) | null);
     getInternal(): any;
+    /** @hidden */
+    private _transformToInternal;
 }
 
 /**
@@ -713,6 +841,7 @@ class RevealView {
     private _showChangeDataSource;
     private _showMachineLearningModelsIntegration;
     private _showDataBlending;
+    private _showDataSourceSelectionDialogSearch;
     private _crosshairsEnabled;
     private _hoverTooltipsEnabled;
     private _canAddCalculatedFields;
@@ -725,6 +854,7 @@ class RevealView {
     private _addDataSourceEnabledProviders;
     private _showEditDataSource;
     private _canChangeVisualizationBackgroundColor;
+    private _exportMode;
     /**
      * Instantiates a new RevealView component and renders it at the provided DOM selector location.
      * @param selector Selector to the DOM element where the RevealView should be rendered. Exception is thrown if no element is found in DOM matching the selector.
@@ -762,6 +892,12 @@ class RevealView {
     /** @internal */
     _getEnabledProvidersToAdd(): string[];
     /** @internal */
+    _getMissingCredentialsBlock(): any;
+    /** @internal */
+    _onMissingCredentials(ds: any, callback: (success: boolean) => void): boolean;
+    /** @internal */
+    _onVisualizationSeriesColorAssigning(widget: any, defaultColor: string, fieldName: string | null, categoryName: string | null): string;
+    /** @internal */
     _getCloudSignInBlock(): any;
     /** @internal */
     _showCloudLogin(providerKey: string, dataSourceId: string | null, callback: any): void;
@@ -772,6 +908,14 @@ class RevealView {
     /** @internal */
     _isDashboardLinkingEditorEnabled(): boolean;
     private _setAvailableCharts;
+    /** @internal */
+    _dataReceived(): void;
+    /**
+     * Only works if set before the dashboard is loaded.
+     * @internal
+     * */
+    get exportMode(): boolean;
+    set exportMode(v: boolean);
     /**
      * This event is triggered when the end user clicks 'Save' or 'Save As'. However, if this event is set in RevealView then the callback server side
      * (SaveDashboardAsync) will not be called, and the application will handle how the dashboard is saved,
@@ -831,6 +975,20 @@ class RevealView {
      */
     onVisualizationDataPointClicked: ((visualization: RVVisualization, cell: RVCell, row: RVCell[]) => void) | null;
     /**
+    * This event is triggered when the chart visualization loads and is in the process of creating each series. With this event you can customize the color used for the series.
+    *
+    * ```javascript
+    * revealView.onVisualizationSeriesColorAssigning = function (widget, defaultColor, fieldName, categoryName) {
+    *   console.log("Visualization is creating a series");
+    *   console.log(widget.title);
+    *   console.log(fieldName);
+    *   console.log(categoryName);
+    *   return defaultColor;
+    *}
+    *```
+    */
+    onVisualizationSeriesColorAssigning: ((visualization: RVVisualization, defaultColor: string, fieldName: string | null, categoryName: string | null) => string) | null;
+    /**
      * This event is triggered whenever the end user clicks on the 'Add visualization' button.
      * You can create custom datasources to replace the default/existing ones.
      * The argument is a callback function you're supposed to call and pass your custom collection of datasources which the end user will see.
@@ -855,6 +1013,13 @@ class RevealView {
      * ```
      */
     onDataSourcesRequested: ((callback: (datasources: RevealDataSources) => void, trigger: RVDataSourcesRequestedTriggerType) => void) | null;
+    /**
+     * Event called when the list of data sources is about to be displayed, this is the way to show your own UI for the list
+     * of data sources instead of the default UI.
+     * If this handler is not installed Reveal will use the default dialog for selecting a data source.
+     */
+    onDataSourceSelectionDialogShowing: ((args: DataSourceSelectionEventArgs) => void) | null;
+    _showCustomDataSourceSelection(trigger: RVDataSourcesRequestedTriggerType, revealDataSources: any, dsItemSelected: (dsiInfo: any) => void): boolean;
     /**
        * This event is triggered when Reveal is requesting credentials for a given data source, and only when the creation
        * of new data sources is not enabled (by adding providers to addDataSourceEnabledProviders).
@@ -924,17 +1089,17 @@ class RevealView {
     */
     onVisualizationEditorOpened: ((args: VisualizationEditorOpenedEventArgs) => void) | null;
     /**
-   * This event is triggered when the end user clicks on cancel("x") button upon editing/creating a visualization.
-   * Using the args parameter you could check if this is a brand new visualization or the user is editing an existing one.
-   * You could also cancel the process of exiting edit mode by setting args.cancel to true.
-   * ``` javascript
-   * revealView.onVisualizationEditorClosing = function (args) {
-   *     if(args.isNewVisualization == false){ //the user is editing
-   *          args.resetVisualization = true; //puts the widget to the state when it was when the user started editing it
-   *     }
-   * };
-   * ```
-   */
+    * This event is triggered when the end user clicks on cancel("x") button upon editing/creating a visualization.
+    * Using the args parameter you could check if this is a brand new visualization or the user is editing an existing one.
+    * You could also cancel the process of exiting edit mode by setting args.cancel to true.
+    * ``` javascript
+    * revealView.onVisualizationEditorClosing = function (args) {
+    *     if(args.isNewVisualization == false){ //the user is editing
+    *          args.resetVisualization = true; //puts the widget to the state when it was when the user started editing it
+    *     }
+    * };
+    * ```
+    */
     onVisualizationEditorClosing: ((args: VisualizationEditorClosingArgs) => void) | null;
     /**
      * Event triggered when the visualization editor is closed.
@@ -948,6 +1113,35 @@ class RevealView {
      * ```
      */
     onVisualizationEditorClosed: ((args: VisualizationEditorClosedEventArgs) => void) | null;
+    /**
+    * This event triggered when a visualization is about to request data, the event can be canceled if showing data
+    * for the visualization is not allowed.
+    * Using the args parameter you could cancel the data request by setting args.cancel to true and set the
+    * message to be displayed to the end user by setting cancel.errorMessage.
+    * See {@link VisualizationDataLoadingEventArgs}.
+    *
+    * **JavaScript**:
+    * ```javascript
+    * revealView.onVisualizationDataLoading = function (args) {
+    *     if(!hasAccess(args.visualization)){
+    *          args.cancel = true;
+    *          args.errorMessage = "You don't have access to this data";
+    *     }
+    * };
+    * ```
+    *
+    * **TypeScript**:
+    *```typescript
+    *     revealView.onVisualizationDataLoading = (args:RevealApi.VisualizationDataLoadingEventArgs) =>
+    *     {
+    *          if(!hasAccess(args.visualization)){
+    *               args.cancel = true;
+    *               args.errorMessage = "You don't have access to this data";
+    *      }
+    *  }
+    *```
+    */
+    onVisualizationDataLoading: ((args: VisualizationDataLoadingEventArgs) => void) | null;
     onDashboardSelectorRequested: ((args: DashboardSelectorRequestedEventArgs) => void) | null;
     /**
      * Will be called when a linked dashboard is needed either if the user tries to follow a dashboard link
@@ -961,6 +1155,14 @@ class RevealView {
      * ```
     */
     onLinkedDashboardProviderAsync: ((dashboardId: string, linkTitle: string | null) => Promise<RVDashboard>) | null;
+    /**
+     * @hidden
+     */
+    onDataReceived: (() => void) | null;
+    /**
+     * @hidden
+     */
+    prepareForCapture(callback: (revealView: RevealView) => void): void;
     /** This method calls {@link RevealUtility.loadDashboardFromContainer} that loads a dashboard from the Blob object with the contents of an .rdash file. */
     revealViewForDashboardBlob: (b: Blob, selector: string, successCallback: (revealView: RevealView) => void, errorCallback: any) => void;
     /** This method is used to indicate the size of the container has changed and RevealView must re-layout its contents. */
@@ -1199,6 +1401,10 @@ class RevealView {
      *  @default false */
     get showMachineLearningModelsIntegration(): Boolean;
     set showMachineLearningModelsIntegration(v: Boolean);
+    /** A flag indicating if the data source selection dialog (displayed when creating a new visualization) includes a search box on top to search for data sources.
+     * @default false */
+    get showDataSourceSelectionDialogSearch(): Boolean;
+    set showDataSourceSelectionDialogSearch(v: Boolean);
     /** A flag indicating if the button "Add fields from another data source" (in the visualization editor) should be available or not.
      *  @default true */
     get showDataBlending(): Boolean;
@@ -1233,6 +1439,14 @@ class RevealView {
      */
     get addDataSourceEnabledProviders(): RVProviderType[];
     set addDataSourceEnabledProviders(v: RVProviderType[]);
+    /**
+    * This property allows customization of the grouping separator that appears between the category and field name. The default character used is "/" (forward slash).
+    *
+    * ```javascript
+    * revealView.categoryGroupingSeparator = " - ";
+    *```
+    */
+    categoryGroupingSeparator: string | null;
 }
 
 class FiltersArray extends Array<RVDashboardFilter> {
@@ -1417,6 +1631,22 @@ class RevealDashboardThumbnailView {
     private _updateThumbnail;
 }
 //# sourceMappingURL=revealDashboardThumbnailView.d.ts.map
+
+enum SupportedLocales {
+    En = "en",
+    De = "de",
+    Es = "es",
+    Fr = "fr",
+    It = "it",
+    Ja = "ja",
+    Ko = "ko",
+    Ms = "ms",
+    Nl = "nl",
+    Pt = "pt",
+    Ru = "ru",
+    ZhCn = "zh-cn",
+    ZhTw = "zh-tw"
+}
 
 /**
  * Provides context information for a localization request.
@@ -1823,6 +2053,8 @@ enum RVMapImageryType {
 
 /** This class is used to specify global settings for the SDK. */
 class RevealSdkSettings {
+    private static _oAuthAuthenticatedBaseUrl;
+    private static _localizationService;
     /** @ignore */
     constructor();
     /** Get/sets the theme to be used by {@link RevealView} when rendering a dashboard.
@@ -1832,12 +2064,25 @@ class RevealSdkSettings {
     static set theme(theme: RevealTheme);
     static set enableBetaFeatures(value: boolean);
     static get enableBetaFeatures(): boolean;
+    static set enableNewCharts(value: boolean);
+    static get enableNewCharts(): boolean;
     /**
-     * Set the base url where reveal sdk server component is running.
+     * Set the base url where Reveal SDK Server component is running.
      * You'll need to use this in cases where the backend and the front-end are served from different urls.
      * @param base address of the reveal server component.
      */
     static setBaseUrl(base: string): void;
+    /**
+     * Set the base url that will be used to redirect the final OAuth authentication step, /oauth/authenticated will be added to the provided URL.
+     * This is usually just a fake URL that is used only to detect the authentication completed and to get the token ID to be used in the next
+     * step of the authentication flow.
+     * By default this URL is set to the same value specified with setBaseUrl, you might need to change it if your backend and frontend
+     * are running on separate base URLs, as this URL needs to match the frontend URL so some JS scripts can run properly.
+     * You might need to put a valid web page under {base}/oauth/authenticated/* so the browser doesn't display an error when redirected to this URL.
+     * @param base The URL to use as the base URL for OAuth authentication complete.
+     */
+    static setOAuthAuthenticatedBaseUrl(base: string): void;
+    static getOAuthAuthenticatedBaseUrl(): string | null;
     private static _measuringHostElement;
     /**
      * Specifies a dom element that could host few invisible helper span elements, which are used
@@ -1878,7 +2123,7 @@ class RevealSdkSettings {
      *});
      *```
     */
-    static setAdditionalHeadersProvider(provider: (url: string) => Record<string, any>): void;
+    static setAdditionalHeadersProvider(provider: (url: string) => Record<string, any> | null): void;
     /**
      * Configures if the AJAX requests sent by Reveal to the backend should include authentication cookies or not.
      * You might need to set this flag to true when your backend uses cookies for authentication and session handling and the frontend
@@ -1914,6 +2159,17 @@ class RevealSdkSettings {
      * @returns The formatting to apply to the given field. If null, the original formatting will be applied.
      */
     static fieldFormattingSettingsProvider: (desc: RVFieldFormattingDescriptor, fmtContext: RVFormattingContext) => RVFormattingSpec | null;
+    /** Returns the current locale to be used to localize Reveal Sdk UI. */
+    static getCurrentLocale(): SupportedLocales;
+    /** Overrides current localization locale, which is picked up by the browser's, by default.
+     *  Make sure you await the promise before overriding the locale again.
+     *  Supported locales are "de","es",	"fr",	"it",	"ja",	"ko",	"ms",	"nl",	"pt",	"ru",	"zh-cn" and "zh-tw".
+     *
+     * ```javascript
+     * await RevealApi.RevealSdkSettings.overrideLocale(RevealApi.SupportedLocales.De);
+     * ```
+     * */
+    static overrideLocale(locale: SupportedLocales): Promise<void>;
 }
 
 /** Utility class used to load dashboards. */
@@ -1949,8 +2205,6 @@ class RevealUtility {
     static _listContains(list: any[], value: any): Boolean;
     /** @hidden */
     static _forAllElements(list: any[], pos: number, eachBlock: (item: any, completed: () => void) => void, endBlock: () => void): void;
-    /** @hidden */
-    static _transformToWrappers(revealDsObj: any): any;
     /** @hidden */
     static _convertDataSource(ds: any): any;
     /** @hidden */
@@ -1990,10 +2244,37 @@ class FilterChangedEventArgs {
 //# sourceMappingURL=filterChangedEventArgs.d.ts.map
 
 /**
+ * Class representing the event arguments for VisualizationDataLoading event
+ * @see {@link RevealView.onVisualizationDataLoading}
+ */
+class VisualizationDataLoadingEventArgs {
+    /**
+     * Set this to true to cancel loading data for the visualization
+     */
+    cancel: boolean;
+    /**
+     * The visualization loading data
+     */
+    visualization: RVVisualization;
+    /**
+     * The error message to display to the end user in the visualization
+     */
+    errorMessage: string | null;
+    /** @ignore */
+    constructor(visualization: RVVisualization);
+}
+//# sourceMappingURL=visualizationDataLoadingEventArgs.d.ts.map
+
+/**
  * The data source object used to represent the local files data source, there are no additional properties in this class
  * as all relevant information is specified in the {@link RVLocalFileDataSourceItem} object.
  */
 class RVLocalFileDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -2002,7 +2283,11 @@ class RVLocalFileDataSource extends RVDashboardDataSource {
 
 /** The local file data source item, used to load files from local storage. */
 class RVLocalFileDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor();
+    /** @hidden */
+    toJson(): any;
     private _uri;
     /** The URI referencing the file, like local://Directory/File.csv. */
     get uri(): nullableString;
@@ -2018,6 +2303,10 @@ class RVLocalFileDataSourceItem extends RVDataSourceItem {
  */
 class RVExcelRange {
     constructor(locX: number, locY: number, lenX: number, lenY: number);
+    /** @hidden */
+    static fromJson(json: any): RVExcelRange | null;
+    /** @hidden */
+    toJson(): any;
     private _locationX;
     get locationX(): number;
     private _locationY;
@@ -2035,8 +2324,15 @@ class RVExcelRange {
  * as all relevant information is specified in the RVExcelDataSourceItem object.
  */
 class RVExcelDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    constructor(json: any);
+    /** @hidden */
+    toJson(): any;
     /** @hidden */
     getType(): string;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     _getWrapper(): any;
 }
@@ -2049,6 +2345,8 @@ class RVExcelDataSource extends RVDashboardDataSource {
  */
 abstract class RVResourceBasedDataSourceItem extends RVDataSourceItem {
     constructor(dataSource: RVDashboardDataSource, resourceItem: RVDataSourceItem);
+    /** @hidden */
+    toJson(): any;
     private _resourceItem;
     /**
      * The resource item used to get the data for the referenced file, must be an item from one of the resource providers: Sharepoint, Web Resource, REST API, etc.
@@ -2067,7 +2365,11 @@ type nullableExcelRange = RVExcelRange | null;
  * name of the sheet to get data from and the range to use when loading data.
  */
 class RVExcelDataSourceItem extends RVResourceBasedDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(resourceItem: RVDataSourceItem);
+    /** @hidden */
+    toJson(): any;
     private _sheet;
     /**
      * Name of the sheet in the worksheet to get the data from, if not specified and @see NamedRange is null,
@@ -2119,6 +2421,10 @@ abstract class RVSqlBasedDataSource extends RVDashboardDataSource {
     get port(): number;
     set port(value: number);
     /** @hidden */
+    constructor(json?: any);
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
     _getWrapper(): any;
 }
 
@@ -2137,7 +2443,9 @@ abstract class RVSqlPDSDataSource extends RVSqlBasedDataSource {
     get processDataOnServerReadOnly(): boolean;
     set processDataOnServerReadOnly(value: boolean);
     /** @hidden */
-    constructor();
+    constructor(json?: any);
+    /** @hidden */
+    toJson(): any;
     /** @hidden */
     _getWrapper(): any;
 }
@@ -2150,6 +2458,12 @@ class RVSqlServerDataSource extends RVSqlPDSDataSource {
     set database(value: nullableString);
     constructor();
     /** @hidden */
+    constructor(json: any);
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
+    /** @hidden */
     getType(): string;
     /** @hidden */
     _getWrapper(): any;
@@ -2159,7 +2473,11 @@ class RVSqlServerDataSource extends RVSqlPDSDataSource {
  * The base item class used to represent a dataset from one of the supported database systems.
  */
 abstract class RVSqlBasedDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVDashboardDataSource);
+    /** @hidden */
+    toJson(): any;
     private _database;
     /**
      * Name of the database to connect to, optional as this value is usually specified in the data source object.
@@ -2183,7 +2501,11 @@ abstract class RVSqlBasedDataSourceItem extends RVDataSourceItem {
 }
 
 abstract class RVSqlPDSDataSourceItem extends RVSqlBasedDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVSqlPDSDataSource);
+    /** @hidden */
+    toJson(): any;
     private _processDataOnServer;
     /**
      * Configures if the "Process Data on Server" option is turned on for this item (table or view), defaults to "true"
@@ -2196,7 +2518,11 @@ abstract class RVSqlPDSDataSourceItem extends RVSqlBasedDataSourceItem {
 
 /** Microsoft SQL Server data source item */
 class RVSqlServerDataSourceItem extends RVSqlPDSDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVSqlServerDataSource);
+    /** @hidden */
+    toJson(): any;
     private _schema;
     /** Name of the schema the referenced table belongs to */
     get schema(): nullableString;
@@ -2220,6 +2546,11 @@ class RVSqlServerDataSourceItem extends RVSqlPDSDataSourceItem {
 /** Web resource data source, used to download files from HTTP URL using GET method.
  * See {@link RVRESTDataSource} to use other HTTP methods or to customize parameters, headers and body to sent. */
 class RVWebResourceDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _url;
     /** URL to the web resource, is expected to be a URL with HTTP or HTTPS scheme. */
     get url(): nullableString;
@@ -2237,7 +2568,11 @@ class RVWebResourceDataSource extends RVDashboardDataSource {
 
 /** Web resource data source item, see {@link RVWebResourceDataSource} for more information. */
 class RVWebResourceDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVWebResourceDataSource);
+    /** @hidden */
+    toJson(): any;
     private _url;
     /** URL to use to download the file. Must match the URL specified in the {@link RVWebResourceDataSource} data source object.  */
     get url(): nullableString;
@@ -2255,6 +2590,8 @@ class RVWebResourceDataSourceItem extends RVDataSourceItem {
 class RVCsvDataSource extends RVDashboardDataSource {
     /** @hidden */
     getType(): string;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     _getWrapper(): any;
 }
@@ -2293,11 +2630,15 @@ class RVCsvDataSourceItem extends RVResourceBasedDataSourceItem {
 
 /** MySQL data source */
 class RVMySqlDataSource extends RVSqlPDSDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _database;
     /** Name of the database to connect to. */
     get database(): nullableString;
     set database(value: nullableString);
-    constructor();
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -2306,7 +2647,11 @@ class RVMySqlDataSource extends RVSqlPDSDataSource {
 
 /** MySQL data source item */
 class RVMySqlDataSourceItem extends RVSqlPDSDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVMySqlDataSource);
+    /** @hidden */
+    toJson(): any;
     /** @hidden */
     getType(): string;
 }
@@ -2315,6 +2660,11 @@ class RVMySqlDataSourceItem extends RVSqlPDSDataSourceItem {
  * Amazon Athena data source
  */
 class RVAthenaDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _region;
     /**
      * Region for the service. See the list of supported values in https://docs.aws.amazon.com/general/latest/gr/rande.html.
@@ -2355,7 +2705,11 @@ class RVAthenaDataSource extends RVDashboardDataSource {
  * Amazon Athena data source item.
  */
 class RVAthenaDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVAthenaDataSource);
+    /** @hidden */
+    toJson(): any;
     private _table;
     /**
      * Table or view for this datasource item.
@@ -2370,6 +2724,11 @@ class RVAthenaDataSourceItem extends RVDataSourceItem {
 
 /** Amazon S3 data source */
 class RVS3DataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _region;
     /**Region for the service. See the list of supported values in https://docs.aws.amazon.com/general/latest/gr/rande.html. */
     get region(): nullableString;
@@ -2382,7 +2741,11 @@ class RVS3DataSource extends RVDashboardDataSource {
 
 /** Amazon S3 data source item. */
 class RVS3DataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVS3DataSource);
+    /** @hidden */
+    toJson(): any;
     private _path;
     /** S3 path for the file represented by this item. For example: 's3://my-bucket/path/to/file.csv' */
     get path(): nullableString;
@@ -2395,6 +2758,11 @@ class RVS3DataSourceItem extends RVDataSourceItem {
 
 /** QuickBooks data source */
 class RVQuickBooksDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     _realmId: nullableString;
     /** Realm Id, the unique ID identifying a specific QuickBooks company. */
     get realmId(): nullableString;
@@ -2407,7 +2775,11 @@ class RVQuickBooksDataSource extends RVDashboardDataSource {
 
 /** QuickBooks data source item */
 class RVQuickBooksDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVQuickBooksDataSource);
+    /** @hidden */
+    toJson(): any;
     _entity: nullableString;
     /** QuickBooks Entity  */
     get entity(): nullableString;
@@ -2423,6 +2795,11 @@ class RVQuickBooksDataSourceItem extends RVDataSourceItem {
  * as all relevant information is specified in the {@link RVInMemoryDataSourceItem} object
  */
 class RVInMemoryDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -2457,6 +2834,11 @@ class RVPostgresDataSource extends RVSqlPDSDataSource {
     /** Name of the schema to use. */
     get schema(): nullableString;
     set schema(value: nullableString);
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -2465,7 +2847,11 @@ class RVPostgresDataSource extends RVSqlPDSDataSource {
 
 /** PostgreSQL data source item */
 class RVPostgresDataSourceItem extends RVSqlPDSDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVPostgresDataSource);
+    /** @hidden */
+    toJson(): any;
     private _schema;
     /** Name of the schema the referenced table belongs to */
     get schema(): nullableString;
@@ -2488,6 +2874,11 @@ class RVPostgresDataSourceItem extends RVSqlPDSDataSourceItem {
 class RVRedshiftDataSource extends RVSqlBasedDataSource {
     private _database;
     private _schema;
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** Name of the database to connect to. */
     get database(): nullableString;
     set database(value: nullableString);
@@ -2502,7 +2893,11 @@ class RVRedshiftDataSource extends RVSqlBasedDataSource {
 
 /** Amazon Redshift data source item */
 class RVRedshiftDataSourceItem extends RVSqlBasedDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVRedshiftDataSource);
+    /** @hidden */
+    toJson(): any;
     private _schema;
     /** Name of the schema the referenced table belongs to */
     get schema(): nullableString;
@@ -2523,6 +2918,11 @@ class RVRedshiftDataSourceItem extends RVSqlBasedDataSourceItem {
 
 /** Microsoft Reporting Services (MS SSRS) data source */
 class RVReportingServicesDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _url;
     /** URL to the server */
     get url(): nullableString;
@@ -2561,7 +2961,11 @@ enum RVReportingServicesRenderMode {
 
 /** Microsoft Reporting Services (MS SSRS) data source item */
 class RVReportingServicesDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVReportingServicesDataSource);
+    /** @hidden */
+    toJson(): any;
     private _path;
     /** Path to the report */
     get path(): nullableString;
@@ -2587,6 +2991,12 @@ class RVReportingServicesDataSourceItem extends RVDataSourceItem {
  * Abstract base class for Microsoft Analysis Services (MS SSAS) data sources
  */
 abstract class RVAnalysisServicesDataSource extends RVDashboardDataSource {
+    /** @hidden */
+    constructor(json?: any);
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _catalog;
     /**
     * The name of the catalog (database) to use.
@@ -2601,6 +3011,10 @@ abstract class RVAnalysisServicesDataSource extends RVDashboardDataSource {
  * Microsoft Azure Analysis Services data source
  */
 class RVAzureAnalysisServicesDataSource extends RVAnalysisServicesDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    getProviderKey(): string;
     private _serverUrl;
     /**
     * Server URL, including the 'asazure://' prefix (scheme).
@@ -2617,6 +3031,9 @@ class RVAzureAnalysisServicesDataSource extends RVAnalysisServicesDataSource {
  * Microsoft Analysis Services (MS SSAS) HTTP connection data source
  */
 class RVHttpAnalysisServicesDataSource extends RVAnalysisServicesDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
     private _url;
     get url(): nullableString;
     /**
@@ -2633,6 +3050,9 @@ class RVHttpAnalysisServicesDataSource extends RVAnalysisServicesDataSource {
  * Microsoft Analysis Services (MS SSAS) TCP connection data source
  */
 class RVNativeAnalysisServicesDataSource extends RVAnalysisServicesDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
     private _host;
     /**
      * Hostname or IP address of the server
@@ -2655,7 +3075,11 @@ class RVNativeAnalysisServicesDataSource extends RVAnalysisServicesDataSource {
  * Microsoft Analysis Services (MS SSAS) item, specifies the cube to get data from.
  */
 class RVAnalysisServicesDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVAnalysisServicesDataSource);
+    /** @hidden */
+    toJson(): any;
     private _catalog;
     /**
      * The name of the catalog (database) containing the cube.
@@ -2678,6 +3102,8 @@ class RVAnalysisServicesDataSourceItem extends RVDataSourceItem {
  * Azure SQL Server data source
  */
 class RVAzureSqlDataSource extends RVSqlServerDataSource {
+    constructor();
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -2688,6 +3114,8 @@ class RVAzureSqlDataSource extends RVSqlServerDataSource {
  * Azure SQL Server data source item
  */
 class RVAzureSqlDataSourceItem extends RVSqlServerDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVAzureSqlDataSource);
     /** @hidden */
     getType(): string;
@@ -2699,6 +3127,8 @@ class RVAzureSqlDataSourceItem extends RVSqlServerDataSourceItem {
  * Azure Synapse data source
  */
 class RVAzureSynapseDataSource extends RVSqlServerDataSource {
+    constructor();
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -2709,6 +3139,8 @@ class RVAzureSynapseDataSource extends RVSqlServerDataSource {
  * Azure Synapse data source item
  */
 class RVAzureSynapseDataSourceItem extends RVSqlServerDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVAzureSynapseDataSource);
     /** @hidden */
     getType(): string;
@@ -2726,6 +3158,11 @@ class RVBigQueryDataSource extends RVDashboardDataSource {
      */
     get projectId(): nullableString;
     set projectId(value: nullableString);
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -2736,7 +3173,11 @@ class RVBigQueryDataSource extends RVDashboardDataSource {
  * BigQuery data source item
  */
 class RVBigQueryDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVBigQueryDataSource);
+    /** @hidden */
+    toJson(): any;
     private _projectId;
     /**
      * BigQuery ProjectId
@@ -2763,6 +3204,11 @@ class RVBigQueryDataSourceItem extends RVDataSourceItem {
 
 /** REST API data source, configures the URL to get data from, HTTP method to use and optionally headers and body to send in the request. */
 class RVRESTDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _url;
     /** URL to the web resource, is expected to be a URL with HTTP or HTTPS scheme.
      * Parameters might be specified using the notation {parameterName}, for example: http://server/customers/{CustomerID} defines a "CustomerID" parameter
@@ -2798,7 +3244,11 @@ class RVRESTDataSource extends RVDashboardDataSource {
 
 /** REST API data source item */
 class RVRESTDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVRESTDataSource);
+    /** @hidden */
+    toJson(): any;
     private _parameters;
     /** Values for the parameters specified in the data source {@link RVRESTDataSource.url} property. */
     get parameters(): any;
@@ -2818,6 +3268,11 @@ class RVRESTDataSourceItem extends RVDataSourceItem {
  * as all relevant information is specified in the {@link RVJsonDataSourceItem} object.
  */
 class RVJsonDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -2826,7 +3281,11 @@ class RVJsonDataSource extends RVDashboardDataSource {
 
 /** The data source item used to represent a dataset from a JSON file, it includes the optional parsing configuration. */
 class RVJsonDataSourceItem extends RVResourceBasedDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(resourceItem: RVDataSourceItem);
+    /** @hidden */
+    toJson(): any;
     private _config;
     /** The configuration of the JSON parser. */
     get config(): nullableString;
@@ -2838,9 +3297,33 @@ class RVJsonDataSourceItem extends RVResourceBasedDataSourceItem {
 }
 
 /**
+ * A helper object that can be used to create a configuration for a JSON data source item.
+ */
+class RVJsonSchemaConfigBuilder {
+    _columnsConfig: Array<any>;
+    _iterationDepth: number;
+    constructor();
+    setIterationDepth(v: number): RVJsonSchemaConfigBuilder;
+    addStringField(key: string): RVJsonSchemaConfigBuilder;
+    addNumericField(key: string): RVJsonSchemaConfigBuilder;
+    addDateField(key: string, dateFormat: string): RVJsonSchemaConfigBuilder;
+    addDateTimeField(key: string, dateFormat: string): RVJsonSchemaConfigBuilder;
+    build(): string;
+    /** @hidden */
+    static _createColumnConfig(type: number, key: string): any;
+    /** @hidden */
+    static _createDateBasedColumnConfig(type: number, key: string, dateFormat: string): any;
+}
+
+/**
  * Box data source
  */
 class RVBoxDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -2851,7 +3334,11 @@ class RVBoxDataSource extends RVDashboardDataSource {
  * Box data source item, referencing a file in Box (box.net)
  */
 class RVBoxDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor();
+    /** @hidden */
+    toJson(): any;
     private _identifier;
     /**
      * Identifier of the file referenced by this item
@@ -2868,6 +3355,11 @@ class RVBoxDataSourceItem extends RVDataSourceItem {
  * Dropbox data source
  */
 class RVDropboxDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -2878,7 +3370,11 @@ class RVDropboxDataSource extends RVDashboardDataSource {
  * Dropbox data source item, referencing a file in Dropbox
  */
 class RVDropboxDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor();
+    /** @hidden */
+    toJson(): any;
     private _path;
     /**
      * Path to the file in Dropbox account
@@ -2893,13 +3389,22 @@ class RVDropboxDataSourceItem extends RVDataSourceItem {
 
 /** OneDrive data source */
 class RVOneDriveDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
 }
 
 /** OneDrive data source item, referencing a file in OneDrive. */
 class RVOneDriveDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor();
+    /** @hidden */
+    toJson(): any;
     private _identifier;
     /** Identifier of the file in OneDrive. */
     get identifier(): nullableString;
@@ -2914,6 +3419,11 @@ class RVOneDriveDataSourceItem extends RVDataSourceItem {
  * Dynamics CRM data source, specifies the URL to the server.
  */
 class RVDynamicsCrmDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _url;
     /**
      * Dynamics CRM base URL
@@ -2930,7 +3440,11 @@ class RVDynamicsCrmDataSource extends RVDashboardDataSource {
  * Dynamics CRM data source item
  */
 class RVDynamicsCrmDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVDynamicsCrmDataSource);
+    /** @hidden */
+    toJson(): any;
     private _organization;
     /**
      * Name of the organization to use
@@ -2957,6 +3471,11 @@ class RVDynamicsCrmDataSourceItem extends RVDataSourceItem {
 
 /** OData data source, configures the URL to get data from. */
 class RVODataDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _url;
     /** URL to the OData endpoint, is expected to be a URL with HTTP or HTTPS scheme. */
     get url(): nullableString;
@@ -2973,7 +3492,11 @@ class RVODataDataSource extends RVDashboardDataSource {
 
 /** OData data source item, see  {@link RVODataDataSource} for more information. */
 class RVODataDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVODataDataSource);
+    /** @hidden */
+    toJson(): any;
     private _url;
     /** URL to the OData endpoint. Must match the URL specified in the {@link RVODataDataSource} data source object. */
     get url(): nullableString;
@@ -2988,6 +3511,11 @@ class RVODataDataSourceItem extends RVDataSourceItem {
  * Google Drive data source
  */
 class RVGoogleDriveDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -2998,7 +3526,11 @@ class RVGoogleDriveDataSource extends RVDashboardDataSource {
  * Google Drive data source item, referencing a file in Google Drive
  */
 class RVGoogleDriveDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor();
+    /** @hidden */
+    toJson(): any;
     private _identifier;
     /**
      * Identifier of the file referenced by this item
@@ -3016,6 +3548,10 @@ class RVGoogleDriveDataSourceItem extends RVDataSourceItem {
  *  as all relevant information is specified in the {@link RVGoogleSheetDataSourceItem} object.
  */
 class RVGoogleSheetDataSource extends RVExcelDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -3027,6 +3563,8 @@ class RVGoogleSheetDataSource extends RVExcelDataSource {
  * name of the sheet to get data from and the range to use when loading data.
  */
 class RVGoogleSheetDataSourceItem extends RVExcelDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(resourceItem: RVDataSourceItem);
     /** @hidden */
     getType(): string;
@@ -3038,6 +3576,11 @@ class RVGoogleSheetDataSourceItem extends RVExcelDataSourceItem {
  * Google Analytics data source
  */
 class RVGoogleAnalyticsDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -3058,6 +3601,10 @@ enum RVGoogleAnalyticsResourceType {
 /** Google Analytics data source item. */
 class RVGoogleAnalyticsDataSourceItem extends RVDataSourceItem {
     constructor();
+    /** @hidden */
+    constructor(json: any);
+    /** @hidden */
+    toJson(): any;
     private _resource;
     /** The type of resource, one of "Profiles" (the list of profiles in the account) or "Report" (to get analytics data). */
     get resource(): RVGoogleAnalyticsResourceType;
@@ -3097,9 +3644,46 @@ class RVGoogleAnalyticsDataSourceItem extends RVDataSourceItem {
 }
 
 /**
+ * Google Search console data source
+ */
+class RVGoogleSearchConsoleDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
+    /** @hidden */
+    getType(): string;
+    /** @hidden */
+    _getWrapper(): any;
+}
+
+/** Google Search Console data source item. */
+class RVGoogleSearchConsoleDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
+    constructor(dataSource: RVGoogleSearchConsoleDataSource);
+    /** @hidden */
+    toJson(): any;
+    private _siteUrl;
+    /** The URL of the property as defined in Search Console */
+    get siteUrl(): nullableString;
+    set siteUrl(value: nullableString);
+    /** @hidden */
+    getType(): string;
+    /** @hidden */
+    _getWrapper(): any;
+}
+
+/**
  * HubSpot data source
  */
 class RVHubspotDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** @hidden */
     getType(): string;
     /** @hidden */
@@ -3111,6 +3695,10 @@ class RVHubspotDataSource extends RVDashboardDataSource {
  */
 class RVHubspotDataSourceItem extends RVDataSourceItem {
     constructor();
+    /** @hidden */
+    constructor(json: any);
+    /** @hidden */
+    toJson(): any;
     private _entity;
     /**
      * Entity to retrieve data from
@@ -3137,6 +3725,11 @@ class RVHubspotDataSourceItem extends RVDataSourceItem {
 
 /** Marketo data source, configures the URL to get data from. */
 class RVMarketoDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _url;
     /** URL to the login endpoint */
     get url(): nullableString;
@@ -3149,7 +3742,11 @@ class RVMarketoDataSource extends RVDashboardDataSource {
 
 /** Marketo data source item, see  {@link RVMarketoDataSource} for more information. */
 class RVMarketoDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVMarketoDataSource);
+    /** @hidden */
+    toJson(): any;
     private _url;
     /** URL to the Marketo endpoint. Must match the URL specified in the {@link RVMarketoDataSource} data source object. */
     get url(): nullableString;
@@ -3196,6 +3793,11 @@ enum RVSharePointAuthenticationMethod {
 
 /** SharePoint data source, contains the URL to the SharePoint site to use. */
 class RVSharePointDataSource extends RVDashboardDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _url;
     /** URL to the SharePoint site (or sub site) to use */
     get url(): nullableString;
@@ -3214,12 +3816,24 @@ class RVSharePointDataSource extends RVDashboardDataSource {
 
 /** The base abstract class for data source items from SharePoint. */
 abstract class RVBaseSharePointDataSourceItem extends RVDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVSharePointDataSource);
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    abstract getSharePointItemType(): string;
 }
 
 /** Data source item to get data from a SharePoint list */
 class RVSharePointListDataSourceItem extends RVBaseSharePointDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVSharePointDataSource);
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getSharePointItemType(): string;
     private _webUrl;
     /** URL to the site containing the list */
     get webUrl(): nullableString;
@@ -3248,7 +3862,13 @@ class RVSharePointListDataSourceItem extends RVBaseSharePointDataSourceItem {
 
 /** Data source item to get data from a single item in a SharePoint list. */
 class RVSharePointListItemDataSourceItem extends RVBaseSharePointDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVSharePointDataSource);
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getSharePointItemType(): string;
     private _webUrl;
     /** URL to the site containing the list */
     get webUrl(): nullableString;
@@ -3285,7 +3905,13 @@ class RVSharePointListItemDataSourceItem extends RVBaseSharePointDataSourceItem 
 
 /** Data source item to get data from people in SharePoint */
 class RVSharePointPeopleDataSourceItem extends RVBaseSharePointDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVSharePointDataSource);
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getSharePointItemType(): string;
     private _userId;
     /** Optional user id when a single user should be displayed */
     get userId(): nullableString;
@@ -3298,7 +3924,13 @@ class RVSharePointPeopleDataSourceItem extends RVBaseSharePointDataSourceItem {
 
 /** Data source item to show information from a site (or sub site) */
 class RVSharePointSiteDataSourceItem extends RVBaseSharePointDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVSharePointDataSource);
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getSharePointItemType(): string;
     private _webUrl;
     /** URL to the site or sub site. */
     get webUrl(): nullableString;
@@ -3313,6 +3945,13 @@ class RVSharePointSiteDataSourceItem extends RVBaseSharePointDataSourceItem {
  * @hidden
  */
 abstract class RVOracleDataSource extends RVSqlBasedDataSource {
+    constructor();
+    /** @hidden */
+    constructor(json: any);
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _database;
     /** Name of the database to connect to. */
     get database(): nullableString;
@@ -3325,6 +3964,8 @@ abstract class RVOracleDataSource extends RVSqlBasedDataSource {
 
 /** Oracle data source item */
 class RVOracleDataSourceItem extends RVSqlBasedDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVOracleDataSource);
     /** @hidden */
     getType(): string;
@@ -3332,6 +3973,9 @@ class RVOracleDataSourceItem extends RVSqlBasedDataSourceItem {
 
 /** Oracle data source, it adds the SID property to the base properties inherited from the abstract class RVOracleDataSource. */
 class RVOracleSIDDataSource extends RVOracleDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
     private _sID;
     get sID(): nullableString;
     set sID(value: nullableString);
@@ -3343,6 +3987,9 @@ class RVOracleSIDDataSource extends RVOracleDataSource {
 
 /** Oracle data source, it adds the Service name property to the base properties inherited from the abstract class RVOracleDataSource. */
 class RVOracleServiceDataSource extends RVOracleDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
     private _service;
     /**Service name to use when connecting to Oracle server. */
     get service(): nullableString;
@@ -3355,6 +4002,11 @@ class RVOracleServiceDataSource extends RVOracleDataSource {
 
 /** Sybase data source, it adds the database name property to the base properties inherited from the abstract class RVSqlBasedDataSource.  */
 class RVSyBaseDataSource extends RVSqlBasedDataSource {
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     private _database;
     /** Name of the database to connect to.  */
     get database(): nullableString;
@@ -3367,7 +4019,11 @@ class RVSyBaseDataSource extends RVSqlBasedDataSource {
 
 /** Sybase data source item */
 class RVSyBaseDataSourceItem extends RVSqlBasedDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVSyBaseDataSource);
+    /** @hidden */
+    toJson(): any;
     private _schema;
     /** Name of the schema the referenced table belongs to. */
     get schema(): nullableString;
@@ -3384,20 +4040,28 @@ class RVSyBaseDataSourceItem extends RVSqlBasedDataSourceItem {
 class RVSnowflakeDataSource extends RVSqlPDSDataSource {
     private _database;
     private _account;
+    constructor();
+    /** @hidden */
+    toJson(): any;
+    /** @hidden */
+    getProviderKey(): string;
     /** Name of the database to connect to. */
     get database(): nullableString;
     set database(value: nullableString);
     /** Snowflake account, needed only when using WPF or .NET, not needed for Java SDK. */
     get account(): nullableString;
     set account(value: nullableString);
-    constructor();
     getType(): string;
     _getWrapper(): any;
 }
 
 /**Snowflake data source item. */
 class RVSnowflakeDataSourceItem extends RVSqlPDSDataSourceItem {
+    /** @hidden */
+    constructor(json: any);
     constructor(dataSource: RVSnowflakeDataSource);
+    /** @hidden */
+    toJson(): any;
     private _schema;
     /** Name of the schema the referenced table belongs to */
     get schema(): nullableString;
@@ -3408,4 +4072,151 @@ class RVSnowflakeDataSourceItem extends RVSqlPDSDataSourceItem {
     _getWrapper(): any;
 }}
 
-	
+	declare interface ig {
+	SupportedLocales: typeof RevealApi.SupportedLocales;
+	RVCell: typeof RevealApi.RVCell;
+	RVVisualization: typeof RevealApi.RVVisualization;
+	VisualizationsArray: typeof RevealApi.VisualizationsArray;
+	RVDashboard: typeof RevealApi.RVDashboard;
+	RVConditionalFormatting: typeof RevealApi.RVConditionalFormatting;
+	RevealTheme: typeof RevealApi.RevealTheme;
+	MountainDarkTheme: typeof RevealApi.MountainDarkTheme;
+	MountainLightTheme: typeof RevealApi.MountainLightTheme;
+	OceanDarkTheme: typeof RevealApi.OceanDarkTheme;
+	OceanLightTheme: typeof RevealApi.OceanLightTheme;
+	RevealView: typeof RevealApi.RevealView;
+	RevealDashboardThumbnailView: typeof RevealApi.RevealDashboardThumbnailView;
+	RVChartType: typeof RevealApi.RVChartType;
+	RVProviderType: typeof RevealApi.RVProviderType;
+	RevealSdkSettings: typeof RevealApi.RevealSdkSettings;
+	VisualizationsConfiguration: typeof RevealApi.VisualizationsConfiguration;
+	MapVisualizationsConfiguration: typeof RevealApi.MapVisualizationsConfiguration;
+	ScatterMapVisualizationsConfiguration: typeof RevealApi.ScatterMapVisualizationsConfiguration;
+	RVMapImageryType: typeof RevealApi.RVMapImageryType;
+	RVDashboardFilter: typeof RevealApi.RVDashboardFilter;
+	RVDateFilterType: typeof RevealApi.RVDateFilterType;
+	RVDateDashboardFilter: typeof RevealApi.RVDateDashboardFilter;
+	RVDateRange: typeof RevealApi.RVDateRange;
+	RVFilterValue: typeof RevealApi.RVFilterValue;
+	RevealUtility: typeof RevealApi.RevealUtility;
+	RVChartSettings: typeof RevealApi.RVChartSettings;
+	RVDataSourcesRequestedTriggerType: typeof RevealApi.RVDataSourcesRequestedTriggerType;
+	FiltersArray: typeof RevealApi.FiltersArray;
+	VisualizationEditorOpeningArgs: typeof RevealApi.VisualizationEditorOpeningArgs;
+	VisualizationEditorOpenedEventArgs: typeof RevealApi.VisualizationEditorOpenedEventArgs;
+	ChartInteractionEventArgs: typeof RevealApi.ChartInteractionEventArgs;
+	DashboardSaveEventArgs: typeof RevealApi.DashboardSaveEventArgs;
+	VisualizationEditorClosingArgs: typeof RevealApi.VisualizationEditorClosingArgs;
+	VisualizationEditorClosedEventArgs: typeof RevealApi.VisualizationEditorClosedEventArgs;
+	FilterChangedEventArgs: typeof RevealApi.FilterChangedEventArgs;
+	DataSourceSelectionEventArgs: typeof RevealApi.DataSourceSelectionEventArgs;
+	RVDataSourceSelection: typeof RevealApi.RVDataSourceSelection;
+	VisualizationDataLoadingEventArgs: typeof RevealApi.VisualizationDataLoadingEventArgs;
+	RVLocalFileDataSource: typeof RevealApi.RVLocalFileDataSource;
+	RVLocalFileDataSourceItem: typeof RevealApi.RVLocalFileDataSourceItem;
+	RVExcelRange: typeof RevealApi.RVExcelRange;
+	RVExcelDataSource: typeof RevealApi.RVExcelDataSource;
+	RVExcelDataSourceItem: typeof RevealApi.RVExcelDataSourceItem;
+	RVSqlServerDataSource: typeof RevealApi.RVSqlServerDataSource;
+	RVSqlServerDataSourceItem: typeof RevealApi.RVSqlServerDataSourceItem;
+	RVWebResourceDataSource: typeof RevealApi.RVWebResourceDataSource;
+	RVWebResourceDataSourceItem: typeof RevealApi.RVWebResourceDataSourceItem;
+	RVCsvDataSource: typeof RevealApi.RVCsvDataSource;
+	RVCsvDataSourceItem: typeof RevealApi.RVCsvDataSourceItem;
+	RVMySqlDataSource: typeof RevealApi.RVMySqlDataSource;
+	RVMySqlDataSourceItem: typeof RevealApi.RVMySqlDataSourceItem;
+	RVAthenaDataSource: typeof RevealApi.RVAthenaDataSource;
+	RVAthenaDataSourceItem: typeof RevealApi.RVAthenaDataSourceItem;
+	RVS3DataSource: typeof RevealApi.RVS3DataSource;
+	RVS3DataSourceItem: typeof RevealApi.RVS3DataSourceItem;
+	RVQuickBooksDataSource: typeof RevealApi.RVQuickBooksDataSource;
+	RVQuickBooksDataSourceItem: typeof RevealApi.RVQuickBooksDataSourceItem;
+	RVInMemoryDataSource: typeof RevealApi.RVInMemoryDataSource;
+	RVInMemoryDataSourceItem: typeof RevealApi.RVInMemoryDataSourceItem;
+	RVPostgresDataSource: typeof RevealApi.RVPostgresDataSource;
+	RVPostgresDataSourceItem: typeof RevealApi.RVPostgresDataSourceItem;
+	RVRedshiftDataSource: typeof RevealApi.RVRedshiftDataSource;
+	RVRedshiftDataSourceItem: typeof RevealApi.RVRedshiftDataSourceItem;
+	RVReportingServicesDataSource: typeof RevealApi.RVReportingServicesDataSource;
+	RVReportingServicesDataSourceItem: typeof RevealApi.RVReportingServicesDataSourceItem;
+	RVReportingServicesRenderMode: typeof RevealApi.RVReportingServicesRenderMode;
+	RVAzureAnalysisServicesDataSource: typeof RevealApi.RVAzureAnalysisServicesDataSource;
+	RVHttpAnalysisServicesDataSource: typeof RevealApi.RVHttpAnalysisServicesDataSource;
+	RVNativeAnalysisServicesDataSource: typeof RevealApi.RVNativeAnalysisServicesDataSource;
+	RVAnalysisServicesDataSourceItem: typeof RevealApi.RVAnalysisServicesDataSourceItem;
+	RVAzureSqlDataSource: typeof RevealApi.RVAzureSqlDataSource;
+	RVAzureSqlDataSourceItem: typeof RevealApi.RVAzureSqlDataSourceItem;
+	RVAzureSynapseDataSource: typeof RevealApi.RVAzureSynapseDataSource;
+	RVAzureSynapseDataSourceItem: typeof RevealApi.RVAzureSynapseDataSourceItem;
+	RVBigQueryDataSource: typeof RevealApi.RVBigQueryDataSource;
+	RVBigQueryDataSourceItem: typeof RevealApi.RVBigQueryDataSourceItem;
+	RVRESTDataSource: typeof RevealApi.RVRESTDataSource;
+	RVRESTDataSourceItem: typeof RevealApi.RVRESTDataSourceItem;
+	RVJsonDataSource: typeof RevealApi.RVJsonDataSource;
+	RVJsonDataSourceItem: typeof RevealApi.RVJsonDataSourceItem;
+	RVJsonSchemaConfigBuilder: typeof RevealApi.RVJsonSchemaConfigBuilder;
+	RVBoxDataSource: typeof RevealApi.RVBoxDataSource;
+	RVBoxDataSourceItem: typeof RevealApi.RVBoxDataSourceItem;
+	RVDropboxDataSource: typeof RevealApi.RVDropboxDataSource;
+	RVDropboxDataSourceItem: typeof RevealApi.RVDropboxDataSourceItem;
+	RVOneDriveDataSource: typeof RevealApi.RVOneDriveDataSource;
+	RVOneDriveDataSourceItem: typeof RevealApi.RVOneDriveDataSourceItem;
+	RVDynamicsCrmDataSource: typeof RevealApi.RVDynamicsCrmDataSource;
+	RVDynamicsCrmDataSourceItem: typeof RevealApi.RVDynamicsCrmDataSourceItem;
+	RVODataDataSource: typeof RevealApi.RVODataDataSource;
+	RVODataDataSourceItem: typeof RevealApi.RVODataDataSourceItem;
+	RVGoogleDriveDataSource: typeof RevealApi.RVGoogleDriveDataSource;
+	RVGoogleDriveDataSourceItem: typeof RevealApi.RVGoogleDriveDataSourceItem;
+	RVGoogleSheetDataSource: typeof RevealApi.RVGoogleSheetDataSource;
+	RVGoogleSheetDataSourceItem: typeof RevealApi.RVGoogleSheetDataSourceItem;
+	RVGoogleAnalyticsDataSource: typeof RevealApi.RVGoogleAnalyticsDataSource;
+	RVGoogleAnalyticsDataSourceItem: typeof RevealApi.RVGoogleAnalyticsDataSourceItem;
+	RVGoogleAnalyticsResourceType: typeof RevealApi.RVGoogleAnalyticsResourceType;
+	RVGoogleSearchConsoleDataSource: typeof RevealApi.RVGoogleSearchConsoleDataSource;
+	RVGoogleSearchConsoleDataSourceItem: typeof RevealApi.RVGoogleSearchConsoleDataSourceItem;
+	RVHubspotDataSource: typeof RevealApi.RVHubspotDataSource;
+	RVHubspotDataSourceItem: typeof RevealApi.RVHubspotDataSourceItem;
+	RVMarketoDataSource: typeof RevealApi.RVMarketoDataSource;
+	RVMarketoDataSourceItem: typeof RevealApi.RVMarketoDataSourceItem;
+	RVSharePointDataSource: typeof RevealApi.RVSharePointDataSource;
+	RVSharePointAuthenticationMethod: typeof RevealApi.RVSharePointAuthenticationMethod;
+	RVSharePointListDataSourceItem: typeof RevealApi.RVSharePointListDataSourceItem;
+	RVSharePointListItemDataSourceItem: typeof RevealApi.RVSharePointListItemDataSourceItem;
+	RVSharePointPeopleDataSourceItem: typeof RevealApi.RVSharePointPeopleDataSourceItem;
+	RVSharePointSiteDataSourceItem: typeof RevealApi.RVSharePointSiteDataSourceItem;
+	RVOracleDataSource: typeof RevealApi.RVOracleDataSource;
+	RVOracleDataSourceItem: typeof RevealApi.RVOracleDataSourceItem;
+	RVOracleSIDDataSource: typeof RevealApi.RVOracleSIDDataSource;
+	RVOracleServiceDataSource: typeof RevealApi.RVOracleServiceDataSource;
+	RVSyBaseDataSource: typeof RevealApi.RVSyBaseDataSource;
+	RVSyBaseDataSourceItem: typeof RevealApi.RVSyBaseDataSourceItem;
+	RVSnowflakeDataSource: typeof RevealApi.RVSnowflakeDataSource;
+	RVSnowflakeDataSourceItem: typeof RevealApi.RVSnowflakeDataSourceItem;
+	RevealDataSources: typeof RevealApi.RevealDataSources;
+	RVLocalizationContext: typeof RevealApi.RVLocalizationContext;
+	RVFormattingContext: typeof RevealApi.RVFormattingContext;
+	RVLocalizationElementType: typeof RevealApi.RVLocalizationElementType;
+	RVDashboardAggregationType: typeof RevealApi.RVDashboardAggregationType;
+	RVLocalizationElement: typeof RevealApi.RVLocalizationElement;
+	RVTitleElement: typeof RevealApi.RVTitleElement;
+	RVDashboardTitleElement: typeof RevealApi.RVDashboardTitleElement;
+	RVVisualizationTitleElement: typeof RevealApi.RVVisualizationTitleElement;
+	RVDashboardFilterTitleElement: typeof RevealApi.RVDashboardFilterTitleElement;
+	RVFieldLabelElementBase: typeof RevealApi.RVFieldLabelElementBase;
+	RVFieldLabelElement: typeof RevealApi.RVFieldLabelElement;
+	RVVisualizationFieldLabelElement: typeof RevealApi.RVVisualizationFieldLabelElement;
+	RVDashboardDataType: typeof RevealApi.RVDashboardDataType;
+	RVFieldFormattingDescriptor: typeof RevealApi.RVFieldFormattingDescriptor;
+	RVFormattingSpec: typeof RevealApi.RVFormattingSpec;
+	RVDateFormattingSpec: typeof RevealApi.RVDateFormattingSpec;
+	RVNumberFormattingSpec: typeof RevealApi.RVNumberFormattingSpec;
+	RVDashboardNumberFormattingType: typeof RevealApi.RVDashboardNumberFormattingType;
+	RVDashboardNegativeFormatType: typeof RevealApi.RVDashboardNegativeFormatType;
+	RVDashboardDateAggregationType: typeof RevealApi.RVDashboardDateAggregationType;
+}
+
+declare interface JQueryStaticIG extends JQueryStatic {
+	ig: ig;
+}
+
+declare let $: JQueryStaticIG;

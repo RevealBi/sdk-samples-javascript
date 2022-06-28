@@ -7,9 +7,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reveal Sdk - Web Component</title>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" type="text/css">
+    <link href="style.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
+    <div class="navbar">
+        <div class="dropdown">
+            <button class="dropbtn">Language
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a href="#" onclick="changeLang('En')">English</a>
+                <a href="#" onclick="changeLang('Ja')">Japanese</a>
+                <a href="#" onclick="changeLang('Es')">Spanish</a>
+                <a href="#" onclick="changeLang('It')">Italian</a>
+                <a href="#" onclick="changeLang('Fr')">French</a>
+            </div>
+        </div>
+    </div>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
@@ -18,25 +33,39 @@
     <script src="./assets/reveal/infragistics.reveal.js"></script>
 
     <script type="text/javascript">
+
+        if (sessionStorage.getItem('lang') !== null) {
+            (async () => await $.ig.RevealSdkSettings.overrideLocale($.ig.SupportedLocales[sessionStorage.getItem('lang')]))();
+        }
+
+        function changeLang(lang) {
+            sessionStorage.setItem('lang', lang)
+            location.reload();
+        }
+
         //set this to your server url
         $.ig.RevealSdkSettings.setBaseUrl("https://localhost:7111/");
 
         $.ig.RevealSdkSettings.localizedStringsProvider = function (element, context) {
+
+            var selectedLang = sessionStorage.getItem('lang') !== null ? sessionStorage.getItem('lang').toLowerCase() : navigator.language.split("-")[0];
+
             var elementDesc = element.title !== undefined ? element.title.toString() : element.name.toString();
             var candidate = dictionaryTable[elementDesc];
-            candidate = candidate !== undefined ? candidate[lang[navigator.language.split("-")[0]]] : elementDesc;
+            candidate = candidate !== undefined ? candidate[lang[selectedLang]] : elementDesc;
 
             if (element.elementType === $.ig.RVLocalizationElementType.DashboardFilterTitle || element.elementType === $.ig.RVLocalizationElementType.DashboardTitle) {
                 candidate = candidate.toUpperCase()
             }
             else if (element.elementType === $.ig.RVLocalizationElementType.FieldLabel || element.elementType === $.ig.RVLocalizationElementType.VisualizationFieldLabel) {
                 candidate = candidate.toLowerCase()
-            } 
+            }
 
             return candidate;
         };
 
-        var lang = {
+        var lang =
+        {
             "en": 0,
             "ja": 1,
             "es": 2,
