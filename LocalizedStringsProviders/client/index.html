@@ -34,35 +34,52 @@
 
     <script type="text/javascript">
 
-        if (sessionStorage.getItem('lang') !== null) {
-            (async () => await $.ig.RevealSdkSettings.overrideLocale($.ig.SupportedLocales[sessionStorage.getItem('lang')]))();
-        }
+        var sessionLang = sessionStorage.getItem('lang');
+
+        (async () => {
+
+            // set this to your server url
+            $.ig.RevealSdkSettings.setBaseUrl("https://localhost:7111/");
+
+            // force the SDK to take the language selected for the interface, the native translation will be done accordingly
+            if (sessionLang !== null)
+                await $.ig.RevealSdkSettings.overrideLocale($.ig.SupportedLocales[sessionLang])
+
+            // check if the elements are inside the dictionary table, if so, the replacement is performed according to the language of the interface
+            $.ig.RevealSdkSettings.localizedStringsProvider = function (element, context) { //titulos UP y traduc , nombre fields min 
+
+                var selectedLang = sessionLang ? sessionLang.toLowerCase() : navigator.language.split("-")[0];
+                var elementDesc = element.title ? element.title.toString() : element.name.toString();
+                var candidateList = dictionaryTable[elementDesc];
+                var candidate = candidateList ? candidateList[lang[selectedLang]] : undefined;
+                var response = candidate ? candidate : elementDesc;
+
+                // uppercase is performed for all the elements that are 'Titles' and lowercase for all those that are 'Field labels'
+                if (element.elementType === $.ig.RVLocalizationElementType.DashboardFilterTitle || element.elementType === $.ig.RVLocalizationElementType.DashboardTitle) {
+                    return response.toUpperCase()
+                }
+                else if (element.elementType === $.ig.RVLocalizationElementType.FieldLabel || element.elementType === $.ig.RVLocalizationElementType.VisualizationFieldLabel) {
+                    return response.toLowerCase()
+                }
+
+                return response;
+            };
+
+            $.ig.RevealSdkSettings.ensureFontsLoadedAsync().then(() => {
+                $.ig.RVDashboard.loadDashboard("Marketing", (dashboard) => {
+                    var revealView = new $.ig.RevealView("#revealView");
+                    revealView.dashboard = dashboard;
+                });
+            });
+
+        })();
+
 
         function changeLang(lang) {
             sessionStorage.setItem('lang', lang)
             location.reload();
         }
 
-        //set this to your server url
-        $.ig.RevealSdkSettings.setBaseUrl("https://localhost:7111/");
-
-        $.ig.RevealSdkSettings.localizedStringsProvider = function (element, context) {
-
-            var selectedLang = sessionStorage.getItem('lang') !== null ? sessionStorage.getItem('lang').toLowerCase() : navigator.language.split("-")[0];
-
-            var elementDesc = element.title !== undefined ? element.title.toString() : element.name.toString();
-            var candidate = dictionaryTable[elementDesc];
-            candidate = candidate !== undefined ? candidate[lang[selectedLang]] : elementDesc;
-
-            if (element.elementType === $.ig.RVLocalizationElementType.DashboardFilterTitle || element.elementType === $.ig.RVLocalizationElementType.DashboardTitle) {
-                candidate = candidate.toUpperCase()
-            }
-            else if (element.elementType === $.ig.RVLocalizationElementType.FieldLabel || element.elementType === $.ig.RVLocalizationElementType.VisualizationFieldLabel) {
-                candidate = candidate.toLowerCase()
-            }
-
-            return candidate;
-        };
 
         var lang =
         {
@@ -87,12 +104,6 @@
 
         }
 
-        $.ig.RevealSdkSettings.ensureFontsLoadedAsync().then(() => {
-            $.ig.RVDashboard.loadDashboard("Marketing", (dashboard) => {
-                var revealView = new $.ig.RevealView("#revealView");
-                revealView.dashboard = dashboard;
-            });
-        });
     </script>
 </body>
 
