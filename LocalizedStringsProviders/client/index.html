@@ -41,15 +41,14 @@
             // set this to your server url
             $.ig.RevealSdkSettings.setBaseUrl("https://localhost:7111/");
 
-            // force the SDK to take the language selected for the interface, the native translation will be done accordingly
+            // this line changes the static texts in the UI
             if (sessionLang !== null)
                 await $.ig.RevealSdkSettings.overrideLocale($.ig.SupportedLocales[sessionLang])
 
             // check if the elements are inside the dictionary table, if so, the replacement is performed according to the language of the interface
-            $.ig.RevealSdkSettings.localizedStringsProvider = function (element, context) { //titulos UP y traduc , nombre fields min 
-
+            $.ig.RevealSdkSettings.localizedStringsProvider = function (element, context) { 
                 var selectedLang = sessionLang ? sessionLang.toLowerCase() : navigator.language.split("-")[0];
-                var elementDesc = element.title ? element.title.toString() : element.name.toString();
+                var elementDesc = element.title ? element.title : element.name;
                 var candidateList = dictionaryTable[elementDesc];
                 var candidate = candidateList ? candidateList[lang[selectedLang]] : undefined;
                 var response = candidate ? candidate : elementDesc;
