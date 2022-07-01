@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Sdk - Web Component</title>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" type="text/css">
+    <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="dropdown">
+            <button class="dropbtn">Language
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a href="#" onclick="changeLang('En')">English</a>
+                <a href="#" onclick="changeLang('Ja')">Japanese</a>
+                <a href="#" onclick="changeLang('Es')">Spanish</a>
+                <a href="#" onclick="changeLang('It')">Italian</a>
+                <a href="#" onclick="changeLang('Fr')">French</a>
+            </div>
+        </div>
+    </div>
+    <div id="revealView" style="height: 920px; width: 100%;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+    <script src="./assets/reveal/infragistics.reveal.js"></script>
+
+    <script type="text/javascript">
+
+        var sessionLang = sessionStorage.getItem('lang');
+
+        (async () => {
+
+            // set this to your server url
+            $.ig.RevealSdkSettings.setBaseUrl("https://localhost:7111/");
+
+            // this line changes the static texts in the UI
+            if (sessionLang !== null)
+                await $.ig.RevealSdkSettings.overrideLocale($.ig.SupportedLocales[sessionLang])
+
+            // check if the elements are inside the dictionary table, if so, the replacement is performed according to the language of the interface
+            $.ig.RevealSdkSettings.localizedStringsProvider = function (element, context) { 
+                var translation = translate(element);
+
+                // uppercase is performed for all the elements that are 'Titles' and lowercase for all those that are 'Field labels'
+                if (element.elementType === $.ig.RVLocalizationElementType.DashboardFilterTitle || element.elementType === $.ig.RVLocalizationElementType.DashboardTitle) {
+                    return translation.toUpperCase()
+                }
+                else if (element.elementType === $.ig.RVLocalizationElementType.FieldLabel || element.elementType === $.ig.RVLocalizationElementType.VisualizationFieldLabel) {
+                    return translation.toLowerCase()
+                }
+
+                return translation;
+            };
+
+            $.ig.RevealSdkSettings.ensureFontsLoadedAsync().then(() => {
+                $.ig.RVDashboard.loadDashboard("Marketing", (dashboard) => {
+                    var revealView = new $.ig.RevealView("#revealView");
+                    revealView.dashboard = dashboard;
+                });
+            });
+
+        })();
+
+        function translate(element) {
+            var selectedLang = sessionLang ? sessionLang.toLowerCase() : navigator.language.split("-")[0];
+            var elementDesc = element.title ? element.title : element.name;
+            var candidateList = dictionaryTable[elementDesc];
+            var candidate = candidateList ? candidateList[lang[selectedLang]] : undefined;
+            var translation = candidate ? candidate : elementDesc;
+            return translation;
+        }
+
+        function changeLang(lang) {
+            sessionStorage.setItem('lang', lang)
+            location.reload();
+        }
+
+        var lang =
+        {
+            "en": 0,
+            "ja": 1,
+            "es": 2,
+            "it": 3,
+            "fr": 4
+        }
+
+        var dictionaryTable = {
+            //"OriginalWord": ["English", "Japanese", "Spanish", "Italian", "French"], => example guide
+            "Date Filter": ["Date Filter", "日付フィルター", "Filtro de Fecha", "Filtro data", "Filtre de date"],
+            "Date": ["Date", "日にち", "Fecha", "Data", "Date"],
+            "Marketing": ["Marketing", "マーケティング", "Marketing", "Marketing", "Commercialisation"],
+            "Spend": ["Spend", "費やす", "Gastado", "Spendere", "Dépenser"],
+            "Budget": ["Budget", "バジェット", "Presupuesto", "Bilancio", "Budget"],
+            "CTR": ["CTR", "クリック率", "CTR", "CTR", "CTR"],
+            "Spend by Territory": ["Spend by Territory", "テリトリー別支出額", "Gastos por territorios", "Spese per territorio", "Dépenses par territoire"],
+            "Spend vs Budget": ["Spend vs Budget", "支出対予算", "Gasto vs Presupuesto", "Spesa vs budget", "Dépenses vs budget"],
+            "Organic Traffic": ["Organic Traffic", "オーガニックトラフィック", "Tráfico orgánico", "Traffico organico", "Trafic organique"]
+
+        }
+
+    </script>
+</body>
+
+</html>
