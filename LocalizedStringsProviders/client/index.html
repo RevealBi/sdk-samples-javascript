@@ -47,21 +47,17 @@
 
             // check if the elements are inside the dictionary table, if so, the replacement is performed according to the language of the interface
             $.ig.RevealSdkSettings.localizedStringsProvider = function (element, context) { 
-                var selectedLang = sessionLang ? sessionLang.toLowerCase() : navigator.language.split("-")[0];
-                var elementDesc = element.title ? element.title : element.name;
-                var candidateList = dictionaryTable[elementDesc];
-                var candidate = candidateList ? candidateList[lang[selectedLang]] : undefined;
-                var response = candidate ? candidate : elementDesc;
+                var translation = translate(element);
 
                 // uppercase is performed for all the elements that are 'Titles' and lowercase for all those that are 'Field labels'
                 if (element.elementType === $.ig.RVLocalizationElementType.DashboardFilterTitle || element.elementType === $.ig.RVLocalizationElementType.DashboardTitle) {
-                    return response.toUpperCase()
+                    return translation.toUpperCase()
                 }
                 else if (element.elementType === $.ig.RVLocalizationElementType.FieldLabel || element.elementType === $.ig.RVLocalizationElementType.VisualizationFieldLabel) {
-                    return response.toLowerCase()
+                    return translation.toLowerCase()
                 }
 
-                return response;
+                return translation;
             };
 
             $.ig.RevealSdkSettings.ensureFontsLoadedAsync().then(() => {
@@ -73,12 +69,19 @@
 
         })();
 
+        function translate(element) {
+            var selectedLang = sessionLang ? sessionLang.toLowerCase() : navigator.language.split("-")[0];
+            var elementDesc = element.title ? element.title : element.name;
+            var candidateList = dictionaryTable[elementDesc];
+            var candidate = candidateList ? candidateList[lang[selectedLang]] : undefined;
+            var translation = candidate ? candidate : elementDesc;
+            return translation;
+        }
 
         function changeLang(lang) {
             sessionStorage.setItem('lang', lang)
             location.reload();
         }
-
 
         var lang =
         {
