@@ -13,25 +13,13 @@
 <body>
     <div class="navbar">
         <div class="dropdown">
-            <button class="dropbtn">Language
+            <button class="dropbtn">Location
                 <i class="fa fa-caret-down"></i>
             </button>
             <div class="dropdown-content">
-                <a href="#" onclick="changeLang('En')">English</a>
-                <a href="#" onclick="changeLang('Ja')">Japanese</a>
-                <a href="#" onclick="changeLang('Es')">Spanish</a>
-                <a href="#" onclick="changeLang('It')">Italian</a>
-                <a href="#" onclick="changeLang('Fr')">French</a>
-            </div>
-        </div>
-        <div class="dropdown">
-            <button class="dropbtn">Currency
-                <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown-content">
-                <a href="#" onclick="changeBadge(worldMoneySymbols.USD)">United States Dollar</a>
-                <a href="#" onclick="changeBadge(worldMoneySymbols.JPY)">Japan Yen</a>
-                <a href="#" onclick="changeBadge(worldMoneySymbols.EUR)">Euro Member Countries</a>
+                <a href="#" onclick="changeLocation('En',worldMoneySymbols.USD)">United States</a>
+                <a href="#" onclick="changeLocation('Ja',worldMoneySymbols.JPY)">Japan</a>
+                <a href="#" onclick="changeLocation('Es',worldMoneySymbols.EUR)">Spain</a>
             </div>
         </div>
     </div>
@@ -44,98 +32,102 @@
 
     <script type="text/javascript">
 
-        if (sessionStorage.getItem('lang') !== null) {
-            (async () => await $.ig.RevealSdkSettings.overrideLocale($.ig.SupportedLocales[sessionStorage.getItem('lang')]))();
-        }
-
-        function changeLang(lang) {
+        function changeLocation(lang, currencyCode) {
             sessionStorage.setItem('lang', lang);
-            location.reload();
-        }
-
-        function changeBadge(currencyCode) {
             sessionStorage.setItem('currencyCode', currencyCode);
             location.reload();
         }
 
-        //set this to your server url
-        $.ig.RevealSdkSettings.setBaseUrl("https://localhost:7111/");
-
-        $.ig.RevealSdkSettings.fieldFormattingSettingsProvider = function (desc, context) {
-
-            var settings;
-            var selectedLang = sessionStorage.getItem('lang') !== null ? sessionStorage.getItem('lang').toLowerCase() : navigator.language.split("-")[0];
-            var selectedBadge = sessionStorage.getItem('currencyCode') !== null ? sessionStorage.getItem('currencyCode') : "USD";
-
-            if (desc.dataType === $.ig.RVDashboardDataType.Number) {
-
-                settings = new $.ig.RVNumberFormattingSpec();
-
-                if (desc.fieldName == "UnitPrice" || desc.fieldName == "OrderID" || desc.fieldName == "Subtotal") {
-                    settings.decimalDigits = 3;
-                    settings.applyMkFormat = true;
-                    settings.formatType = $.ig.RVDashboardNumberFormattingType.Currency;
-                    settings.showGroupingSeparator = true;
-                    settings.currencySymbol = selectedBadge;
-                }
-
-                if (desc.fieldName == "UnitsInStock") {
-                    settings.decimalDigits = 0;
-                    settings.applyMkFormat = true;
-                    settings.formatType = $.ig.RVDashboardNumberFormattingType.Number;
-                    settings.showGroupingSeparator = true;
-                }
-
-                if (desc.fieldName == "UnitsOnOrder") {
-                    settings.decimalDigits = 1;
-                    settings.applyMkFormat = true;
-                    settings.formatType = $.ig.RVDashboardNumberFormattingType.Number;
-                    settings.showGroupingSeparator = true;
-                }
-
-                if (desc.fieldName == "CategoryID") {
-                    settings.decimalDigits = 1;
-                    settings.applyMkFormat = true;
-                    settings.formatType = $.ig.RVDashboardNumberFormattingType.Currency;
-                    settings.showGroupingSeparator = true;
-                    settings.currencySymbol = selectedBadge;
-
-                }
-            }
-
-            if (desc.dataType === $.ig.RVDashboardDataType.Date || desc.dataType === $.ig.RVDashboardDataType.DateTime) {
-
-                settings = new $.ig.RVDateFormattingSpec();
-
-                if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Year)
-                    settings.dateFormat = worldDateFormat[selectedLang] ? worldDateFormat[selectedLang] : worldDateFormat.Remaining;
-
-                if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Quarter)
-                    settings.dateFormat = "yyyy'/'QQ"
-
-                if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Month)
-                    settings.dateFormat = "MMM-yy"
-
-            }
-            if (desc.dataType === $.ig.RVDashboardDataType.DateTime || desc.dataType === $.ig.RVDashboardDataType.Time) {
-
-                if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Hour)
-                    settings.dateFormat = "HH:00"
-
-                if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Minute)
-                    settings.dateFormat = "HH:mm:ss"
-
-            }
-            return settings;
-
+        var locationSelected = {
+            "lang": sessionStorage.getItem('lang'),
+            "currencyCode": sessionStorage.getItem('currencyCode')
         };
-        function currencyConverter(currentBadge, amount, newBadge) {
 
-            amount = amount / quoteDollarsBased.USD
-            amount = amount * quoteDollarsBased[newBadge]
+        (async () => {
+            // this line changes the static texts in the UI
+            if (locationSelected.lang !== null) {
+                await $.ig.RevealSdkSettings.overrideLocale($.ig.SupportedLocales[locationSelected.lang]);
+            }
 
-            return amount;
-        }
+            //set this to your server url
+            $.ig.RevealSdkSettings.setBaseUrl("https://localhost:7111/");
+
+            $.ig.RevealSdkSettings.fieldFormattingSettingsProvider = function (desc, context) {
+
+                var settings;
+                var selectedLang = locationSelected.lang !== null ? locationSelected.lang.toLowerCase() : navigator.language.split("-")[0];
+                var selectedBadge = locationSelected.currencyCode !== null ? locationSelected.currencyCode : "USD";
+
+                if (desc.dataType === $.ig.RVDashboardDataType.Number) {
+
+                    settings = new $.ig.RVNumberFormattingSpec();
+
+                    if (desc.fieldName == "UnitPrice" || desc.fieldName == "OrderID" || desc.fieldName == "Subtotal") {
+                        settings.decimalDigits = 3;
+                        settings.applyMkFormat = true;
+                        settings.formatType = $.ig.RVDashboardNumberFormattingType.Currency;
+                        settings.showGroupingSeparator = true;
+                        settings.currencySymbol = selectedBadge;
+                    }
+
+                    if (desc.fieldName == "UnitsInStock") {
+                        settings.decimalDigits = 0;
+                        settings.applyMkFormat = true;
+                        settings.formatType = $.ig.RVDashboardNumberFormattingType.Number;
+                        settings.showGroupingSeparator = true;
+                    }
+
+                    if (desc.fieldName == "UnitsOnOrder") {
+                        settings.decimalDigits = 1;
+                        settings.applyMkFormat = true;
+                        settings.formatType = $.ig.RVDashboardNumberFormattingType.Number;
+                        settings.showGroupingSeparator = true;
+                    }
+
+                    if (desc.fieldName == "CategoryID") {
+                        settings.decimalDigits = 1;
+                        settings.applyMkFormat = true;
+                        settings.formatType = $.ig.RVDashboardNumberFormattingType.Currency;
+                        settings.showGroupingSeparator = true;
+                        settings.currencySymbol = selectedBadge;
+                    }
+                }
+
+                if (desc.dataType === $.ig.RVDashboardDataType.Date || desc.dataType === $.ig.RVDashboardDataType.DateTime) {
+
+                    settings = new $.ig.RVDateFormattingSpec();
+
+                    if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Year)
+                        settings.dateFormat = worldDateFormat[selectedLang] ? worldDateFormat[selectedLang] : worldDateFormat.Remaining;
+
+                    if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Quarter)
+                        settings.dateFormat = "yyyy'/'QQ"
+
+                    if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Month)
+                        settings.dateFormat = "MMM-yy"
+
+                }
+                if (desc.dataType === $.ig.RVDashboardDataType.DateTime || desc.dataType === $.ig.RVDashboardDataType.Time) {
+
+                    if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Hour)
+                        settings.dateFormat = "HH:00"
+
+                    if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Minute)
+                        settings.dateFormat = "HH:mm:ss"
+
+                }
+                return settings;
+
+            };
+
+            $.ig.RevealSdkSettings.ensureFontsLoadedAsync().then(() => {
+                $.ig.RVDashboard.loadDashboard("VisualizationsLoc", (dashboard) => {
+                    var revealView = new $.ig.RevealView("#revealView");
+                    revealView.dashboard = dashboard;
+                });
+            });
+
+        })();
 
         var worldDateFormat =
         {
@@ -152,19 +144,7 @@
             "USD": "$",
             "EUR": "€"
         }
-        var quoteDollarsBased =
-        {
-            "JPY": 135,
-            "USD": 1,
-            "EUR": 0.95
-        }
 
-        $.ig.RevealSdkSettings.ensureFontsLoadedAsync().then(() => {
-            $.ig.RVDashboard.loadDashboard("VisualizationsLoc", (dashboard) => {
-                var revealView = new $.ig.RevealView("#revealView");
-                revealView.dashboard = dashboard;
-            });
-        });
     </script>
 </body>
 
