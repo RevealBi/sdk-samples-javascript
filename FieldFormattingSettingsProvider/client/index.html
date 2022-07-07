@@ -56,7 +56,7 @@
 
                 var settings;
                 var selectedLang = locationSelected.lang !== null ? locationSelected.lang.toLowerCase() : navigator.language.split("-")[0];
-                var selectedBadge = locationSelected.currencyCode !== null ? locationSelected.currencyCode : "USD";
+                var selectedCurrency = locationSelected.currencyCode !== null ? locationSelected.currencyCode : "USD";
 
                 if (desc.dataType === $.ig.RVDashboardDataType.Number) {
 
@@ -67,7 +67,7 @@
                         settings.applyMkFormat = true;
                         settings.formatType = $.ig.RVDashboardNumberFormattingType.Currency;
                         settings.showGroupingSeparator = true;
-                        settings.currencySymbol = selectedBadge;
+                        settings.currencySymbol = selectedCurrency;
                     }
 
                     if (desc.fieldName == "UnitsInStock") {
@@ -89,7 +89,7 @@
                         settings.applyMkFormat = true;
                         settings.formatType = $.ig.RVDashboardNumberFormattingType.Currency;
                         settings.showGroupingSeparator = true;
-                        settings.currencySymbol = selectedBadge;
+                        settings.currencySymbol = selectedCurrency;
                     }
                 }
 
@@ -98,7 +98,7 @@
                     settings = new $.ig.RVDateFormattingSpec();
 
                     if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Year)
-                        settings.dateFormat = worldDateFormat[selectedLang] ? worldDateFormat[selectedLang] : worldDateFormat.Remaining;
+                        settings.dateFormat = worldDateFormat[selectedLang] ? worldDateFormat[selectedLang] : worldDateFormat.Default;
 
                     if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Quarter)
                         settings.dateFormat = "yyyy'/'QQ"
@@ -131,7 +131,7 @@
 
         var worldDateFormat =
         {
-            "Remaining": "dd'-'MMMM'-'yyyy",
+            "Default": "dd'-'MMMM'-'yyyy",
             "zh": "yyyy'/'MM'/'dd",
             "ja": "yyyy'/'MM'/'dd",
             "ko": "yyyy'/'MM'/'dd",
