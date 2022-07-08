@@ -17,9 +17,9 @@
                 <i class="fa fa-caret-down"></i>
             </button>
             <div class="dropdown-content">
-                <a href="#" onclick="changeLocation('En',worldMoneySymbols.USD)">United States</a>
-                <a href="#" onclick="changeLocation('Ja',worldMoneySymbols.JPY)">Japan</a>
-                <a href="#" onclick="changeLocation('Es',worldMoneySymbols.EUR)">Spain</a>
+                <a href="#" onclick="changeLocation('En','US',worldMoneySymbols.USD)">United States</a>
+                <a href="#" onclick="changeLocation('Ja','JP',worldMoneySymbols.JPY)">Japan</a>
+                <a href="#" onclick="changeLocation('Es','ES',worldMoneySymbols.EUR)">Spain</a>
             </div>
         </div>
     </div>
@@ -32,21 +32,23 @@
 
     <script type="text/javascript">
 
-        function changeLocation(lang, currencyCode) {
-            sessionStorage.setItem('lang', lang);
+        function changeLocation(langCode,countryCode ,currencyCode) {
+            sessionStorage.setItem('langCode', langCode);
             sessionStorage.setItem('currencyCode', currencyCode);
+            sessionStorage.setItem('countryCode', countryCode);
             location.reload();
         }
 
         var locationSelected = {
-            "lang": sessionStorage.getItem('lang'),
-            "currencyCode": sessionStorage.getItem('currencyCode')
+            "langCode": sessionStorage.getItem('langCode'),
+            "currencyCode": sessionStorage.getItem('currencyCode'),
+            "countryCode":sessionStorage.getItem('countryCode')
         };
 
         (async () => {
             // this line changes the static texts in the UI
-            if (locationSelected.lang !== null) {
-                await $.ig.RevealSdkSettings.overrideLocale($.ig.SupportedLocales[locationSelected.lang]);
+            if (locationSelected.langCode !== null) {
+                await $.ig.RevealSdkSettings.overrideLocale($.ig.SupportedLocales[locationSelected.langCode]);
             }
 
             //set this to your server url
@@ -55,8 +57,9 @@
             $.ig.RevealSdkSettings.fieldFormattingSettingsProvider = function (desc, context) {
 
                 var settings;
-                var selectedLang = locationSelected.lang !== null ? locationSelected.lang.toLowerCase() : navigator.language.split("-")[0];
+                var selectedLang = locationSelected.langCode !== null ? locationSelected.langCode.toLowerCase() : navigator.language.split("-")[0];
                 var selectedCurrency = locationSelected.currencyCode !== null ? locationSelected.currencyCode : "USD";
+                var locale = selectedLang + "-" + locationSelected.countryCode;
 
                 if (desc.dataType === $.ig.RVDashboardDataType.Number) {
 
@@ -96,25 +99,13 @@
                 if (desc.dataType === $.ig.RVDashboardDataType.Date || desc.dataType === $.ig.RVDashboardDataType.DateTime) {
 
                     settings = new $.ig.RVDateFormattingSpec();
+                    settings.locale = locale;
 
                     if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Year)
                         settings.dateFormat = worldDateFormat[selectedLang] ? worldDateFormat[selectedLang] : worldDateFormat.Default;
 
-                    if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Quarter)
-                        settings.dateFormat = "yyyy'/'QQ"
-
                     if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Month)
                         settings.dateFormat = "MMM-yy"
-
-                }
-                if (desc.dataType === $.ig.RVDashboardDataType.DateTime || desc.dataType === $.ig.RVDashboardDataType.Time) {
-
-                    if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Hour)
-                        settings.dateFormat = "HH:00"
-
-                    if (desc.dateAggregationType === $.ig.RVDashboardDateAggregationType.Minute)
-                        settings.dateFormat = "HH:mm:ss"
-
                 }
                 return settings;
 
