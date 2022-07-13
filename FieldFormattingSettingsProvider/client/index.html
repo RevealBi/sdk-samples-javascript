@@ -31,8 +31,10 @@
     <script src="./assets/reveal/infragistics.reveal.js"></script>
 
     <script type="text/javascript">
+       
+       $("body").css("overflow", "hidden");
 
-        function changeLocation(langCode,countryCode ,currencyCode) {
+        function changeLocation(langCode, countryCode, currencyCode) {
             sessionStorage.setItem('langCode', langCode);
             sessionStorage.setItem('currencyCode', currencyCode);
             sessionStorage.setItem('countryCode', countryCode);
@@ -42,7 +44,7 @@
         var locationSelected = {
             "langCode": sessionStorage.getItem('langCode'),
             "currencyCode": sessionStorage.getItem('currencyCode'),
-            "countryCode":sessionStorage.getItem('countryCode')
+            "countryCode": sessionStorage.getItem('countryCode')
         };
 
         (async () => {
