@@ -10,7 +10,9 @@
 </head>
 
 <body>
-    <button onclick="onExportButtonClicked()">Export Dashboard</button>
+    <button onclick="onExportButtonClicked('pdf')">Export as PDF</button>
+    <button onclick="onExportButtonClicked('xlsx')">Export as Excel</button>
+    <button onclick="onExportButtonClicked('pptx')">Export as Power Point</button>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
@@ -27,18 +29,18 @@
             revealView.dashboard = dashboard;
         });
 
-        function onExportButtonClicked() {
-            fetch(`http://localhost:5111/dashboards/export/Sales`)
+        function onExportButtonClicked(format) {
+            fetch(`http://localhost:5111/dashboards/export/Sales?format=${format}`)
             .then(resp => resp.blob())
             .then(blob => 
             {
-                downloadFile(blob);
+                downloadFile(blob, format);
             });
         }
 
-        function downloadFile(blob) {
+        function downloadFile(blob, format) {
             var a = document.createElement("a");
-            a.download = "Sales.pdf";
+            a.download = `Sales.${format}`;
             a.href = window.URL.createObjectURL(blob);
             a.click();
         }

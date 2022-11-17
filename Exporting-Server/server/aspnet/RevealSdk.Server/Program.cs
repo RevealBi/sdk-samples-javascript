@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Reveal.Sdk;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,10 +38,26 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapGet("/dashboards/export/{name}", async (string name, IDashboardExporter dashboardExporter) =>
+app.MapGet("/dashboards/export/{name}", async (string name, string format, IDashboardExporter dashboardExporter) =>
 {
-    var stream = await dashboardExporter.ExportToPdf(name);
-    return Results.File(stream, "application/pdf");
+    Stream stream;
+    string contentType = "application/pdf";
+    if (format=="xlsx")
+    {
+        stream = await dashboardExporter.ExportToExcel(name);
+        contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    }
+    else if (format == "pptx")
+    {
+        stream = await dashboardExporter.ExportToPowerPoint(name);
+        contentType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+    }
+    else
+    {
+        stream = await dashboardExporter.ExportToPdf(name);
+    }
+    
+    return Results.File(stream, contentType);
 });
 
 app.Run();
