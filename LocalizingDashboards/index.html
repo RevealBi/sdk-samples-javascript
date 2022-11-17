@@ -34,12 +34,12 @@
 
     <script type="text/javascript">
 
+        // set this to your server url
+        $.ig.RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
+
         var sessionLang = sessionStorage.getItem('lang');
-
+        
         (async () => {
-
-            // set this to your server url
-            $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
 
             // this line changes the static texts in the UI
             if (sessionLang !== null)
@@ -60,9 +60,11 @@
                 return translation;
             };
 
-            var revealView = new $.ig.RevealView("#revealView");
-            revealView.dashboard = await $.ig.RVDashboard.loadDashboard("Marketing");
-            
+            $.ig.RVDashboard.loadDashboard("Marketing").then(dashboard => {
+                var revealView = new $.ig.RevealView("#revealView");
+                revealView.dashboard = dashboard;
+            })
+
         })();
 
         function translate(element) {
