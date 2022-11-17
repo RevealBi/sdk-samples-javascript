@@ -15,34 +15,33 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js" ></script>    
     <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
-    <script src="https://dl.revealbi.io/reveal/libs/1.1.7/infragistics.reveal.js"></script>   
+    <script src="https://dl.revealbi.io/reveal/libs/1.3.0/infragistics.reveal.js"></script>   
 
     <script type="text/javascript">
         $.ig.RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
-       $.ig.RevealSdkSettings.ensureFontsLoadedAsync().then(() => {
-           var revealView = new $.ig.RevealView("#revealView");
-           revealView.startInEditMode = true;
-           revealView.onDataSourcesRequested = (callback) => {
-               
-               const restDataSource = new $.ig.RVRESTDataSource();
-               restDataSource.id = "RestDataSource"
-               restDataSource.url = "https://excel2json.io/api/share/6e0f06b3-72d3-4fec-7984-08da43f56bb9";
-               restDataSource.useAnonymousAuthentication = true;
 
-               const restDataSourceItem = new $.ig.RVRESTDataSourceItem(restDataSource);
-               restDataSourceItem.id= "RestDataSourceItem";
+        var revealView = new $.ig.RevealView("#revealView");
+        revealView.startInEditMode = true;
+        revealView.onDataSourcesRequested = (callback) => {
+            
+            const restDataSource = new $.ig.RVRESTDataSource();
+            restDataSource.id = "RestDataSource"
+            restDataSource.url = "https://excel2json.io/api/share/6e0f06b3-72d3-4fec-7984-08da43f56bb9";
+            restDataSource.useAnonymousAuthentication = true;
 
-               //to skip the dialogs and directly use a REST service that returns JSON
-               const jsonDataSourceItem = new $.ig.RVJsonDataSourceItem(restDataSourceItem);
-               jsonDataSourceItem.id = "JsonDataSourceItem";
-               jsonDataSourceItem.title = "Sales by Category";
-               jsonDataSourceItem.subtitle = "Excel2Json";
-               //currently only works with this config
-               jsonDataSourceItem.config = '{"iterationDepth":0,"columnsConfig":[{"key":"CategoryID","type":1},{"key":"CategoryName","type":0},{"key":"ProductName","type":0},{"key":"ProductSales","type":1},{"key":"~","uniqueName":"Level 1","type":1}]}';
+            const restDataSourceItem = new $.ig.RVRESTDataSourceItem(restDataSource);
+            restDataSourceItem.id= "RestDataSourceItem";
 
-               callback(new $.ig.RevealDataSources([], [jsonDataSourceItem], false));
-           };
-       });
+            //to skip the dialogs and directly use a REST service that returns JSON
+            const jsonDataSourceItem = new $.ig.RVJsonDataSourceItem(restDataSourceItem);
+            jsonDataSourceItem.id = "JsonDataSourceItem";
+            jsonDataSourceItem.title = "Sales by Category";
+            jsonDataSourceItem.subtitle = "Excel2Json";
+            //currently only works with this config
+            jsonDataSourceItem.config = '{"iterationDepth":0,"columnsConfig":[{"key":"CategoryID","type":1},{"key":"CategoryName","type":0},{"key":"ProductName","type":0},{"key":"ProductSales","type":1},{"key":"~","uniqueName":"Level 1","type":1}]}';
+
+            callback(new $.ig.RevealDataSources([], [jsonDataSourceItem], false));
+        };
    </script>
 </body>
 
