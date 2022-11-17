@@ -115,11 +115,9 @@
 
             };
 
-            $.ig.RevealSdkSettings.ensureFontsLoadedAsync().then(() => {
-                $.ig.RVDashboard.loadDashboard("VisualizationsLoc", (dashboard) => {
-                    var revealView = new $.ig.RevealView("#revealView");
-                    revealView.dashboard = dashboard;
-                });
+            $.ig.RVDashboard.loadDashboard("VisualizationsLoc").then(dashboard => {
+                var revealView = new $.ig.RevealView("#revealView");
+                revealView.dashboard = dashboard;
             });
 
         })();
