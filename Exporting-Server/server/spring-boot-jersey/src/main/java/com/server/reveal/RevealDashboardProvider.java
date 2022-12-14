@@ -2,6 +2,7 @@ package com.server.reveal;
 
 import com.infragistics.reveal.sdk.api.IRVUserContext;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -11,8 +12,8 @@ public class RevealDashboardProvider implements IRVDashboardProvider {
 
     @Override
     public InputStream getDashboard(IRVUserContext userContext, String dashboardId) throws IOException {
-        InputStream dashboardStream = getClass().getResourceAsStream("/dashboards/" + dashboardId + ".rdash");
-		return dashboardStream;
+        InputStream dashboardStream = new FileInputStream("dashboards/" + dashboardId + ".rdash");
+        return dashboardStream;
     }
 
     @Override
