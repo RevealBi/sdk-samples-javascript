@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Sdk - Web Component</title>      
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" type="text/css" >  
+</head>
+
+<body>
+    <div id="revealView" style="height: 920px; width: 100%;"></div>
+
+    <dialog id="dsSelector" style="height: 300px; width: 400px;">
+        <p>This is a custom dialog for selecting data sources or data source items.</p>
+        <button onclick="useRestDS()">Use REST Service</button>
+        <button onclick="cancel()">Cancel</button>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js" ></script>    
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
+    <script src="https://dl.revealbi.io/reveal/libs/1.3.0/infragistics.reveal.js"></script>   
+
+    <script type="text/javascript">
+        $.ig.RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
+
+        const dialog = document.getElementById("dsSelector");        
+        const revealView = new $.ig.RevealView("#revealView");
+        revealView.startInEditMode = true;
+
+        let dsSelectionArgs;
+        revealView.onDataSourceSelectionDialogShowing = (args) => {
+            
+            //args.trigger - indicates the context where the data sources are being requested
+            //args.dataSources - list of data sources returned by onDataSourcesRequested
+            //args.callback - the callback to use when the selection is ready, can only be used if the event is cancelled.
+            //args.cancel - set to true to show custom dialog
+
+            dsSelectionArgs = args;               
+            dialog.showModal();  
+            args.cancel = true;
+        };
+
+
+        function hideDialog() {
+            dialog.close();
+        }
+
+        function selectDataSource(ds) {
+            hideDialog();
+            dsSelectionArgs.callback($.ig.RVDataSourceSelection.withDataSource(ds));
+        }
+
+        function selectDataSourceItem(dsItem) {
+            hideDialog();
+            dsSelectionArgs.callback($.ig.RVDataSourceSelection.withDataSourceItem(dsItem));
+        }
+
+        function useRestDS() {
+            const restDataSource = new $.ig.RVRESTDataSource();
+            restDataSource.id = "RestDataSource"
+            restDataSource.url = "https://excel2json.io/api/share/6e0f06b3-72d3-4fec-7984-08da43f56bb9";
+            restDataSource.title = "Sales by Category";
+            restDataSource.subtitle = "Excel2Json";
+            restDataSource.useAnonymousAuthentication = true;            
+
+            selectDataSource(restDataSource);
+        }
+
+        function cancel() {
+            hideDialog();
+            dsSelectionArgs.callback(null); //pass null to the callback to cancel the process
+        }
+   </script>
+</body>
+
+</html>
