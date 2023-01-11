@@ -44,7 +44,10 @@ app.MapGet("/dashboards/export/{name}", async (string name, string format, IDash
     string contentType = "application/pdf";
     if (format=="xlsx")
     {
-        stream = await dashboardExporter.ExportToExcel(name);
+        stream = await dashboardExporter.ExportToExcel(name, options: new ExcelExportOptions()
+        {
+            VisualizationMode = ExcelVisualizationMode.Include
+        });
         contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     }
     else if (format == "pptx")
@@ -57,6 +60,38 @@ app.MapGet("/dashboards/export/{name}", async (string name, string format, IDash
         stream = await dashboardExporter.ExportToPdf(name);
     }
     
+    return Results.File(stream, contentType);
+});
+
+app.MapGet("/dashboards/export2/{name}", async (string name, string format, IDashboardExporter dashboardExporter) =>
+{
+    string contentType = "application/pdf";
+    ExportFormat exportFormat = ExportFormat.Pdf;
+
+    IExportOptions options = new DocumentExportOptions()
+    {
+        Author = "Brian Lagunas",
+        Company = "Infragistics",
+        IsLandscape= true,
+    };
+
+    if (format == "xlsx")
+    {
+        exportFormat = ExportFormat.Excel;
+        contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        options = new ExcelExportOptions(options)
+        {
+            VisualizationMode = ExcelVisualizationMode.Include,
+        };
+    }
+    else if (format == "pptx")
+    {
+        exportFormat = ExportFormat.PowerPoint;
+        contentType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";   
+    }
+
+    var stream = await dashboardExporter.Export(exportFormat, name, options: options);
+
     return Results.File(stream, contentType);
 });
 

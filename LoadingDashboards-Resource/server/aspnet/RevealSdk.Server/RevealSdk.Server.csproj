@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Reveal.Sdk.Web.AspNetCore.Trial" Version="1.3.0" />
+    <PackageReference Include="Reveal.Sdk.Web.AspNetCore" Version="1.3.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
