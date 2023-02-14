@@ -44,7 +44,7 @@ app.MapGet("dashboards", () =>
     // Get the names of all files in the directory
     var files = Directory.GetFiles(filePath);
 
-    //return just the dashoard file names
+    //return just the dashboard file names
     return files.Select(x => Path.GetFileNameWithoutExtension(x));
 });
 
