@@ -63,7 +63,7 @@
                 openDialog(args.callback);
             }
 
-            revealView.onLinkedDashboardProviderAsync = function (dashboardId, title) {
+            revealView.onLinkedDashboardProviderAsync = (dashboardId, title) => {
                 return $.ig.RVDashboard.loadDashboard(dashboardId);
             };
         });
