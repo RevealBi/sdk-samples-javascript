@@ -12,8 +12,7 @@ public class RevealDashboardProvider implements IRVDashboardProvider {
 
     @Override
     public InputStream getDashboard(IRVUserContext userContext, String dashboardId) throws IOException {
-        InputStream dashboardStream = new FileInputStream("dashboards/" + dashboardId + ".rdash");
-        return dashboardStream;
+    	return getClass().getResourceAsStream("/dashboards/" + dashboardId + ".rdash");
     }
 
     @Override
