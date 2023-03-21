@@ -13,26 +13,27 @@ const authenticationProvider = async (userContext, dataSource) => {
 	return null;
 }
 
-const dataSourceProvider = async (userContext, dataSource) => {
-	if (dataSource instanceof reveal.RVSqlServerDataSource) {
-		//Change SQL Server host and database
-		dataSource.host = "10.0.0.20";
-		dataSource.database = "Adventure Works";
-	}
-	return dataSource;
-}
-
 const dataSourceItemProvider = async (userContext, dataSourceItem) => {
 	if (dataSourceItem instanceof reveal.RVSqlServerDataSourceItem) {
 
-		// Optionally change SQL Server host here too - overrides the values set in dataSourceProvider
-		dataSourceItem.dataSource.host = "10.0.0.50";
+		//update underlying data source
+		dataSourceProvider(userContext, dataSourceItem.dataSource);
 
-		// Change SQL Server database and table/view
-		dataSourceItem.database = "Adventure Works 2";
-		dataSourceItem.table = "Employees";
+		//only change the table if we have selected our data source item
+		if (dataSourceItem.id === "MySqlServerDatasourceItem") {
+			dataSourceItem.table = "Orders";
+		}		
 	}
 	return dataSourceItem;
+}
+
+const dataSourceProvider = async (userContext, dataSource) => {
+	if (dataSource instanceof reveal.RVSqlServerDataSource) {
+		dataSource.host = "10.0.0.20";
+		dataSource.database = "Northwind";
+		dataSource.schema = "dbo";
+	}
+	return dataSource;
 }
 
 const revealOptions = {

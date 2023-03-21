@@ -10,25 +10,25 @@ import com.infragistics.reveal.sdk.api.model.RVSqlServerDataSourceItem;
 public class DataSourceProvider implements IRVDataSourceProvider {
     public RVDataSourceItem changeDataSourceItem(IRVUserContext userContext, String dashboardsID, RVDataSourceItem dataSourceItem) {
 
-        if (dataSourceItem instanceof RVSqlServerDataSourceItem sqlServerDsi)
-        {
-            // Optionally change SQL Server host here too - overrides the values set in changeDataSource
-            RVSqlServerDataSource sqlServerDS = (RVSqlServerDataSource)sqlServerDsi.getDataSource();
-            sqlServerDS.setHost("10.0.0.50");            
+        if (dataSourceItem instanceof RVSqlServerDataSourceItem sqlServerDsi) {
+            
+            //update underlying data source
+            changeDataSource(userContext, dataSourceItem.getDataSource());
 
-            // Change SQL Server database and table/view
-            sqlServerDsi.setDatabase("Adventure Works 2");
-            sqlServerDsi.setTable("Employees");
+            //only change the table if we have selected our custom data source item
+            if (dataSourceItem.getId() == "MySqlServerDatasourceItem") {
+                sqlServerDsi.setTable("Orders");
+            }            
         }
         return dataSourceItem;
     }
 
     public RVDashboardDataSource changeDataSource(IRVUserContext userContext, RVDashboardDataSource dataSource) {
 
-        if (dataSource instanceof RVSqlServerDataSource sqlDatasource)
-        {
+        if (dataSource instanceof RVSqlServerDataSource sqlDatasource) {
             sqlDatasource.setHost("10.0.0.20");
-            sqlDatasource.setDatabase("Adventure Works");
+            sqlDatasource.setDatabase("Northwind");
+            sqlDatasource.setSchema("dbo");
         }
         return dataSource;
     }

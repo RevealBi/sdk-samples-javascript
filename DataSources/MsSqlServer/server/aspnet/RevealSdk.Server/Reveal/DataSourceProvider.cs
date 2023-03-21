@@ -8,13 +8,14 @@ namespace RevealSdk.Server.Reveal
         {
             if (dataSourceItem is RVSqlServerDataSourceItem sqlServerDsi)
             {
-                // Optionally change SQL Server host here too - overrides the values set in ChangeDataSourceAsync
-                var sqlServerDS = (RVSqlServerDataSource)sqlServerDsi.DataSource;
-                sqlServerDS.Host = "10.0.0.50";
+                //update underlying data source
+                ChangeDataSourceAsync(userContext, sqlServerDsi.DataSource);
 
-                // Change SQL Server database and table/view
-                sqlServerDsi.Database = "Adventure Works 2";
-                sqlServerDsi.Table = "Employees";
+                //only change the table if we have selected our custom data source item
+                if (sqlServerDsi.Id == "MySqlServerDatasourceItem")
+                {
+                    sqlServerDsi.Table = "Orders";
+                }
             }
 
             return Task.FromResult(dataSourceItem);
@@ -24,9 +25,9 @@ namespace RevealSdk.Server.Reveal
         {
             if (dataSource is RVSqlServerDataSource sqlDatasource)
             {
-                // Change SQL Server host and database
                 sqlDatasource.Host = "10.0.0.20";
-                sqlDatasource.Database = "Adventure Works";
+                sqlDatasource.Database = "Northwind";
+                sqlDatasource.Schema = "dbo";
             }
 
             return Task.FromResult(dataSource);
