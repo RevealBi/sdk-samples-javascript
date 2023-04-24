@@ -15,8 +15,8 @@
         <option value="md">Mountain Dark</option>
         <option value="ol">Ocean Light</option>
         <option value="od">Ocean Dark</option>
-        <option value="c">Clone Existing</option>
-        <option value="custom">Custom</option>
+        <option value="ct">Custom Theme</option>
+        <option value="cs">Custom Series</option>
     </select>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
@@ -31,7 +31,7 @@
 
         let revealView;
 
-        $.ig.RVDashboard.loadDashboard("Sales").then( dashboard => {
+        $.ig.RVDashboard.loadDashboard("Project Management").then( dashboard => {
             revealView = new $.ig.RevealView("#revealView");
             revealView.dashboard = dashboard;
         })
@@ -54,8 +54,15 @@
                 case "c":
                     theme = this.cloneCurrentTheme();
                     break;
-                default:
+                case "ct":
                     theme = this.createCustomTheme();
+                    break;
+                case "cs":
+                    theme = new $.ig.MountainLightTheme();
+                    this.setVisualizationSeriesColor();
+                    break;
+                default:
+                    theme = new $.ig.MountainLightTheme();
             }
 
             $.ig.RevealSdkSettings.theme = theme;
@@ -90,6 +97,24 @@
             theme.useRoundedCorners = false;
 
             return theme;
+        }
+        
+        function setVisualizationSeriesColor(){
+            revealView.onVisualizationSeriesColorAssigning = function (visualization, defaultColor, fieldName, categoryName) {
+                if (visualization.title === "Task Status by Owner") {
+                    console.log("Visualization is creating a series");
+                    console.log("Title: " + visualization.title);
+                    console.log("Field Name: " + fieldName);
+                    console.log("Category Name: " + categoryName);
+                    console.log("Default Color: " + defaultColor);
+                
+
+                    if (categoryName === "not started") { return "Red"; }
+                    else if (categoryName === "completed") { return "green"; }
+                    else { return "LightGrey"; }
+                }
+            return defaultColor;
+            };
         };
 
     </script>
