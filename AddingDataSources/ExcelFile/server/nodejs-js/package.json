@@ -13,6 +13,6 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "reveal-sdk-node": "^0.6.0"
+    "reveal-sdk-node": "^1.5.0"
   }
 }
