@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/app.js",
-    "dev": "npx nodemon src/app.ts",
+    "start": "npx nodemon src/app.ts",
     "build": "tsc -p .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,7 +14,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "reveal-sdk-node": "^0.7.3"
+    "reveal-sdk-node": "^1.5.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
