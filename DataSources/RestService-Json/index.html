@@ -37,8 +37,12 @@
             jsonDataSourceItem.id = "JsonDataSourceItem";
             jsonDataSourceItem.title = "Sales by Category";
             jsonDataSourceItem.subtitle = "Excel2Json";
-            //currently only works with this config
-            jsonDataSourceItem.config = '{"iterationDepth":0,"columnsConfig":[{"key":"CategoryID","type":1},{"key":"CategoryName","type":0},{"key":"ProductName","type":0},{"key":"ProductSales","type":1},{"key":"~","uniqueName":"Level 1","type":1}]}';
+            jsonDataSourceItem.config = new $.ig.RVJsonSchemaConfigBuilder()
+                .addNumericField("CategoryID")
+                .addStringField("CategoryName")
+                .addStringField("ProductName")
+                .addNumericField("ProductSales")
+                .build();
 
             callback(new $.ig.RevealDataSources([], [jsonDataSourceItem], false));
         };
