@@ -27,8 +27,8 @@
             
             //list all file in google drive
             var googleDrive = new $.ig.RVGoogleDriveDataSource();
-            googleDrive.id= "MyGoogleDrive";
             googleDrive.title = "My Google Drive";
+            googleDrive.subtitle = "Google Drive";
 
             callback(new $.ig.RevealDataSources([googleDrive], [], false));
         };

@@ -26,16 +26,16 @@
         revealView.onDataSourcesRequested = (callback) => {
             
             var bigQuery = new $.ig.RVBigQueryDataSource();
-            bigQuery.id= "MyBigQuery";
-            bigQuery.projectId = "bigquery-public-data";
             bigQuery.title = "My Big Query";
+            bigQuery.subtitle = "My Big Query Subtitle";
+            bigQuery.projectId = "bigquery-public-data";
 
             var bigQueryItem = new $.ig.RVBigQueryDataSourceItem(bigQuery);
-            bigQueryItem.id = "MyBigQueryItem";
+            bigQueryItem.title = "My Big Query Item";
+            bigQueryItem.subtitle = "My Big Query Item Subtitle";         
             bigQueryItem.projectId = "bigquery-public-data";
             bigQueryItem.datasetId = "austin_311";
             bigQueryItem.table = "311_service_requests";
-            bigQuery.title = "My Big Query Item"
 
             callback(new $.ig.RevealDataSources([bigQuery], [bigQueryItem], false));
         };

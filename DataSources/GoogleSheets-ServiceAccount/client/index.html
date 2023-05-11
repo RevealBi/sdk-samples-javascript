@@ -26,16 +26,16 @@
         revealView.onDataSourcesRequested = (callback) => {
 
             //get file from google drive
-            var googleDriveDSI = new $.ig.RVGoogleDriveDataSourceItem();
-            googleDriveDSI.id = "MyGoogleSheet";
-            googleDriveDSI.title = "My Google Sheet";
+            const googleDriveDSI = new $.ig.RVGoogleDriveDataSourceItem();
             googleDriveDSI.identifier = "file_identifier";
 
             //indicate the file is a google sheet and set the sheet name
-            var googleSheet  = new $.ig.RVGoogleSheetDataSourceItem(googleDriveDSI);
+            const googleSheet  = new $.ig.RVGoogleSheetDataSourceItem(googleDriveDSI);
+            googleDriveDSI.title = "My Google Sheet";
+            googleSheet.subtitle = "Google Drive";
             googleSheet.sheet = "Sheet1";
 
-            callback(new $.ig.RevealDataSources([googleDrive], [googleSheet], false));
+            callback(new $.ig.RevealDataSources([], [googleSheet], false));
         };
    </script>
 </body>
