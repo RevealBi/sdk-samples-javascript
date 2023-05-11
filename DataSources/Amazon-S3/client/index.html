@@ -26,8 +26,9 @@
         revealView.onDataSourcesRequested = (callback) => {
             
             var s3 = new $.ig.RVS3DataSource();
-            s3.region = "region";
             s3.title = "My S3 Server";
+            s3.subtitle = "Amazon S3";
+            s3.region = "region";
 
             callback(new $.ig.RevealDataSources([s3], [], true));
         };
