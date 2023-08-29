@@ -1,4 +1,6 @@
 ﻿using Reveal.Sdk;
+using Reveal.Sdk.Data;
+using Reveal.Sdk.Data.Amazon.S3;
 
 namespace RevealSdk.Server.Reveal
 {

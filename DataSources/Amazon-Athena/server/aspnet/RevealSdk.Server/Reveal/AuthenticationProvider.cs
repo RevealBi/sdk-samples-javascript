@@ -1,4 +1,6 @@
 ﻿using Reveal.Sdk;
+using Reveal.Sdk.Data;
+using Reveal.Sdk.Data.Amazon.Athena;
 
 namespace RevealSdk.Server.Reveal
 {

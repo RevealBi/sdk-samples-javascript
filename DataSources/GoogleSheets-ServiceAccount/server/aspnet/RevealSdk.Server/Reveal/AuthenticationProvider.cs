@@ -1,5 +1,7 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Reveal.Sdk;
+using Reveal.Sdk.Data;
+using Reveal.Sdk.Data.Google.Drive;
 
 namespace RevealSdk.Server.Reveal
 {
