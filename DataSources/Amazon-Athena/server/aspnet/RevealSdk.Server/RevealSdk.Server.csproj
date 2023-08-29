@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Reveal.Sdk.AspNetCore" Version="1.6.0" />
+    <PackageReference Include="Reveal.Sdk.Data.Amazon.Athena" Version="1.6.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 

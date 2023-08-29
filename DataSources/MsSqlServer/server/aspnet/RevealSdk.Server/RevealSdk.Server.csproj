@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Reveal.Sdk.AspNetCore" Version="1.6.0" />
+    <PackageReference Include="Reveal.Sdk.Data.Microsoft.SqlServer" Version="1.6.0-rc10" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 

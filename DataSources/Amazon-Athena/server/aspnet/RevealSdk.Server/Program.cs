@@ -1,4 +1,5 @@
 using Reveal.Sdk;
+using Reveal.Sdk.Data;
 using RevealSdk.Server.Reveal;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddReveal( builder =>
 {
     builder.AddAuthenticationProvider<AuthenticationProvider>();
+    builder.DataSources.RegisterAmazonAthena();
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
