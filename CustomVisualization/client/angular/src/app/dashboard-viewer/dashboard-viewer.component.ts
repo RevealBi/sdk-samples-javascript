@@ -16,6 +16,14 @@ export class DashboardViewerComponent implements AfterViewInit {
     let dashboard = await $.ig.RVDashboard.loadDashboard("Sales");
     var revealView = new $.ig.RevealView(this.el.nativeElement);
     revealView.dashboard = dashboard;
+
+    //add custom vizualization to chart types drop down
+    revealView.chartTypes.push({
+      title: "HTML Table",
+      url: "http://localhost:4200/table", //provide the url to your custom vizualization
+      icon: "https://help.revealbi.io/img/logo.png",
+      groups: ["Custom Vizualizations"]
+    });
   }
 
 }
