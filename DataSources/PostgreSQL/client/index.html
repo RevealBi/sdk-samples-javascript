@@ -26,11 +26,11 @@
         revealView.onDataSourcesRequested = (callback) => {
             
             var postgresDataSource = new $.ig.RVPostgresDataSource();
-            postgresDataSource.id = "MyPostgresDatasource";
+            postgresDataSource.id = "MyPostgresDataSource";
             postgresDataSource.title = "My PostgreSQL";
 
             var postgresDataSourceItem = new $.ig.RVPostgresDataSourceItem(postgresDataSource);
-            postgresDataSourceItem.id = "MyPostgresDatasourceItem";
+            postgresDataSourceItem.id = "MyPostgresDataSourceItem";
             postgresDataSourceItem.title = "My PostgreSQL Item";
 
             callback(new $.ig.RevealDataSources([postgresDataSource], [postgresDataSourceItem], true));
