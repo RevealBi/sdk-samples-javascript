@@ -4,9 +4,9 @@ import reveal,
 	IRVUserContext,
 	RevealOptions,
 	RVDashboardDataSource,
-	RVDataSourceItem, RVMySqlDataSource, RVMySqlDataSourceItem,
-	RVPostgresDataSource,
-	RVPostgresDataSourceItem,
+	RVDataSourceItem,
+	RVMySqlDataSource,
+	RVMySqlDataSourceItem,
 	RVUsernamePasswordDataSourceCredential
 } from 'reveal-sdk-node';
 import cors from "cors";
