@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Sdk - Web Component</title>
+
+</head>
+
+<body>
+    <div id="revealView" style="height: 920px; width: 100%;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+    <script src="https://dl.revealbi.io/reveal/libs/1.6.1/infragistics.reveal.js"></script>
+
+    <script type="text/javascript">
+        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+
+        var revealView = new $.ig.RevealView("#revealView");
+        revealView.startInEditMode = true;
+
+        revealView.onDataSourcesRequested = (callback) => {
+            //if you are using SID
+            const oracleSIDDataSource = new $.ig.RVOracleSIDDataSource();        
+            oracleSIDDataSource.id = "MyOracleSIDDataSource";
+            oracleSIDDataSource.title = "My Oracle SID";
+
+            //if you are using Service Name
+            const oracleServiceDataSource = new $.ig.RVOracleServiceDataSource();  
+            oracleServiceDataSource.id = "MyOracleServiceDataSource";
+            oracleServiceDataSource.title = "My Oracle Service";
+
+            const oracleSIDDataSourceItem = new $.ig.RVOracleDataSourceItem(oracleSIDDataSource);
+            oracleSIDDataSourceItem.id = "MyOracleSIDDataSourceItem";
+            oracleSIDDataSourceItem.title = "My Oracle SID Item";
+
+            const oracleServiceDataSourceItem = new $.ig.RVOracleDataSourceItem(oracleServiceDataSource);
+            oracleServiceDataSourceItem.id = "MyOracleServiceDataSourceItem";
+            oracleServiceDataSourceItem.title = "My Oracle Service Item";
+
+            callback(new $.ig.RevealDataSources([oracleSIDDataSource, oracleServiceDataSource], [oracleSIDDataSourceItem, oracleServiceDataSourceItem], true));
+        };
+    </script>
+</body>
+
+</html>
