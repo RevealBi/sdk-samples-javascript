@@ -15,7 +15,12 @@ namespace RevealSdk.Server.Reveal
                 ChangeDataSourceAsync(userContext, oracleDataSourceItem.DataSource);
 
                 //only change the table if we have selected our custom data source item
-                if (oracleDataSourceItem.Id == "MyOracleDataSourceItem")
+                if (oracleDataSourceItem.Id == "MyOracleSIDDataSourceItem")
+                {
+                    oracleDataSourceItem.Table = "your-table";
+                }
+                
+                if (oracleDataSourceItem.Id == "MyOracleServiceDataSourceItem")
                 {
                     oracleDataSourceItem.Table = "your-table";
                 }

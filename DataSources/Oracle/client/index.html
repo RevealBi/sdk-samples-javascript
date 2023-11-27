@@ -24,26 +24,25 @@
         revealView.startInEditMode = true;
 
         revealView.onDataSourcesRequested = (callback) => {
-            //adjust the type as you need
-            const type = "sid";
+            //if you are using SID
+            const oracleSIDDataSource = new $.ig.RVOracleSIDDataSource();        
+            oracleSIDDataSource.id = "MyOracleSIDDataSource";
+            oracleSIDDataSource.title = "My Oracle SID";
 
-            var oracleDataSource = null;
-            if (type === "sid") {
-                oracleDataSource = new $.ig.RVOracleSIDDataSource();
-                oracleDataSource.sID = "your-sid";
-            } else {
-                oracleDataSource = new $.ig.RVOracleServiceDataSource();
-                oracleDataSource.service = "your-service-name";
-            }
+            //if you are using Service Name
+            const oracleServiceDataSource = new $.ig.RVOracleServiceDataSource();  
+            oracleServiceDataSource.id = "MyOracleServiceDataSource";
+            oracleServiceDataSource.title = "My Oracle Service";
 
-            oracleDataSource.id = "MyOracleServiceDataSource";
-            oracleDataSource.title = "My Oracle";
+            const oracleSIDDataSourceItem = new $.ig.RVOracleDataSourceItem(oracleSIDDataSource);
+            oracleSIDDataSourceItem.id = "MyOracleSIDDataSourceItem";
+            oracleSIDDataSourceItem.title = "My Oracle SID Item";
 
-            var oracleDataSourceItem = new $.ig.RVOracleDataSourceItem(oracleDataSource);
-            oracleDataSourceItem.id = "MyOracleDataSourceItem";
-            oracleDataSourceItem.title = "My Oracle Item";
+            const oracleServiceDataSourceItem = new $.ig.RVOracleDataSourceItem(oracleServiceDataSource);
+            oracleServiceDataSourceItem.id = "MyOracleServiceDataSourceItem";
+            oracleServiceDataSourceItem.title = "My Oracle Service Item";
 
-            callback(new $.ig.RevealDataSources([oracleDataSource], [oracleDataSourceItem], true));
+            callback(new $.ig.RevealDataSources([oracleSIDDataSource, oracleServiceDataSource], [oracleSIDDataSourceItem, oracleServiceDataSourceItem], true));
         };
     </script>
 </body>

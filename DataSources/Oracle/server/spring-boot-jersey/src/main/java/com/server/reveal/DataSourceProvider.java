@@ -15,7 +15,11 @@ public class DataSourceProvider implements IRVDataSourceProvider {
             changeDataSource(userContext, dataSourceItem.getDataSource());
 
             //only change the table if we have selected our custom data source item
-            if (Objects.equals(dataSourceItem.getId(), "MyOracleDataSourceItem")) {
+            if (Objects.equals(dataSourceItem.getId(), "MyOracleSIDDataSourceItem")) {
+                oracleDataSourceItem.setTable("your-table");
+            }
+
+            if (Objects.equals(dataSourceItem.getId(), "MyOracleServiceDataSourceItem")) {
                 oracleDataSourceItem.setTable("your-table");
             }
         }

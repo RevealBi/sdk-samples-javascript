@@ -31,7 +31,11 @@ const dataSourceItemProvider = async (userContext: IRVUserContext | null, dataSo
         dataSourceProvider(userContext, dataSourceItem.dataSource);
 
         //only change the table if we have selected our data source item
-        if (dataSourceItem.id === "MyOracleDataSourceItem") {
+        if (dataSourceItem.id === "MyOracleSIDDataSourceItem") {
+            dataSourceItem.table = "your-table";
+        }
+
+        if (dataSourceItem.id === "MyOracleServiceDataSourceItem") {
             dataSourceItem.table = "your-table";
         }
     }
