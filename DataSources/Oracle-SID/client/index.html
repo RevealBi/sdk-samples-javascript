@@ -20,16 +20,15 @@
     <script type="text/javascript">
         $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
         
-        var revealView = new $.ig.RevealView("#revealView");
+        const revealView = new $.ig.RevealView("#revealView");
         revealView.startInEditMode = true;
         
         revealView.onDataSourcesRequested = (callback) => {
-            var oracleSIDDataSource = new $.ig.RVOracleSIDDataSource();
+            const oracleSIDDataSource = new $.ig.RVOracleSIDDataSource();
             oracleSIDDataSource.id = "MyOracleSIDDataSource";
             oracleSIDDataSource.title = "My Oracle";
-            oracleSIDDataSource.sID = "your-sid"; // required
 
-            var oracleDataSourceItem = new $.ig.RVOracleDataSourceItem(oracleSIDDataSource);
+            const oracleDataSourceItem = new $.ig.RVOracleDataSourceItem(oracleSIDDataSource);
             oracleDataSourceItem.id = "MyOracleDataSourceItem";
             oracleDataSourceItem.title = "My Oracle Item";
 
