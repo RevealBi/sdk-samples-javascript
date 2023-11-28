@@ -20,8 +20,11 @@ const userContextProvider = (request: IncomingMessage) => {
 	// this can be used to store values coming from the request.
 	const props = new Map<string, Object>();
 
+	//get the sales-person-id header set on the client
+	const salesPersonId = request.headers["x-sales-person-id"] ?? "";
+
 	//add the sales-person-id property
-	props.set("sales-person-id", 279);
+	props.set("sales-person-id", salesPersonId);
 
 	return new RVUserContext("user identifier", props);
 };

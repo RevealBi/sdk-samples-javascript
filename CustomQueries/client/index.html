@@ -19,6 +19,12 @@
 
     <script type="text/javascript">
         $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+        $.ig.RevealSdkSettings.setAdditionalHeadersProvider(function (url) {
+            const headers = {};
+            //set the x-sales-person-id header that identifies the sales person
+            headers["x-sales-person-id"] = "279";
+            return headers;
+        });
         
         var revealView = new $.ig.RevealView("#revealView");
         revealView.startInEditMode = true;
