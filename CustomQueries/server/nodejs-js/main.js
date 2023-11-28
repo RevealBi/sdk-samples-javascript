@@ -1,48 +1,58 @@
-var express = require('express');
-var cors = require('cors');
-var reveal = require('reveal-sdk-node');
-
+const express = require('express');
+const cors = require('cors');
+const reveal = require('reveal-sdk-node');
 const app = express();
 
 app.use(cors()); // DEVELOPMENT only! In production, configure appropriately.
 
+const userContextProvider = (request) => {
+    // this can be used to store values coming from the request.
+    const props = new Map();
+
+    //add the sales-person-id property
+    props.set("sales-person-id", 279);
+
+    return new reveal.RVUserContext("user identifier", props);
+};
+
 const authenticationProvider = async (userContext, dataSource) => {
-	if (dataSource instanceof reveal.RVSqlServerDataSource) {
-		return new reveal.RVUsernamePasswordDataSourceCredential("username", "password");
+    if (dataSource instanceof reveal.RVSqlServerDataSource) {
+        return new reveal.RVUsernamePasswordDataSourceCredential("username", "password");
     }
-	return null;
+    return null;
 }
 
 const dataSourceItemProvider = async (userContext, dataSourceItem) => {
-	if (dataSourceItem instanceof reveal.RVSqlServerDataSourceItem) {
+    if (dataSourceItem instanceof reveal.RVSqlServerDataSourceItem) {
 
-		//update underlying data source
-		dataSourceProvider(userContext, dataSourceItem.dataSource);
+        //update underlying data source
+        dataSourceProvider(userContext, dataSourceItem.dataSource);
 
-		//only change the table if we have selected our data source item
-		if (dataSourceItem.id === "MySqlServerDataSourceItem1") {
-			dataSourceItem.customQuery = "SELECT * FROM [Sales].[SalesOrderHeader] WHERE [SalesPersonId] = 279";
-		}
+        //only change the table if we have selected our data source item
+        if (dataSourceItem.id === "MySqlServerDataSourceItem") {
+            //get the sales-person-id from the userContext
+            const salesPersonId = userContext?.properties.get("sales-person-id");
 
-		if (dataSourceItem.id === "MySqlServerDataSourceItem2") {
-			dataSourceItem.customQuery = "SELECT * FROM [Sales].[SalesOrderHeader] WHERE [SalesPersonId] = 282";
-		}
-	}
-	return dataSourceItem;
+            //parametrize your custom query with the property obtained before
+            dataSourceItem.customQuery = `SELECT * FROM [Sales].[SalesOrderHeader] WHERE [SalesPersonId] = ${salesPersonId}`;
+        }
+    }
+    return dataSourceItem;
 }
 
 const dataSourceProvider = async (userContext, dataSource) => {
-	if (dataSource instanceof reveal.RVSqlServerDataSource) {
-		dataSource.host = "your-host";
-		dataSource.database = "your-database";
-	}
-	return dataSource;
+    if (dataSource instanceof reveal.RVSqlServerDataSource) {
+        dataSource.host = "your-host";
+        dataSource.database = "your-database";
+    }
+    return dataSource;
 }
 
 const revealOptions = {
+    userContextProvider: userContextProvider,
     authenticationProvider: authenticationProvider,
     dataSourceProvider: dataSourceProvider,
-	dataSourceItemProvider: dataSourceItemProvider,
+    dataSourceItemProvider: dataSourceItemProvider,
 }
 app.use('/', reveal(revealOptions));
 

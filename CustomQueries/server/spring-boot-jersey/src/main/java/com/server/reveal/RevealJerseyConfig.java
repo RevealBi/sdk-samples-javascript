@@ -10,21 +10,21 @@ import javax.ws.rs.ApplicationPath;
 
 @Component
 @ApplicationPath("/")
-public class RevealJerseyConfig extends ResourceConfig 
-{
-    public RevealJerseyConfig()
-    {
-        RevealEngineInitializer.initialize(new InitializeParameterBuilder()
-        .setAuthProvider(new AuthenticationProvider())
-        .setDataSourceProvider(new DataSourceProvider())
-        .build());
-        
+public class RevealJerseyConfig extends ResourceConfig {
+    public RevealJerseyConfig() {
+        RevealEngineInitializer.initialize(
+                new InitializeParameterBuilder()
+                        .setAuthProvider(new AuthenticationProvider())
+                        .setDataSourceProvider(new DataSourceProvider())
+                        .setUserContextProvider(new UserContextProvider())
+                        .build());
+
         //register all Reveal classes in JAX-RS context
         for (Class<?> clazz : RevealEngineInitializer.getClassesToRegister()) {
-        	register(clazz);
+            register(clazz);
         }
 
         //register the cors filter for debugging
-        register(CorsFilter.class);  
+        register(CorsFilter.class);
     }
 }

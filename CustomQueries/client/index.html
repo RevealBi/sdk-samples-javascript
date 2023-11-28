@@ -28,15 +28,11 @@
             sqlServerDataSource.id = "MySqlServerDataSource";
             sqlServerDataSource.title = "My SQL Server";
 
-            const sqlServerDataSourceItem1 = new $.ig.RVSqlServerDataSourceItem(sqlServerDataSource);
-            sqlServerDataSourceItem1.id = "MySqlServerDataSourceItem1";
-            sqlServerDataSourceItem1.title = "John Orders";
+            const sqlServerDataSourceItem = new $.ig.RVSqlServerDataSourceItem(sqlServerDataSource);
+            sqlServerDataSourceItem.id = "MySqlServerDataSourceItem";
+            sqlServerDataSourceItem.title = "John Orders";
 
-            const sqlServerDataSourceItem2 = new $.ig.RVSqlServerDataSourceItem(sqlServerDataSource);
-            sqlServerDataSourceItem2.id = "MySqlServerDataSourceItem2";
-            sqlServerDataSourceItem2.title = "Jane Orders";
-
-            callback(new $.ig.RevealDataSources([sqlServerDataSource], [sqlServerDataSourceItem1, sqlServerDataSourceItem2], true));
+            callback(new $.ig.RevealDataSources([sqlServerDataSource], [sqlServerDataSourceItem], true));
         };
    </script>
 </body>

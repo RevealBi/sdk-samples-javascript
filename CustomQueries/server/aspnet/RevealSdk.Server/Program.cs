@@ -10,6 +10,7 @@ builder.Services.AddControllers().AddReveal(revealSetupBuilder =>
 {
     revealSetupBuilder.AddAuthenticationProvider<AuthenticationProvider>();
     revealSetupBuilder.AddDataSourceProvider<DataSourceProvider>();
+    revealSetupBuilder.AddUserContextProvider<UserContextProvider>();
     revealSetupBuilder.DataSources.RegisterMicrosoftSqlServer();
 });
 

@@ -6,14 +6,25 @@ import reveal,
 	RVDashboardDataSource,
 	RVDataSourceItem,
 	RVSqlServerDataSource,
-	RVSqlServerDataSourceItem,
+	RVSqlServerDataSourceItem, RVUserContext,
 	RVUsernamePasswordDataSourceCredential
 } from 'reveal-sdk-node';
 import cors from "cors";
+import {IncomingMessage} from "http";
 
 const app: Application = express();
 
 app.use(cors());
+
+const userContextProvider = (request: IncomingMessage) => {
+	// this can be used to store values coming from the request.
+	const props = new Map<string, Object>();
+
+	//add the sales-person-id property
+	props.set("sales-person-id", 279);
+
+	return new RVUserContext("user identifier", props);
+};
 
 const authenticationProvider = async (userContext: IRVUserContext | null, dataSource: RVDashboardDataSource) => {
 	if (dataSource instanceof RVSqlServerDataSource) {
@@ -29,12 +40,12 @@ const dataSourceItemProvider = async (userContext: IRVUserContext | null, dataSo
 		dataSourceProvider(userContext, dataSourceItem.dataSource);
 
 		//only change the table if we have selected our data source item
-		if (dataSourceItem.id === "MySqlServerDataSourceItem1") {
-			dataSourceItem.customQuery = "SELECT * FROM [Sales].[SalesOrderHeader] WHERE [SalesPersonId] = 279";
-		}
+		if (dataSourceItem.id === "MySqlServerDataSourceItem") {
+			//get the sales-person-id from the userContext
+			const salesPersonId = userContext?.properties.get("sales-person-id");
 
-		if (dataSourceItem.id === "MySqlServerDataSourceItem2") {
-			dataSourceItem.customQuery = "SELECT * FROM [Sales].[SalesOrderHeader] WHERE [SalesPersonId] = 282";
+			//parametrize your custom query with the property obtained before
+			dataSourceItem.customQuery = `SELECT * FROM [Sales].[SalesOrderHeader] WHERE [SalesPersonId] = ${salesPersonId}`;
 		}
 	}
 	return dataSourceItem;
@@ -49,6 +60,7 @@ const dataSourceProvider = async (userContext: IRVUserContext | null, dataSource
 }
 
 const revealOptions: RevealOptions = {
+	userContextProvider: userContextProvider,
 	authenticationProvider: authenticationProvider,
 	dataSourceProvider: dataSourceProvider,
 	dataSourceItemProvider: dataSourceItemProvider,
