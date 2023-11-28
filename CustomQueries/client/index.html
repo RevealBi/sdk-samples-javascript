@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Sdk - Web Component</title>      
+
+</head>
+
+<body>
+    <div id="revealView" style="height: 920px; width: 100%;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
+    <script src="https://dl.revealbi.io/reveal/libs/1.6.1/infragistics.reveal.js"></script>   
+
+    <script type="text/javascript">
+        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+        $.ig.RevealSdkSettings.setAdditionalHeadersProvider(function (url) {
+            const headers = {};
+            //set the x-sales-person-id header that identifies the sales person
+            headers["x-sales-person-id"] = "279";
+            return headers;
+        });
+        
+        var revealView = new $.ig.RevealView("#revealView");
+        revealView.startInEditMode = true;
+        
+        revealView.onDataSourcesRequested = (callback) => {
+            const sqlServerDataSource = new $.ig.RVSqlServerDataSource();
+            sqlServerDataSource.id = "MySqlServerDataSource";
+            sqlServerDataSource.title = "My SQL Server";
+
+            const sqlServerDataSourceItem = new $.ig.RVSqlServerDataSourceItem(sqlServerDataSource);
+            sqlServerDataSourceItem.id = "MySqlServerDataSourceItem";
+            sqlServerDataSourceItem.title = "John Orders";
+
+            callback(new $.ig.RevealDataSources([sqlServerDataSource], [sqlServerDataSourceItem], true));
+        };
+   </script>
+</body>
+
+</html>
