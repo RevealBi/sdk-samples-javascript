@@ -1,6 +1,7 @@
 ﻿using Reveal.Sdk;
 using Reveal.Sdk.Data;
 using Reveal.Sdk.Data.Microsoft.SqlServer;
+using Reveal.Sdk.Data.MySql;
 
 namespace RevealSdk.Server.Reveal
 {
@@ -11,6 +12,11 @@ namespace RevealSdk.Server.Reveal
         {
             IRVDataSourceCredential userCredential = new RVUsernamePasswordDataSourceCredential();
             if (dataSource is RVSqlServerDataSource)
+            {
+                userCredential = new RVUsernamePasswordDataSourceCredential("username", "password");
+            }
+            
+            if (dataSource is RVMySqlDataSource)
             {
                 userCredential = new RVUsernamePasswordDataSourceCredential("username", "password");
             }

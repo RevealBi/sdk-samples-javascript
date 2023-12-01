@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Reveal.Sdk.AspNetCore" Version="1.6.1" />
     <PackageReference Include="Reveal.Sdk.Data.Microsoft.SqlServer" Version="1.6.1" />
+    <PackageReference Include="Reveal.Sdk.Data.MySql" Version="1.6.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 

@@ -11,7 +11,9 @@ builder.Services.AddControllers().AddReveal(revealSetupBuilder =>
     revealSetupBuilder.AddAuthenticationProvider<AuthenticationProvider>();
     revealSetupBuilder.AddDataSourceProvider<DataSourceProvider>();
     revealSetupBuilder.AddUserContextProvider<UserContextProvider>();
-    revealSetupBuilder.DataSources.RegisterMicrosoftSqlServer();
+    revealSetupBuilder.DataSources
+        .RegisterMicrosoftSqlServer()
+        .RegisterMySql();
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
