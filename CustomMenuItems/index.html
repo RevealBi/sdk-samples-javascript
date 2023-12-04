@@ -34,7 +34,7 @@
 
         revealView.onMenuOpening = function (visualization, args) {
             //to modify menu behavior on dashboard
-            if (args.menuLocation === 0) {
+            if (args.menuLocation === $.ig.RVMenuLocation.Dashboard) {
                 //hiding a menu item
                 for (let i = 0; i < args.menuItems.length; i++) {
                     if (args.menuItems[i].title === "Export") args.menuItems[i].isHidden = true;
@@ -48,7 +48,7 @@
             }
 
             // to modify menu behavior on visualizations
-            if (args.menuLocation === 1) {
+            if (args.menuLocation === $.ig.RVMenuLocation.Visualization) {
                 //hiding a menu item
                 for (let i = 0; i < args.menuItems.length; i++) {
                     if (args.menuItems[i].title === "Copy") args.menuItems[i].isHidden = true;
