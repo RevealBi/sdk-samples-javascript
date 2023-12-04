@@ -22,15 +22,18 @@ const authenticationProvider = async (userContext, dataSource) => {
     if (dataSource instanceof reveal.RVSqlServerDataSource) {
         return new reveal.RVUsernamePasswordDataSourceCredential("username", "password");
     }
+
+    if (dataSource instanceof reveal.RVMySqlDataSource) {
+        return new reveal.RVUsernamePasswordDataSourceCredential("username", "password");
+    }
     return null;
 }
 
 const dataSourceItemProvider = async (userContext, dataSourceItem) => {
+    //update underlying data source
+    dataSourceProvider(userContext, dataSourceItem.dataSource);
+
     if (dataSourceItem instanceof reveal.RVSqlServerDataSourceItem) {
-
-        //update underlying data source
-        dataSourceProvider(userContext, dataSourceItem.dataSource);
-
         //only change the table if we have selected our data source item
         if (dataSourceItem.id === "MySqlServerDataSourceItem") {
             //get the sales-person-id from the userContext
@@ -40,11 +43,27 @@ const dataSourceItemProvider = async (userContext, dataSourceItem) => {
             dataSourceItem.customQuery = `SELECT * FROM [Sales].[SalesOrderHeader] WHERE [SalesPersonId] = ${salesPersonId}`;
         }
     }
+
+    if (dataSourceItem instanceof reveal.RVMySqlDataSourceItem) {
+        //only change the table if we have selected our data source item
+        if (dataSourceItem.id === "MyMySqlDataSourceItem") {
+            //get the sales-person-id from the userContext
+            const salesPersonId = userContext?.properties.get("sales-person-id");
+
+            //parametrize your custom query with the property obtained before
+            dataSourceItem.customQuery = `SELECT * FROM Sales_SalesOrderHeader WHERE SalesPersonId = ${salesPersonId}`;
+        }
+    }
     return dataSourceItem;
 }
 
 const dataSourceProvider = async (userContext, dataSource) => {
     if (dataSource instanceof reveal.RVSqlServerDataSource) {
+        dataSource.host = "your-host";
+        dataSource.database = "your-database";
+    }
+
+    if (dataSource instanceof reveal.RVMySqlDataSource) {
         dataSource.host = "your-host";
         dataSource.database = "your-database";
     }

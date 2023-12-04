@@ -38,7 +38,15 @@
             sqlServerDataSourceItem.id = "MySqlServerDataSourceItem";
             sqlServerDataSourceItem.title = "John Orders";
 
-            callback(new $.ig.RevealDataSources([sqlServerDataSource], [sqlServerDataSourceItem], true));
+            const mySqlDataSource = new $.ig.RVMySqlDataSource();
+            mySqlDataSource.id = "MyMySqlDataSource";
+            mySqlDataSource.title = "My MySQL Server";
+
+            const mySqlDataSourceItem = new $.ig.RVMySqlDataSourceItem(mySqlDataSource);
+            mySqlDataSourceItem.id = "MyMySqlDataSourceItem";
+            mySqlDataSourceItem.title = "Jane Orders";
+
+            callback(new $.ig.RevealDataSources([sqlServerDataSource, mySqlDataSource], [sqlServerDataSourceItem, mySqlDataSourceItem], true));
         };
    </script>
 </body>
