@@ -8,11 +8,10 @@ import java.util.Objects;
 
 public class DataSourceProvider implements IRVDataSourceProvider {
     public RVDataSourceItem changeDataSourceItem(IRVUserContext userContext, String dashboardsID, RVDataSourceItem dataSourceItem) {
+        //update underlying data source
+        changeDataSource(userContext, dataSourceItem.getDataSource());
 
         if (dataSourceItem instanceof RVSqlServerDataSourceItem sqlDataSourceItem) {
-            //update underlying data source
-            changeDataSource(userContext, dataSourceItem.getDataSource());
-
             //only change the table if we have selected our custom data source item
             if (Objects.equals(dataSourceItem.getId(), "MySqlServerDataSourceItem")) {
                 //get the sales-person-id from the userContext
@@ -24,9 +23,6 @@ public class DataSourceProvider implements IRVDataSourceProvider {
         }
 
         if (dataSourceItem instanceof RVMySqlDataSourceItem mySqlDataSourceItem) {
-            //update underlying data source
-            changeDataSource(userContext, dataSourceItem.getDataSource());
-
             //only change the table if we have selected our custom data source item
             if (Objects.equals(dataSourceItem.getId(), "MyMySqlDataSourceItem")) {
                 //get the sales-person-id from the userContext

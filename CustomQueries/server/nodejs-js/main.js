@@ -30,10 +30,10 @@ const authenticationProvider = async (userContext, dataSource) => {
 }
 
 const dataSourceItemProvider = async (userContext, dataSourceItem) => {
-    if (dataSourceItem instanceof reveal.RVSqlServerDataSourceItem) {
-        //update underlying data source
-        dataSourceProvider(userContext, dataSourceItem.dataSource);
+    //update underlying data source
+    dataSourceProvider(userContext, dataSourceItem.dataSource);
 
+    if (dataSourceItem instanceof reveal.RVSqlServerDataSourceItem) {
         //only change the table if we have selected our data source item
         if (dataSourceItem.id === "MySqlServerDataSourceItem") {
             //get the sales-person-id from the userContext
@@ -45,9 +45,6 @@ const dataSourceItemProvider = async (userContext, dataSourceItem) => {
     }
 
     if (dataSourceItem instanceof reveal.RVMySqlDataSourceItem) {
-        //update underlying data source
-        dataSourceProvider(userContext, dataSourceItem.dataSource)
-
         //only change the table if we have selected our data source item
         if (dataSourceItem.id === "MyMySqlDataSourceItem") {
             //get the sales-person-id from the userContext

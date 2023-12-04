@@ -10,11 +10,11 @@ namespace RevealSdk.Server.Reveal
         public Task<RVDataSourceItem> ChangeDataSourceItemAsync(IRVUserContext userContext, string dashboardId,
             RVDataSourceItem dataSourceItem)
         {
+            //update underlying data source
+            ChangeDataSourceAsync(userContext, dataSourceItem.DataSource);
+
             if (dataSourceItem is RVSqlServerDataSourceItem sqlDataSourceItem)
             {
-                //update underlying data source
-                ChangeDataSourceAsync(userContext, sqlDataSourceItem.DataSource);
-
                 if (sqlDataSourceItem.Id == "MySqlServerDataSourceItem")
                 {
                     //get the sales-person-id from the userContext
@@ -28,9 +28,6 @@ namespace RevealSdk.Server.Reveal
 
             if (dataSourceItem is RVMySqlDataSourceItem mySqlDataSourceItem)
             {
-                //update underlying data source
-                ChangeDataSourceAsync(userContext, dataSourceItem.DataSource);
-
                 if (mySqlDataSourceItem.Id == "MyMySqlDataSourceItem")
                 {
                     //get the sales-person-id from the userContext

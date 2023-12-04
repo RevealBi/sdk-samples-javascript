@@ -45,10 +45,10 @@ const authenticationProvider = async (userContext: IRVUserContext | null, dataSo
 }
 
 const dataSourceItemProvider = async (userContext: IRVUserContext | null, dataSourceItem: RVDataSourceItem) => {
-	if (dataSourceItem instanceof RVSqlServerDataSourceItem) {
-		//update underlying data source
-		dataSourceProvider(userContext, dataSourceItem.dataSource);
+	//update underlying data source
+	dataSourceProvider(userContext, dataSourceItem.dataSource);
 
+	if (dataSourceItem instanceof RVSqlServerDataSourceItem) {
 		//only change the table if we have selected our data source item
 		if (dataSourceItem.id === "MySqlServerDataSourceItem") {
 			//get the sales-person-id from the userContext
@@ -60,9 +60,6 @@ const dataSourceItemProvider = async (userContext: IRVUserContext | null, dataSo
 	}
 
 	if (dataSourceItem instanceof RVMySqlDataSourceItem) {
-		//update underlying data source
-		dataSourceProvider(userContext, dataSourceItem.dataSource);
-
 		//only change the table if we have selected our data source item
 		if (dataSourceItem.id === "MyMySqlDataSourceItem") {
 			//get the sales-person-id from the userContext
