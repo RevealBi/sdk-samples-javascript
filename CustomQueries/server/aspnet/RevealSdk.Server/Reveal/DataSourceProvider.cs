@@ -12,8 +12,8 @@ namespace RevealSdk.Server.Reveal
         {
             if (dataSourceItem is RVSqlServerDataSourceItem sqlDataSourceItem)
             {
-                var sqlDataSource = (RVSqlServerDataSource)sqlDataSourceItem.DataSource;
-                UpdateDataSource(sqlDataSource);
+                //update underlying data source
+                ChangeDataSourceAsync(userContext, sqlDataSourceItem.DataSource);
 
                 if (sqlDataSourceItem.Id == "MySqlServerDataSourceItem")
                 {
@@ -28,8 +28,8 @@ namespace RevealSdk.Server.Reveal
 
             if (dataSourceItem is RVMySqlDataSourceItem mySqlDataSourceItem)
             {
-                var sqlDataSource = (RVMySqlDataSource)mySqlDataSourceItem.DataSource;
-                UpdateDataSource(sqlDataSource);
+                //update underlying data source
+                ChangeDataSourceAsync(userContext, dataSourceItem.DataSource);
 
                 if (mySqlDataSourceItem.Id == "MyMySqlDataSourceItem")
                 {
@@ -49,21 +49,18 @@ namespace RevealSdk.Server.Reveal
             RVDashboardDataSource dataSource)
         {
             if (dataSource is RVSqlServerDataSource sqlDataSource)
-                UpdateDataSource(sqlDataSource);
+            {
+                sqlDataSource.Host = "your-host";
+                sqlDataSource.Database = "your-database";
+            }
+
+            if (dataSource is RVMySqlDataSource mySqlDataSource)
+            {
+                mySqlDataSource.Host = "your-host";
+                mySqlDataSource.Database = "your-database";
+            }
 
             return Task.FromResult(dataSource);
-        }
-
-        private void UpdateDataSource(RVSqlServerDataSource sqlDataSource)
-        {
-            sqlDataSource.Host = "your-host";
-            sqlDataSource.Database = "your-database";
-        }
-
-        private void UpdateDataSource(RVMySqlDataSource mySqlDataSource)
-        {
-            mySqlDataSource.Host = "your-host";
-            mySqlDataSource.Database = "your-database";
         }
     }
 }
