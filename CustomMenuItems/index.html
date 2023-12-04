@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Sdk - Web Component</title>
+
+
+    <style>
+        .revealView {
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+<div id="revealView" class="revealView"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+
+<script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+<script src="https://dl.revealbi.io/reveal/libs/1.6.1/infragistics.reveal.js"></script>
+
+<script type="text/javascript">
+    //set this to your server url
+    $.ig.RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
+
+    $.ig.RVDashboard.loadDashboard("Project Management").then(dashboard => {
+        const revealView = new $.ig.RevealView("#revealView");
+        revealView.dashboard = dashboard;
+
+        revealView.onMenuOpening = function (visualization, args) {
+            //to modify menu behavior on dashboard
+            if (args.menuLocation === $.ig.RVMenuLocation.Dashboard) {
+                //hiding a menu item
+                for (let i = 0; i < args.menuItems.length; i++) {
+                    if (args.menuItems[i].title === "Export") args.menuItems[i].isHidden = true;
+                }
+
+                //adding a new menu item
+                const menuItem = new $.ig.RVMenuItem("Custom Item on Dashboard", new $.ig.RVImage("https://i.pinimg.com/736x/03/c8/a2/03c8a2aff8be6bee9064eef9b5d72d66.jpg", "Icon"), () => {
+                    alert('my action');
+                })
+                args.menuItems.push(menuItem);
+            }
+
+            // to modify menu behavior on visualizations
+            if (args.menuLocation === $.ig.RVMenuLocation.Visualization) {
+                //hiding a menu item
+                for (let i = 0; i < args.menuItems.length; i++) {
+                    if (args.menuItems[i].title === "Copy") args.menuItems[i].isHidden = true;
+                }
+
+                //adding a new menu item
+                const menuItem = new $.ig.RVMenuItem("Custom Item on Visualization", new $.ig.RVImage("https://i.pinimg.com/736x/03/c8/a2/03c8a2aff8be6bee9064eef9b5d72d66.jpg", "Icon"), () => {
+                    alert('my action');
+                })
+                args.menuItems.push(menuItem);
+
+                //adding a new menu item to the "Tasks completed" visualization
+                if(visualization.title === "Tasks Completed") {
+                    const menuItem = new $.ig.RVMenuItem("Custom Item on Tasks Completed", new $.ig.RVImage("https://i.pinimg.com/736x/03/c8/a2/03c8a2aff8be6bee9064eef9b5d72d66.jpg", "Icon"), () => {
+                        alert('my action');
+                    })
+                    args.menuItems.push(menuItem);
+                }
+            }
+        };
+    });
+</script>
+</body>
+</html>
