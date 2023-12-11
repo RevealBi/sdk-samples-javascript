@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Sdk - Web Component</title>
+</head>
+
+<body>
+<div id="revealView" style="height: 920px; width: 100%;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+<script src="https://dl.revealbi.io/reveal/libs/1.6.1/infragistics.reveal.js"></script>
+
+<script type="text/javascript">
+    // set this to your server url
+    $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+
+    //Using OpenStreetMaps
+    const url = 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png'
+    $.ig.RevealSdkSettings.visualizations.scatterMaps = $.ig.ScatterMapVisualizationsConfiguration.createOpenStreetMapConfiguration(url);
+
+    //Using Bing
+    //$.ig.RevealSdkSettings.visualizations.scatterMaps = new $.ig.ScatterMapVisualizationsConfiguration("Bing", "AqAuanIbc9dUrdsDpC71R7XDFvJs03tzNfo2vx30M9fSLw2WxBCJ22gYbu9GhKL2");
+
+    //Using Esri
+    //$.ig.RevealSdkSettings.visualizations.scatterMaps = new $.ig.ScatterMapVisualizationsConfiguration("Esri", "kNX-fxWqYinK3sRbIRU8_z74cPmp7tGrmWQV8hYatV0Ty-FzD3a2piFvNbO1AdlekNBuM0NxuJGfCxWZCMs6xuev4c3_0Xw-FPXjy8F8DZbviOYMV6CWncAM2GRl08hEhtFY_Bu5eBhYXCi92SjZlXx_KdvBcfx2z8aB8p6jJkSDYg3_vor4Tn_ScixlTtvF");
+
+    //Using MapBox
+    //$.ig.RevealSdkSettings.visualizations.scatterMaps = new $.ig.ScatterMapVisualizationsConfiguration("MapBox", "pk.eyJ1IjoibWdvbnphbGV6aWciLCJhIjoiY2xxMHlyNzViMDBjOTJrbnh5bnJ0ajc1MCJ9.WMrF6eIcoZqk2qaNqYk1Rw");
+
+    $.ig.RVDashboard.loadDashboard("Traffic Volume", (dashboard) => {
+        const revealView = new $.ig.RevealView("#revealView");
+        revealView.dashboard = dashboard;
+
+        revealView.onDataSourcesRequested = (callback) => {
+            const localFileItem = new $.ig.RVLocalFileDataSourceItem();
+            localFileItem.uri = "local:/Traffic_Volume.csv";
+
+            const csvDataSourceItem = new $.ig.RVCsvDataSourceItem(localFileItem);
+            csvDataSourceItem.title = "CSV Data";
+            csvDataSourceItem.subtitle = "CSV Data Subtitle";
+
+            callback(new $.ig.RevealDataSources([], [csvDataSourceItem], true));
+        };
+    });
+</script>
+</body>
+
+</html>
