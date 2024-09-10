@@ -4,7 +4,7 @@ import com.infragistics.reveal.sdk.api.IRVUserContext;
 import com.infragistics.reveal.sdk.base.RVUserContext;
 import com.infragistics.reveal.sdk.rest.RVContainerRequestAwareUserContextProvider;
 
-import javax.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestContext;
 import java.util.HashMap;
 
 public class UserContextProvider extends RVContainerRequestAwareUserContextProvider {
