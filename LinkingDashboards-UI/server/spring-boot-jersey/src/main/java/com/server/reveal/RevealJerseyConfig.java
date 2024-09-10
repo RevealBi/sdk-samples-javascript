@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import com.infragistics.reveal.engine.init.InitializeParameterBuilder;
 import com.infragistics.reveal.engine.init.RevealEngineInitializer;
 
-import javax.ws.rs.ApplicationPath;
+import jakarta.ws.rs.ApplicationPath;
 
 @Component
 @ApplicationPath("/")
