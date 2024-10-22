@@ -1,4 +1,6 @@
 ﻿using Reveal.Sdk;
+using Reveal.Sdk.Data;
+using Reveal.Sdk.Data.Microsoft.SqlServer;
 
 namespace RevealSdk.Server.SDK
 {
@@ -20,13 +22,13 @@ namespace RevealSdk.Server.SDK
 
         public Task<bool> Filter(IRVUserContext userContext, RVDataSourceItem dataSourceItem) 
         {
-            var excludedsList = new List<string>() { "Customers", "Suppliers" }; // here we indicate a list of tables which we want to block
+            var excludedList = new List<string>() { "Customers", "Suppliers" }; // here we indicate a list of tables which we want to block
 
             if (dataSourceItem != null)
             {
                 if (dataSourceItem is RVSqlServerDataSourceItem dataSQLItem) // we consult if it is a SQL DB item and cast the generic data source item to SQL item to be able to access its attributes
                 {
-                    if (excludedsList.Contains(dataSQLItem.Table)) return Task.FromResult(false); 
+                    if (excludedList.Contains(dataSQLItem.Table)) return Task.FromResult(false); 
                 }
             }
             return Task.FromResult(true);

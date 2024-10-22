@@ -1,4 +1,5 @@
 using Reveal.Sdk;
+using Reveal.Sdk.Data;
 using RevealSdk.Server.SDK;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,9 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers().AddReveal(builder =>
 {
-    builder
-        .AddAuthenticationProvider<AuthenticationProvider>() //must add this to manage the DB credentials
-        .AddObjectFilter<ServerSideFiltering>() // must add this to manage the filtering 
+    builder.AddDataSourceProvider<DataSourceProvider>()
+           .AddAuthenticationProvider<AuthenticationProvider>() //must add this to manage the DB credentials
+           .AddObjectFilter<ServerSideFiltering>() // must add this to manage the filtering
+           .DataSources.RegisterMicrosoftSqlServer()
     ;
 });
 

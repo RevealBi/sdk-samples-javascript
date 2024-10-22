@@ -12,11 +12,9 @@
 <body>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>    
     <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
     <script src="https://dl.revealbi.io/reveal/libs/1.7.0/infragistics.reveal.js"></script>
-
     <script type="text/javascript">
 
         //set this to your server url
@@ -26,8 +24,6 @@
         revealView.startInEditMode = true;
         revealView.onDataSourcesRequested = (callback) => {
             var localSQLDataSource = new $.ig.RVSqlServerDataSource(); // indicate type of source
-            localSQLDataSource.host = "localhost"; // for this example we will work on "Localhost"
-            localSQLDataSource.database = "Northwind"; // you must enter the name of the database you have created for this example, in this case "Northwind"
             localSQLDataSource.title = "Local SQL Server"; // enter name to display in selection menu
 
             callback(new $.ig.RevealDataSources([localSQLDataSource], [], true));
