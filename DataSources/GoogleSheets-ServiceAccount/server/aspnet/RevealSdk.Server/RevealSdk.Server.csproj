@@ -8,8 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Google.Apis.Auth.AspNetCore3" Version="1.59.0" />
-    <PackageReference Include="Reveal.Sdk.AspNetCore" Version="1.7.0" />
-    <PackageReference Include="Reveal.Sdk.Data.Google.Drive" Version="1.7.0" />
+    <PackageReference Include="Reveal.Sdk.AspNetCore" Version="1.7.2" />
+    <PackageReference Include="Reveal.Sdk.Data.Google.Drive" Version="1.7.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
