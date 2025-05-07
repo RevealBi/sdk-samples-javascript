@@ -1,0 +1,14 @@
+To use Databricks connector you must have Java Runtime Environment (JRE) 8.0 or 11.0 installed.
+Additionally, the Databricks JDBC Driver supports Apache Arrow. When using a Java JVM version 11 or higher, add the line **--add-opens java.base/java.nio=ALL-UNNAMED** to the JVM arguments.
+
+Notice in this sample we already added it to the pom.xml as a jvmArgument in the plugin:
+<plugin>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-maven-plugin</artifactId>
+    <configuration>
+        <jvmArgument>--add-opens=java.base/java.nio=ALL-UNNAMED</jvmArgument>
+    </configuration>
+</plugin>
+
+To run your project execute the command:
+mvn spring-boot:run
