@@ -25,18 +25,16 @@
         
         revealView.onDataSourcesRequested = (callback) => {
             
-            var athenaDS = new $.ig.RVAthenaDataSource();
-            athenaDS.title = "My Athena Data Source";
-            athenaDS.subtitle = "Amazon Athena";
-            athenaDS.region = "region";
-            athenaDS.database = "database";
+            var dataSource = new $.ig.RVAthenaDataSource();
+            dataSource.title = "My Athena Data Source";
+            dataSource.subtitle = "Amazon Athena";
 
-            var athenaDSI = new $.ig.RVAthenaDataSourceItem(athenaDS);
-            athenaDSI.title = "My Athena Data Source Item";
-            athenaDS.subtitle = "Amazon Athena";
-            athenaDSI.table = "table";
+            var dataSourceItem = new $.ig.RVAthenaDataSourceItem(dataSource);
+            dataSourceItem.id = "my-data-source-item";
+            dataSourceItem.title = "My Athena Data Source Item";
+            dataSourceItem.subtitle = "Amazon Athena";
 
-            callback(new $.ig.RevealDataSources([athenaDS], [athenaDSI], false));
+            callback(new $.ig.RevealDataSources([dataSource], [dataSourceItem], false));
         };
    </script>
 </body>

@@ -13,8 +13,29 @@ const authenticationProvider = async (userContext, dataSource) => {
 	return null;
 }
 
+const dataSourceItemProvider = async (userContext, dataSourceItem) => {
+	await dataSourceProvider(userContext, dataSourceItem.dataSource);
+
+	if (dataSourceItem instanceof reveal.RVAthenaDataSourceItem) {
+		if (dataSourceItem.id === "my-data-source-item") {
+			dataSourceItem.table = "your_table_name";
+		}		
+	}
+	return dataSourceItem;
+}
+
+const dataSourceProvider = async (userContext, dataSource) => {
+	if (dataSource instanceof reveal.RVAthenaDataSource) {
+		dataSource.region = "your_region";
+        dataSource.database = "your_database_name";
+	}
+	return dataSource;
+}
+
 const revealOptions = {
     authenticationProvider: authenticationProvider,
+    dataSourceProvider: dataSourceProvider,
+	dataSourceItemProvider: dataSourceItemProvider,
 }
 app.use('/', reveal(revealOptions));
 
