@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddReveal( builder =>
 {
     builder.AddAuthenticationProvider<AuthenticationProvider>();
+    builder.AddDataSourceProvider<DataSourceProvider>();
     builder.DataSources.RegisterAmazonAthena();
 });
 

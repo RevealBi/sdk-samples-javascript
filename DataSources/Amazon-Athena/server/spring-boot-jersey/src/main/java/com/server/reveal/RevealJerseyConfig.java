@@ -16,6 +16,7 @@ public class RevealJerseyConfig extends ResourceConfig
     {
         RevealEngineInitializer.initialize(new InitializeParameterBuilder()
         .setAuthProvider(new AuthenticationProvider())
+        .setDataSourceProvider(new DataSourceProvider())
         .build());
         
         //register all Reveal classes in JAX-RS context
