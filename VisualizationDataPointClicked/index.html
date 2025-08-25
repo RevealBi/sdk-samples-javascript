@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Sdk - Web Component</title>
+    <!-- Bootstrap 5 CSS & JS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+    <div id="revealView" style="height: calc(100vh - 25px); width: 100%;"></div>
+    <!-- Bootstrap Modal for custom data -->
+    <div class="modal fade" id="customDataModal" tabindex="-1" aria-labelledby="customDataModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="customDataModalLabel">My Custom Header</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="customDataModalContent" style="max-height: 70vh; overflow-y: auto;"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+    <script src="https://dl.revealbi.io/reveal/libs/1.7.6/infragistics.reveal.js"></script>
+
+    <script type="text/javascript">
+
+        const baseUrl = "https://acmeanalyticsserver.azurewebsites.net/";
+        const dashboardName = "Banking";
+
+        //set this to your server url
+        $.ig.RevealSdkSettings.setBaseUrl(baseUrl);
+
+        $.ig.RVDashboard.loadDashboard(dashboardName).then(dashboard => {
+            var revealView = new $.ig.RevealView("#revealView");
+            revealView.dashboard = dashboard;
+
+            // handle the onVisualizationDataPointClicked event
+            revealView.onVisualizationDataPointClicked = (visualization, cell, row) => {
+                logClickDetails(visualization, cell, row);
+                showCellDataDialog(cell, row, `Cell & Row Data for ${cell.formattedValue}`);
+            };
+        });
+
+        function logClickDetails(visualization, cell, row) {
+            console.log("[CLICK] Visualization Data Point Clicked");
+            console.log("[CLICK] Visualization Title:", visualization.title);
+            console.log("[CLICK] Cell Column Label:", cell.columnLabel);
+            console.log("[CLICK] Cell Value:", cell.value);
+            console.log("[CLICK] Cell Formatted Value:", cell.formattedValue);
+            console.log("[CLICK] First cell in the row has label:", row[0].columnLabel);
+
+            // Additional detailed logging
+            console.log("[CLICK] Visualization Details:", {
+                type: visualization.chartType,
+                filters: visualization.filters,
+                id: visualization.id,
+                title: visualization.title
+            });
+            const simplifiedCell = { ...cell };
+            delete simplifiedCell.$t;
+            console.log("[CLICK] ** Full Cell Object **", safeStringify(simplifiedCell));
+            console.log("[CLICK] ** Full Row Object **", safeStringify(row));
+        }
+
+        function safeStringify(obj) {
+            const seen = new WeakSet();
+            return JSON.stringify(obj, (key, value) => {
+                if (typeof value === "object" && value !== null) {
+                    if (seen.has(value)) {
+                        return;
+                    }
+                    seen.add(value);
+                }
+                return value;
+            }, 2);
+        }
+
+        // Shows a dialog displaying the cell and row data using Bootstrap Modal.
+        function showCellDataDialog(cell, row, title = "Cell & Row Data") {
+            const modal = new bootstrap.Modal(document.getElementById('customDataModal'));
+            const content = document.getElementById('customDataModalContent');
+            const modalTitle = document.getElementById('customDataModalLabel');
+
+            // Set the dialog title
+            modalTitle.textContent = title;
+            content.innerHTML = '';
+
+            // Cell Data
+            const cellTitle = document.createElement('h4');
+            cellTitle.textContent = 'Cell Data';
+            content.appendChild(cellTitle);
+            const cellPre = document.createElement('pre');
+            cellPre.textContent = safeStringify(cell);
+            content.appendChild(cellPre);
+
+            // Row Data
+            const rowTitle = document.createElement('h4');
+            rowTitle.textContent = 'Row Data';
+            content.appendChild(rowTitle);
+            const rowPre = document.createElement('pre');
+            rowPre.textContent = safeStringify(row);
+            content.appendChild(rowPre);
+
+            modal.show();
+        }
+
+    </script>
+</body>
+
+</html>
