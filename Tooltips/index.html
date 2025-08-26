@@ -43,11 +43,11 @@
         $.ig.RevealSdkSettings.setBaseUrl(baseUrl);
 
         $.ig.RevealSdkSettings.betaFeatures.enable("newTooltip");
-        $.ig.RevealSdkSettings.enableActionsOnHoverTooltip = true;
 
         $.ig.RVDashboard.loadDashboard(dashboardName).then(dashboard => {
             var revealView = new $.ig.RevealView("#revealView");
             revealView.dashboard = dashboard;
+            revealView.interactiveFilteringEnabled = true;
 
             revealView.onTooltipShowing = (args) => {
                 handleTooltipShowing(args, baseUrl, dashboardName);
