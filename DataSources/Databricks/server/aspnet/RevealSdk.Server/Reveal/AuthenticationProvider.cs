@@ -13,7 +13,7 @@ namespace RevealSdk.Server.Reveal
             if (dataSource is RVDatabricksDataSource)
             {
                 userCredential =
-                    new RVBearerTokenDataSourceCredential("your_personal_access_token", "your_userid");
+                    new RVPersonalAccessTokenDataSourceCredential("your_personal_access_token");
             }
 
             return Task.FromResult(userCredential);

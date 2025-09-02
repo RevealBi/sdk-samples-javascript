@@ -7,7 +7,7 @@ import reveal,
     RVDataSourceItem,
     RVDatabricksDataSource,
     RVDatabricksDataSourceItem,
-    RVBearerTokenDataSourceCredential
+    RVPersonalAccessTokenDataSourceCredential
 } from 'reveal-sdk-node';
 import cors from "cors";
 
@@ -17,7 +17,7 @@ app.use(cors());
 
 const authenticationProvider = async (userContext: IRVUserContext | null, dataSource: RVDashboardDataSource) => {
     if (dataSource instanceof RVDatabricksDataSource) {
-        return new RVBearerTokenDataSourceCredential("your_personal_access_token", "your_userid");
+        return new RVPersonalAccessTokenDataSourceCredential("your_personal_access_token");
     }
     return null;
 }
