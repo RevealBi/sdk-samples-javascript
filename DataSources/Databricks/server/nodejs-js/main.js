@@ -22,7 +22,7 @@ const userContextProvider = (request) => {
 // Step 2: Authentication
 const authenticationProvider = async (userContext, dataSource) => {
 	if (dataSource instanceof reveal.RVDatabricksDataSource) {
-		return new reveal.RVBearerTokenDataSourceCredential("your_personal_access_token", "your_userid");
+		return new reveal.RVPersonalAccessTokenDataSourceCredential("your_personal_access_token");
     }
 	return null;
 }
