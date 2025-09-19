@@ -36,16 +36,43 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapGet("dashboards", () =>
+app.MapGet("dashboards", async () =>
 {
-    // Get the file path for the dashboards
-    var filePath = Path.Combine(Environment.CurrentDirectory, "Dashboards");
+    try
+    {
+        var filePath = Path.Combine(Environment.CurrentDirectory, "Dashboards");
+        var files = Directory.GetFiles(filePath, "*.rdash");
 
-    // Get the names of all files in the directory
-    var files = Directory.GetFiles(filePath);
+        var dashboardsWithInfo = new List<object>();
 
-    //return just the dashboard file names
-    return files.Select(x => Path.GetFileNameWithoutExtension(x));
+        foreach (var file in files)
+        {
+            var dashboardName = Path.GetFileNameWithoutExtension(file);
+            try
+            {
+                var dashboard = new Dashboard(file);
+                var info = await dashboard.GetInfoAsync(dashboardName);
+
+                dashboardsWithInfo.Add(new
+                {
+                    name = info.Id,
+                    title = info?.DisplayName ?? dashboardName,
+                    info = info?.Info
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading dashboard {dashboardName}: {ex.Message}");
+            }
+        }
+
+        return Results.Ok(dashboardsWithInfo);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error in dashboards/with-info endpoint: {ex.Message}");
+        return Results.Problem("Error loading dashboards");
+    }
 });
 
 app.Run();
