@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal SDK - Dashboard Viewer with Underlying Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+    <script>window.revealDisableKeyboardManagement = true;</script>
+    <script src="https://dl.revealbi.io/reveal/libs/1.8.0/infragistics.reveal.js"></script>
+
+    <style>
+        #dashboardModal {
+            display: none;
+            position: fixed;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0px 0px 20px #333;
+            z-index: 1000;
+            padding: 10px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        #dashboardModal.show {
+            display: block;
+            opacity: 1;
+        }
+        
+        /* Spinner */
+        #spinnerOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+        
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #spinnerOverlay.fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Modern Close Button */
+        .close-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .close-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .close-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .close-button::before {
+            content: "✕";
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Alternative close button in top-right corner */
+        .close-button-top {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            color: #666;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 1002;
+            backdrop-filter: blur(10px);
+        }
+
+        .close-button-top:hover {
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff4444;
+            transform: scale(1.1);
+        }
+        </style>
+        
+        
+</head>
+<body>
+    <div id="revealView" style="height: calc(100vh - 25px); width: 100%;"></div>
+
+    <script>
+        (async () => {
+            const baseUrl = "http://localhost:5111/";
+            const dashboardName = "Marketing";        
+            $.ig.RevealSdkSettings.setBaseUrl(baseUrl);
+            $.ig.RevealSdkSettings.betaFeatures.enable("newTooltip");
+        
+            try {
+                const dashboard = await $.ig.RVDashboard.loadDashboard(dashboardName);
+                const revealView = new $.ig.RevealView("#revealView");   
+                revealView.showToolbar = true;
+                revealView.dashboard = dashboard;
+        
+                revealView.onVisualizationDataPointClicked = (visualization, cell, row) => {
+                    console.log(visualization);
+                    console.log(visualization.id);
+                };
+        
+                revealView.onTooltipShowing = (args) => {
+                    handleTooltipShowing(args, baseUrl, dashboardName);
+                };
+        
+            } catch (error) {
+                console.error("Failed to load dashboard:", error);
+                alert("An error occurred while loading the dashboard.");
+            }
+        })();
+        
+        function openModal() {
+            const modal = document.getElementById('dashboardModal');
+            modal.classList.add('show');
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('dashboardModal');
+            modal.classList.remove('show');
+            document.getElementById('spinnerOverlay').style.display = 'none';
+        }
+        
+        function handleTooltipShowing(args, baseUrl, dashboardName) {
+            console.log(args.visualization.id);
+        
+            const icons = [
+                "https://svgsilh.com/svg/26432.svg",
+                "https://svgsilh.com/svg/1879084.svg",
+                "https://svgsilh.com/svg/1411984.svg" 
+            ];
+        
+            const fetchData = async (allFields, column, value, isDate, formattedValue) => {
+                const queryParams = new URLSearchParams({
+                    includeAllFields: allFields,
+                    filterColumn: column,
+                    filterValue: value,
+                    isDateFilter: isDate,
+                    formattedValue: formattedValue || '',
+                    dashboardName: dashboardName,
+                    visualizationId: args.visualization.id
+                }).toString();
+        
+                const url = `${baseUrl}dashboards/${dashboardName}/visualizations/${args.visualization.id}/data?${queryParams}`;
+        
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        const responseData = await response.json();
+                        
+                        // Get the unique dashboard name from the server response
+                        const uniqueDashboardName = responseData.dashboardName || 'underlyingdata';
+                        
+                        // Update query params with the unique dashboard name
+                        const updatedQueryParams = new URLSearchParams({
+                            includeAllFields: allFields,  // Fixed: use allFields parameter
+                            filterColumn: column,
+                            filterValue: value,
+                            isDateFilter: isDate,
+                            formattedValue: formattedValue || '',
+                            dashboardName: uniqueDashboardName,  // Use unique name from server
+                            visualizationId: args.visualization.id
+                        }).toString();
+                        
+                        // Open data.html with updated parameters in the URL
+                        const dataUrl = `data.html?${updatedQueryParams}`;
+                        window.open(
+                            dataUrl,
+                            'DataPopup2',
+                            'width=900,height=800,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes'
+                        );
+                    } else {
+                        throw new Error("API call failed");
+                    }
+                } catch (error) {
+                    alert("An error occurred while fetching data.");
+                    console.error(error);
+                }
+            };
+        
+            const callGenerateDashboard = async () => {
+                const url = `${baseUrl}dashboards/duplicate/visualization`;
+                const payload = {
+                    dashboardFileName: dashboardName,
+                    vizId: args.visualization.id
+                };
+        
+                try {
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+        
+                    if (response.ok) {
+                        alert("Dashboard successfully generated!");
+                    } else {
+                        const err = await response.text();
+                        alert("Failed to generate dashboard: " + err);
+                    }
+                } catch (error) {
+                    console.error("Error calling generateDashboard API:", error);
+                    alert("An error occurred while generating the dashboard.");
+                }
+            };
+        
+            const callGenerateDashboardWithData = async () => {
+                const url = `${baseUrl}dashboards/analyze/visualization`;
+                const payload = {
+                    dashboardFileName: dashboardName,
+                    vizId: args.visualization.id
+                };
+        
+                try {
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+        
+                    if (response.ok) {
+                        const responseData = await response.json();
+                        const uniqueDashboardName = responseData.dashboardName || 'generated-dashboard';
+                        
+                        openModal();
+                        document.getElementById('spinnerOverlay').style.display = 'flex';
+
+                        const revealView2 = new $.ig.RevealView(document.getElementById("revealDataAnalyzeContainer"));
+                        $.ig.RVDashboard.loadDashboard(uniqueDashboardName).then(dashboard => { 
+                        revealView2.interactiveFilteringEnabled = true;
+                        revealView2.dashboard = dashboard;
+
+                        const spinner = document.getElementById('spinnerOverlay');
+                        spinner.classList.add('fade-out');
+                        setTimeout(() => {
+                            spinner.style.display = 'none';
+                            spinner.classList.remove('fade-out');
+                            }, 500); // Match the transition duration
+    
+
+                        });
+
+                    } else {
+                        const err = await response.text();
+                        console.error("Server error:", err);                    
+                        alert("Failed to generate dashboard: " + err);
+                    }
+                } catch (error) {
+                    console.error("Error calling generateDashboardWithData API:", error);
+                    alert("An error occurred while generating the dashboard.");
+                }
+            };
+        
+            const isDateValue = !isNaN(Date.parse(args.cell.value));
+            const formattedFilterValue = isDateValue ? new Date(args.cell.value).toISOString() : args.cell.value;
+        
+            args.customItems.push(
+                new $.ig.RVTooltipItem(
+                    "Show Data",
+                    `Show ${args.cell.formattedValue}`,
+                    icons[0],
+                    () => fetchData(true, args.cell.columnName, formattedFilterValue, isDateValue, args.cell.formattedValue)
+                ),
+                new $.ig.RVTooltipItem(
+                    "Show Data",
+                    `Show All ${args.visualization.title}`,
+                    icons[1],
+                    () => fetchData(true, "AllColumns", "AllValues", false, null)
+                ),
+                // new $.ig.RVTooltipItem(
+                //     "Tools",
+                //     "Show Dialog",
+                //     icons[2],
+                //     callGenerateDashboard
+                // ),
+                new $.ig.RVTooltipItem(
+                    "Tools",
+                    "Analyze Data",
+                    icons[2],
+                    callGenerateDashboardWithData
+                )
+            );
+        }
+        
+        function logTooltipDetails(args) {
+            console.log("Visualization Details:", {
+                type: args.visualization.chartType,
+                filters: args.visualization.filters,
+                id: args.visualization.id,
+                title: args.visualization.title
+            });
+        
+            const simplifiedCell = { ...args.cell };
+            delete simplifiedCell.$t;
+            console.log("** Cell **", safeStringify(simplifiedCell));
+            console.log("** Row **", safeStringify(args.row));
+        }
+        
+        function safeStringify(obj) {
+            const seen = new WeakSet();
+            return JSON.stringify(obj, (key, value) => {
+                if (typeof value === "object" && value !== null) {
+                    if (seen.has(value)) {
+                        return;
+                    }
+                    seen.add(value);
+                }
+                return value;
+            }, 2);
+        }
+
+        // Close the modal if the user clicks outside the dashboard content
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('dashboardModal');
+            const content = document.getElementById('dashboardContent');
+
+            if (modal.classList.contains('show') && !content.contains(event.target)) {
+                closeModal();
+            }
+        });
+
+        function closeModal() {
+            const modal = document.getElementById('dashboardModal');
+            modal.classList.remove('show');
+            
+            const spinner = document.getElementById('spinnerOverlay');
+            spinner.style.display = 'none';
+            spinner.classList.remove('fade-out');
+        }
+
+        </script>
+        
+        <div id="dashboardModal">
+            <div id="spinnerOverlay">
+                <div class="loader"></div>
+            </div>
+            <div id="dashboardContent" style="width:100%; height:90%; position: absolute;">
+                <div id="revealDataAnalyzeContainer" style="width:97%; height:100%;position: relative;"></div>
+                
+                <!-- Modern close button options - choose one -->
+                <button onclick="closeModal()" class="close-button">Close Dashboard</button>
+                
+                <!-- Alternative: Top-right X button (uncomment to use instead) -->
+                <!-- <button onclick="closeModal()" class="close-button-top">✕</button> -->
+            </div>
+        </div>
+        
+</body>
+</html>
