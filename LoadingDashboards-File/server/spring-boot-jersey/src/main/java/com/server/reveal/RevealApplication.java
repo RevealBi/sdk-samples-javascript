@@ -7,8 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class RevealApplication {
 
 	public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(RevealApplication.class);
-        app.setWebApplicationType(org.springframework.boot.WebApplicationType.SERVLET);
-        app.run(args);
+		SpringApplication.run(RevealApplication.class, args);
 	}
 }
