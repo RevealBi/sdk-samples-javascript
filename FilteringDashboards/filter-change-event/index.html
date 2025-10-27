@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reveal SDK — Sales (Territory=Japan)</title>
+    <style>
+        html, body { height: 100%; margin: 0; }
+        /* Hide the view initially to prevent filter flicker, then fade in */
+        #revealView { width: 100%; height: 100vh; opacity: 0; transition: opacity 150ms ease; }
+    /* Filter-specific hiding is injected dynamically by reveal-filters/hiding.js based on config */
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+    <script src="https://dl.revealbi.io/reveal/libs/1.8.0/infragistics.reveal.js"></script>
+    <script src="./js/common.js"></script>
+    <script src="./js/events.js"></script>
+</head>
+<body>
+    <div id="revealView"></div>
+
+        <script>
+            const config = {
+                baseUrl: "https://acmeanalyticsserver.azurewebsites.net/",
+
+                dashboardName: "Employee Sales Analysis",
+                onFilterChanged: function(evt) {
+                    console.log('Custom filter change event', evt);
+                },
+                viewSelector: "#revealView"
+            };
+
+            // Initialize Reveal with config
+            RevealFilters.initReveal(config).then(({ dashboard, view }) => {
+             }).catch(err => console.error('Init failed:', err));
+        </script>
+</body>
+</html>
