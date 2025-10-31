@@ -1,0 +1,11 @@
+# SQL Server Configuration
+SQL_SERVER_HOST=
+SQL_SERVER_DATABASE=
+SQL_SERVER_USERNAME=
+SQL_SERVER_PASSWORD=
+SQL_SERVER_SCHEMA=
+
+# Server Configuration
+PORT=5111
+
+spring.web.resources.static-locations=classpath:/static/images/
