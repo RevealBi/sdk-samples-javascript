@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Sdk - Web Component</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        /* Dialog styles */
+        .dialog-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dialog-overlay.show {
+            display: flex;
+        }
+
+        .dialog-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            height: 90%;
+            max-width: 1400px;
+            max-height: 900px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .dialog-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dialog-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .dialog-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dialog-close:hover {
+            color: #000;
+        }
+
+        .dialog-body {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="viewer" style="height: 100%; position: relative;"></div>
+
+    <!-- Reusable Dashboard Dialog -->
+    <div id="dashboardDialog" class="dialog-overlay">
+        <div class="dialog-content">
+            <div class="dialog-header">
+                <h2 id="dialogTitle">Dashboard Grid View</h2>
+                <button class="dialog-close" onclick="closeDashboardDialog()">&times;</button>
+            </div>
+            <div class="dialog-body">
+                <div id="dialogViewer" style="height: 100%; width: 100%; position: relative;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+    <script src="https://dl.revealbi.io/reveal/libs/1.8.0/infragistics.reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@revealbi/dom@0.2.25/index.umd.min.js"></script>
+
+
+    <script type="text/javascript">
+
+        $.ig.RevealSdkSettings.setBaseUrl("https://acmeanalyticsserver.azurewebsites.net/");
+        $.ig.RevealSdkSettings.betaFeatures.enable("newTooltip");
+
+        const dashboardName = "Banking";
+        let dialogRevealView = null;
+
+        const loadDashboard = async () => {
+            const viewer = document.getElementById('viewer');
+            if (viewer) {
+                const dashboard = await $.ig.RVDashboard.loadDashboard(dashboardName);
+                const revealView = new $.ig.RevealView(viewer);
+                revealView.onTooltipShowing = (args) => {
+                    handleTooltipShowing(args);
+                };
+                revealView.dashboard = dashboard;
+            }
+        }
+
+        const handleTooltipShowing = (args) => {
+            const tooltip1 = new $.ig.RVTooltipItem("Show Data", `Show ${args.cell.formattedValue}`, "https://svgsilh.com/svg/26432.svg", async () => {
+                await showFilteredDataDialog(args);
+            });
+            const tooltip2 = new $.ig.RVTooltipItem("Show Data", `Show All ${args.visualization.title}`, "https://svgsilh.com/svg/1879084.svg", async () => {
+                await showAllDataDialog(args.visualization);
+            });
+
+            args.customItems.push(tooltip1);
+            args.customItems.push(tooltip2);
+        }
+
+        /**
+         * Shows filtered data for a specific cell value by converting visualization to a grid with dashboard filter
+         * @param {object} args - The tooltip args containing cell and visualization information
+         */
+        const showFilteredDataDialog = async (args) => {
+            try {
+                const document = await dom.RdashDocument.load(dashboardName);
+                document.useAutoLayout = true;
+
+                const vizToConvert = document.visualizations.find(v => v.id === args.visualization.id);
+                if (!vizToConvert) {
+                    console.error("Visualization not found in document");
+                    return;
+                }
+
+                const grid = dom.GridVisualization.from(vizToConvert, { includeAllFields: true });
+                if (grid == null) {
+                    throw new Error("Grid visualization could not be created.");
+                }
+
+                const fieldName = args.cell.columnName;
+                const filterValue = args.cell.value;
+                const formattedValue = args.cell.formattedValue;
+                let filter = undefined;
+
+                const isDate = filterValue instanceof Date || (typeof filterValue === 'string' && !isNaN(Date.parse(filterValue)));
+                if (isDate) {
+                    let parsedDate;
+                    if (filterValue instanceof Date) {
+                        parsedDate = filterValue;
+                    } else {
+                        parsedDate = new Date(filterValue);
+                    }
+
+                    if (isNaN(parsedDate.getTime())) {
+                        console.error("Invalid date format:", filterValue);
+                        return;
+                    }
+
+                    const dateRange = getDateRange(parsedDate, formattedValue);
+
+                    if (dateRange == null) {
+                        console.error("Invalid date type format:", formattedValue);
+                        return;
+                    }
+
+                    const dateFilter = new dom.DashboardDateFilter();
+                    dateFilter.ruleType = dom.DateRuleType.CustomRange;
+                    dateFilter.customDateRange = dateRange;
+
+                    filter = dateFilter;
+
+                } else {
+                    filter = new dom.DashboardDataFilter(fieldName, grid.dataDefinition.dataSourceItem);
+                    filter.selectValues(filterValue);
+                }
+
+                if (!filter) {
+                    console.error("Filter could not be created.");
+                    return;
+                }
+
+                document.filters = [filter];
+                grid.connectDashboardFilter(filter, fieldName);
+
+                document.visualizations = [grid];
+                const gridDashboard = await document.toRVDashboard();
+
+                showDashboardDialog(gridDashboard, `${args.visualization.title} - Filtered by ${fieldName}: ${args.cell.formattedValue}`);
+            } catch (error) {
+                console.error("Error creating filtered grid view:", error);
+            }
+        }
+
+        /**
+         * Shows all data for a visualization by converting it to a grid and displaying in a dialog
+         * @param {$.ig.RVVisualization} visualization - The visualization to convert to grid
+         */
+        const showAllDataDialog = async (visualization) => {
+            try {
+                const document = await dom.RdashDocument.load(dashboardName);
+                document.useAutoLayout = true;
+                document.filters = []; // Clear existing document filters
+
+                const vizToConvert = document.visualizations.find(v => v.title === visualization.title);
+                if (!vizToConvert) {
+                    console.error("Visualization not found in document");
+                    return;
+                }
+
+                const grid = dom.GridVisualization.from(vizToConvert, { includeAllFields: true });
+                if (grid == null) {
+                    throw new Error("Grid visualization could not be created.");
+                }
+
+                document.visualizations = [grid];
+                const gridDashboard = await document.toRVDashboard();
+
+                showDashboardDialog(gridDashboard, `${visualization.title} - All Data`);
+            } catch (error) {
+                console.error("Error creating grid view:", error);
+            }
+        }
+
+        /**
+         * Shows a dashboard in a reusable dialog
+         * @param {$.ig.RevealDashboard} dashboard - The dashboard to display
+         * @param {string} title - Optional title for the dialog
+         */
+        const showDashboardDialog = (dashboard, title = "Dashboard View") => {
+            document.getElementById('dialogTitle').textContent = title;
+
+            const dialogViewer = document.getElementById('dialogViewer');
+            if (!dialogRevealView) {
+                dialogRevealView = new $.ig.RevealView(dialogViewer);
+                dialogRevealView.singleVisualizationMode = true;
+            }
+
+            dialogRevealView.dashboard = dashboard;
+
+            document.getElementById('dashboardDialog').classList.add('show');
+        }
+
+        /**
+         * Closes the dashboard dialog
+         */
+        const closeDashboardDialog = () => {
+            document.getElementById('dashboardDialog').classList.remove('show');
+        }
+
+        /**
+        * Classifies the date format based on the formatted value string
+        * @param {string} formattedValue - The formatted date string
+        * @returns {string} - The classification: 'year', 'quarter', 'month', 'day', 'hour', 'minute', or 'unknown'
+        */
+        const classifyDateFormat = (formattedValue) => {
+            const patterns = [
+                { name: 'year', regex: /^\d{4}$/ },
+                { name: 'quarter', regex: /^\d{4}-Q\d$|^\d{2}-Q\d$|^Q\d$/ },
+                { name: 'month', regex: /^\w{3}-\d{4}$|^\w{3}-\d{2}$|^\d{2}-\d{4}$|^\d{1}-\d{2}$|^\w{3}$|^\d{2}$|^\d{1}$/ },
+                { name: 'day', regex: /^\d{2}-\w{3}-\d{4}$|^\d{4}-\d{2}-\d{2}$|^\d{2}\/\d{2}\/\d{4}$|^\d{2}\/\d{2}\/\d{2}$|^\d{2}-\w{3}$|^\w{3}-\d{2}$|^\d{2}-\d{2}$/ },
+                { name: 'hour', regex: /^\d{2}-\w{3}-\d{4} \d{2}:\d{2}$|^\d{2}-\w{3}-\d{2} \d{2}:\d{2}$|^\d{2}-\w{3} \d{2}:\d{2}$|^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/ },
+                { name: 'minute', regex: /^\d{2}-\w{3}-\d{4} \d{2}:\d{2}$|^\d{2}-\w{3}-\d{2} \d{2}:\d{2}$|^\d{2}-\w{3} \d{2}:\d{2}$/ }
+            ];
+
+            for (const { name, regex } of patterns) {
+                if (regex.test(formattedValue)) {
+                    return name;
+                }
+            }
+
+            return 'unknown';
+        };
+
+        /**
+         * Gets the date range based on the date and format classification
+         * @param {Date} date - The date value
+         * @param {string} formattedValue - The formatted date string
+         * @returns {dom.DateRange|null} - DateRange object with CustomDate properties, or null if invalid
+         */
+        const getDateRange = (date, formattedValue) => {
+            const format = classifyDateFormat(formattedValue.toLowerCase());
+
+            let fromDate, toDate;
+
+            switch (format) {
+                case 'year':
+                    fromDate = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+                    toDate = new Date(Date.UTC(date.getUTCFullYear(), 11, 31));
+                    break;
+
+                case 'quarter': {
+                    const quarter = Math.floor((date.getUTCMonth()) / 3);
+                    fromDate = new Date(Date.UTC(date.getUTCFullYear(), quarter * 3, 1));
+                    toDate = new Date(Date.UTC(date.getUTCFullYear(), quarter * 3 + 3, 0)); // 0 day of next month = last day of previous month
+                    break;
+                }
+
+                case 'month': {
+                    fromDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
+                    toDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0));
+                    break;
+                }
+
+                case 'day': {
+                    fromDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+                    toDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+                    break;
+                }
+
+                case 'hour':
+                case 'minute':
+                    fromDate = date;
+                    toDate = date;
+                    break;
+
+                default:
+                    return null;
+            }
+
+            return new dom.DateRange(fromDate, toDate);
+        };
+
+        loadDashboard();
+
+    </script>
+</body>
+
+</html>
