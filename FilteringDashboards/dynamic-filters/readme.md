@@ -1,5 +1,5 @@
 # Dynamic Filters in Reveal BI SDK  
-A sample project demonstrating how to dynamically pass parameters from your application to the server and generate dashboards using the :contentReference[oaicite:0]{index=0}. This shows how to execute custom queries/functions in your database based on user-context filters, custom headers, and dynamic dashboard creation.
+A sample project demonstrating how to dynamically pass parameters from your application to the server and generate dashboards. This shows how to execute custom queries/functions in your database based on user-context filters, custom headers, and dynamic dashboard creation.
 
 ---
 
