@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Sdk - Dynamic Data Sources</title>
+    <link rel="stylesheet" href="styles/common.css">
+</head>
+
+<body>
+    <div class="dashboard-controls">
+        <div class="control-group">          
+            <div class="control-item">
+                <label class="control-label" for="userId">User ID:</label>
+                <div class="custom-select">
+                    <select name="users" id="userId">
+                        <option value="ALFKI">ALFKI</option>
+                        <option value="ANATR">ANATR</option>
+                        <option value="BLAUS">BLAUS</option>
+                        <option value="BLONP">BLONP</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="revealView"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+    <script src="https://dl.revealbi.io/reveal/libs/1.8.0/infragistics.reveal.js"></script>
+
+    <script type="text/javascript">
+        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");     
+        $.ig.RevealSdkSettings.enableActionsOnHoverTooltip = true;
+        
+        // Set up headers provider to include User ID
+        $.ig.RevealSdkSettings.setAdditionalHeadersProvider(function (url) {
+            return headers;
+        });
+
+        const headers = {};
+
+        var revealView = new $.ig.RevealView("#revealView");
+        revealView.interactiveFilteringEnabled = true;
+        revealView.startInEditMode = true;    
+        revealView.onDataSourcesRequested = (callback) => {
+            
+            // Pass the selected User ID as a header to the server
+            var selectedUserId = $('#userId').val();
+            headers["x-header-one"] = `${selectedUserId}`;
+            console.log(headers["x-header-one"]);
+
+            var pgDs = new $.ig.RVPostgresDataSource();
+            pgDs.id="postgresServerDataSource";
+            pgDs.title = "Postgres Data Source";
+
+            var pgDsi = new $.ig.RVPostgresDataSourceItem(pgDs);
+            pgDsi.id="CustOrdersOrders";
+            pgDsi.title = "Customer Orders Orders";
+            pgDsi.subtitle = "Stored Procedure  (customerId)";
+
+            //**********************************************
+            // Note, this is the callback that loads everything above into the dialog.  If you don't want to show the entire
+            // database, just remove pgDataSource from the array and leave it empty like this []
+            callback(new $.ig.RevealDataSources([], [pgDsi], false));
+            };
+    </script>
+</body>
+
+</html>

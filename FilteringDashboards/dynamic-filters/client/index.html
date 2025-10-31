@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal SDK Dashboard Hub</title>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        #sidebar {
+            width: 16rem;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #e5e7eb;
+            flex-shrink: 0;
+            transition: width 0.3s ease-in-out;
+        }
+
+        #sidebar.collapsed {
+            width: 5rem;
+        }
+
+        #sidebar-header {
+            height: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        #sidebar.collapsed #sidebar-header {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        #sidebar-toggle {
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        #sidebar-toggle:hover {
+            background-color: #f3f4f6;
+            color: #6A44FF;
+        }
+
+        #sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        #sidebar.collapsed #sidebar-title {
+            display: none;
+        }
+
+        /* Navigation Styles */
+        #main-nav {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            color: #6b7280;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.15s ease;
+            border-radius: 0.375rem;
+            margin: 0 0.75rem 0.25rem 0.75rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link:hover {
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .nav-link.active-nav-item {
+            background-color: rgba(106, 68, 255, 0.1);
+            color: #6A44FF;
+            font-weight: 600;
+        }
+
+        .nav-link svg {
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        #sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
+        #sidebar.collapsed .nav-link svg {
+            margin-right: 0;
+        }
+
+        #sidebar.collapsed .nav-text {
+            display: none;
+        }
+
+        .indicator {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0.25rem;
+            border-radius: 0 0.25rem 0.25rem 0;
+            background-color: transparent;
+        }
+
+        .nav-link.active-nav-item .indicator {
+            background-color: #6A44FF;
+        }
+
+        /* Main Content Styles */
+        .main-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Content Area Styles */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            display: none;
+            overflow: hidden;
+        }
+
+        .iframe-container.active {
+            display: block;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #6b7280;
+            font-size: 1.125rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        /* Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside id="sidebar">
+            <div id="sidebar-header">
+                <button id="sidebar-toggle" title="Toggle sidebar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" x2="20" y1="12" y2="12"/>
+                        <line x1="4" x2="20" y1="6" y2="6"/>
+                        <line x1="4" x2="20" y1="18" y2="18"/>
+                    </svg>
+                </button>
+                <h1 id="sidebar-title">Reveal SDK</h1>
+            </div>
+
+            <nav id="main-nav">
+                <a href="#" class="nav-link active-nav-item" data-page="load-dashboard">
+                    <span class="indicator"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v18h18"/>
+                        <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+                    </svg>
+                    <span class="nav-text">Load Dashboard</span>
+                </a>
+                
+                <a href="#" class="nav-link" data-page="index-ds">
+                    <span class="indicator"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                        <path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/>
+                        <path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/>
+                    </svg>
+                    <span class="nav-text">Data Sources</span>
+                </a>
+                
+                <a href="#" class="nav-link" data-page="index-dsi">
+                    <span class="indicator"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v20"/>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    <span class="nav-text">Dynamic Data Sources</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main id="main-content">
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="loading" id="loading">Loading dashboard...</div>
+                
+                <div class="iframe-container active" id="load-dashboard-container">
+                    <iframe src="load-dashboard.html" id="load-dashboard-frame" title="Load Dashboard - Reveal SDK Dashboard Loading Example"></iframe>
+                </div>
+                
+                <div class="iframe-container" id="index-ds-container">
+                    <iframe src="index-ds.html" id="index-ds-frame" title="Data Sources - Reveal SDK Data Source Configuration"></iframe>
+                </div>
+                
+                <div class="iframe-container" id="index-dsi-container">
+                    <iframe src="index-dsi.html" id="index-dsi-frame" title="Dynamic Data Sources - Reveal SDK Dynamic Data Source Implementation"></iframe>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentPage = 'load-dashboard';
+
+        // Page titles mapping
+        const pageTitles = {
+            'load-dashboard': 'Load Dashboard',
+            'index-ds': 'Data Sources',
+            'index-dsi': 'Dynamic Data Sources'
+        };
+
+        // DOM elements
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+       // const pageTitle = document.getElementById('page-title');
+        const loading = document.getElementById('loading');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        // Sidebar toggle functionality
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // Navigation functionality
+        function showPage(pageName) {
+            // Hide loading indicator
+            loading.style.display = 'none';
+            
+            // Remove active class from all containers and nav links
+            document.querySelectorAll('.iframe-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active-nav-item');
+            });
+            
+            // Show selected container and activate nav link
+            const targetContainer = document.getElementById(pageName + '-container');
+            const targetNavLink = document.querySelector(`[data-page="${pageName}"]`);
+            
+            if (targetContainer) {
+                targetContainer.classList.add('active');
+            }
+            
+            if (targetNavLink) {
+                targetNavLink.classList.add('active-nav-item');
+            }
+            
+            // // Update page title
+            // if (pageTitle && pageTitles[pageName]) {
+            //     pageTitle.textContent = pageTitles[pageName];
+            // }
+            
+            currentPage = pageName;
+        }
+
+        // Add click listeners to navigation links
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageName = link.getAttribute('data-page');
+                if (pageName) {
+                    loading.style.display = 'block';
+                    setTimeout(() => showPage(pageName), 100); // Small delay for loading effect
+                }
+            });
+        });
+
+        // Handle iframe loading
+        document.querySelectorAll('iframe').forEach(iframe => {
+            iframe.addEventListener('load', function() {
+                if (this.parentElement.classList.contains('active')) {
+                    loading.style.display = 'none';
+                }
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            showPage('load-dashboard');
+        });
+    </script>
+</body>
+</html>

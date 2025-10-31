@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Sdk - Load Dashboard</title>
+    <link rel="stylesheet" href="styles/common.css">
+</head>
+
+<body>
+    <div class="dashboard-controls">
+        <div class="control-group">
+            <div class="control-item">
+                <label class="control-label" for="customerId">Customer ID:</label>
+                <div class="custom-select">
+                    <select name="customers" id="customerId">
+                        <option value="ALFKI" selected>ALFKI</option>
+                        <option value="ANATR">ANATR</option>
+                        <option value="ANTON">ANTON</option>
+                        <option value="AROUT">AROUT</option>
+                        <option value="BERGS">BERGS</option>
+                        <option value="BLAUS">BLAUS</option>
+                        <option value="BLONP">BLONP</option>
+                        <option value="BOLID">BOLID</option>
+                        <option value="BONAP">BONAP</option>
+                        <option value="BOTTM">BOTTM</option>
+                        <option value="BSBEV">BSBEV</option>
+                        <option value="CACTU">CACTU</option>
+                        <option value="CENTC">CENTC</option>
+                        <option value="CHOPS">CHOPS</option>
+                        <option value="COMMI">COMMI</option>
+                        <option value="CONSH">CONSH</option>
+                        <option value="DRACD">DRACD</option>
+                        <option value="DUMON">DUMON</option>
+                        <option value="EASTC">EASTC</option>
+                        <option value="ERNSH">ERNSH</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="loading-indicator" id="loadingIndicator">
+                <div class="spinner"></div>
+                <span>Loading dashboard...</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="revealView"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
+    <script>window.revealDisableKeyboardManagement = true;</script>   
+    <script src="https://dl.revealbi.io/reveal/libs/1.8.0/infragistics.reveal.js"></script>
+
+    <script type="text/javascript">        
+        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");          
+
+        // Initialize headers object
+        const headers = {};
+        
+        // Set the additional headers provider
+        $.ig.RevealSdkSettings.setAdditionalHeadersProvider(function (url) {
+            return headers;
+        });
+        
+        let revealView;
+        
+        // Load the specific dashboard
+        function loadDashboard() {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            loadingIndicator.classList.add('show');
+            
+            $.ig.RVDashboard.loadDashboard("Customer Orders").then(dashboard => {
+                if (!revealView) {
+                    revealView = new $.ig.RevealView("#revealView");
+                    revealView.interactiveFilteringEnabled = true;
+                }
+                revealView.dashboard = dashboard;
+                loadingIndicator.classList.remove('show');
+            }).catch(error => {
+                console.error('Error loading dashboard:', error);
+                loadingIndicator.classList.remove('show');
+            });
+        }
+        
+        // Function to update headers and refresh dashboard
+        function updateHeadersAndRefresh() {
+            const selectedCustomerId = $('#customerId').val();
+            
+            // Update headers with customerId
+            if (selectedCustomerId) {
+                headers["x-header-one"] = selectedCustomerId;
+                console.log('Updated headers:', headers);
+                
+                // Refresh the dashboard data if revealView exists
+                if (revealView) {
+                    revealView.refreshDashboardData();
+                }
+            }
+        }
+        
+        // Initialize when page loads
+        $(document).ready(function() {
+            // Set initial header with first customer
+            const initialCustomerId = $('#customerId').val();
+            if (initialCustomerId) {
+                headers["x-header-one"] = initialCustomerId;
+                console.log('Initial headers:', headers);
+            }
+            
+            // Load the dashboard
+            loadDashboard();
+            
+            // Add change event listener to customerId select
+            $('#customerId').on('change', updateHeadersAndRefresh);
+        });
+    </script>
+</body>
+
+</html>

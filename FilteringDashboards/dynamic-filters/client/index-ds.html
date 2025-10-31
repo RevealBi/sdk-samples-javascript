@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Sdk - Data Sources</title>
+    <link rel="stylesheet" href="styles/common.css">
+    <style>
+        /* Override for this specific page since it doesn't have controls */
+        #viewer {
+            height: 100vh;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="viewer"></div>    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+    <script src="https://dl.revealbi.io/reveal/libs/1.8.0/infragistics.reveal.js"></script>
+
+    <script type="text/javascript">
+        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");          
+        var revealView = new $.ig.RevealView("#viewer");               
+        revealView.startInEditMode = true;  
+
+        revealView.onDataSourcesRequested = (callback) => {        
+            var sqlServerDataSource = new $.ig.RVPostgresDataSource();
+            sqlServerDataSource.id="sqlServer1";
+            sqlServerDataSource.title = "Northwind SQL Data";
+                                    
+            callback(new $.ig.RevealDataSources([sqlServerDataSource], 
+                [], false));
+           };
+    </script>
+</body>
+
+</html>

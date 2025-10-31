@@ -1,0 +1,141 @@
+/* Common styles for Reveal SDK Dashboard Hub */
+
+/* Font imports */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Base styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
+}
+
+/* Dashboard controls panel */
+.dashboard-controls {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.control-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.control-label {
+    font-weight: 600;
+    color: #334155;
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+/* Custom select styling */
+.custom-select,
+.dashboard-select {
+    position: relative;
+    min-width: 120px;
+}
+
+.dashboard-select {
+    min-width: 250px;
+}
+
+.custom-select select,
+.dashboard-select select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: white;
+    color: #374151;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+}
+
+.custom-select select:hover,
+.dashboard-select select:hover {
+    border-color: #9ca3af;
+}
+
+.custom-select select:focus,
+.dashboard-select select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Loading indicator */
+.loading-indicator {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.loading-indicator.show {
+    display: flex;
+}
+
+.spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #e2e8f0;
+    border-top: 2px solid #6366f1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Reveal view container */
+#revealView {
+    height: calc(100vh - 80px);
+    width: 100%;
+}
+
+/* Utility classes */
+.hidden {
+    display: none;
+}
+
+.flex {
+    display: flex;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.gap-1 {
+    gap: 0.5rem;
+}
+
+.gap-2 {
+    gap: 0.75rem;
+}
+
+.gap-3 {
+    gap: 1rem;
+}
