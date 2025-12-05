@@ -1,0 +1,330 @@
+<!--
+================================================================================
+REVEAL SDK - DASHBOARD LINKING INTERCEPTION DEMO
+================================================================================
+
+This example demonstrates how to intercept and customize dashboard linking 
+behavior in the Reveal SDK using JavaScript events.
+
+JAVASCRIPT EVENTS USED:
+------------------------
+
+1. onDashboardSelectorRequested (revealView.onDashboardSelectorRequested)
+   - TRIGGERED: When a user clicks on a dashboard link that requires selecting 
+     a target dashboard (e.g., dashboard-to-dashboard navigation)
+   - PURPOSE: Allows you to provide a custom UI for dashboard selection instead 
+     of using the default Reveal dashboard picker
+   - PARAMETERS: 
+     - args.callback: A function to call with the selected dashboard name
+   - IMPLEMENTATION: Opens a custom modal dialog showing dashboard thumbnails
+     using the RevealDashboardThumbnailView component
+
+2. onUrlLinkRequested (revealView.onUrlLinkRequested)
+   - TRIGGERED: When a user clicks on a URL link configured in a dashboard 
+     visualization (e.g., links in grid cells, chart data points)
+   - PURPOSE: Intercept URL navigation to customize how links are opened
+   - PARAMETERS:
+     - args.url: The original URL configured in the dashboard
+     - args.cell: The cell data (if clicked from a grid), use .value() to get value
+   - RETURNS: A string URL - returning "javascript:void(0)" prevents default 
+     navigation while allowing custom handling
+   - IMPLEMENTATION: Based on user selection, opens links in either:
+     - Popup Window: Uses window.open() with custom dimensions
+     - Dialog Box: Loads URL in an iframe within a modal dialog
+
+LINK HANDLING MODES (configurable via dropdown):
+------------------------------------------------
+- Popup Window: Opens links in a new browser popup window (800x600)
+- Dialog Box: Opens links in an embedded iframe within a modal dialog
+
+================================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Sdk - Web Component</title>
+    
+
+    <style>
+        .revealView {
+            width: 100%;
+            height: calc(100vh - 100px);
+        }
+
+        .Reveal-Thumbnail-Box {
+            position: relative;
+            z-index: 0;
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            height: 280px;
+            width: 330px;
+            margin: 15px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .Reveal-Thumbnail-Box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-color: #007bff;
+        }
+
+        .thumbnail-image {
+            flex: 1;
+            min-height: 200px;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #dee2e6;
+            position: relative;
+        }
+
+        .thumbnail-title {
+            padding: 15px;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            background-color: white;
+            color: #495057;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .thumbnails-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .modal {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 45%;
+        }
+
+        .selector-bar {
+            background-color: #f0f0f0;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .selector-bar label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .selector-bar select {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        #linkDialog {
+            width: 80%;
+            max-width: 900px;
+        }
+
+        .dialog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .dialog-header h2 {
+            margin: 0;
+        }
+
+        .close-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #linkFrame {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="selector-bar">
+        <label for="linkHandleMode">Link Handling Mode:</label>
+        <select id="linkHandleMode">
+            <option value="popup">Popup Window</option>
+            <option value="dialog">Dialog Box</option>
+        </select>
+    </div>
+
+    <div id="revealView" class="revealView"></div>
+
+    <dialog id="dbSelector" class="modal">
+        <h2>Select Dashboard</h2>
+        <div id="thumbnails" class="thumbnails-container">
+            <div class="loading-spinner"></div>
+        </div>
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="closeDialog()" style="padding: 10px 20px; font-size: 16px;">Cancel</button>
+        </div>
+    </dialog>
+
+    <dialog id="linkDialog" class="modal">
+        <div class="dialog-header">
+            <h2>Link Content</h2>
+            <button class="close-btn" onclick="closeLinkDialog()">Close</button>
+        </div>
+        <iframe id="linkFrame"></iframe>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+    <script src="https://dl.revealbi.io/reveal/libs/1.8.2/infragistics.reveal.js"></script>
+
+    <script type="text/javascript">
+        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+        $.ig.RevealSdkSettings.betaFeatures.enable("newTooltip", "newPieChart");
+        const dialog = document.getElementById("dbSelector");
+
+        $.ig.RVDashboard.loadDashboard("Marketing").then(dashboard => {
+            revealView = new $.ig.RevealView("#revealView");
+            revealView.interactiveFilteringEnabled = true;
+            revealView.dashboard = dashboard;
+
+            revealView.onDashboardSelectorRequested = (args) => {
+                openDialog(args.callback);
+            }
+
+            revealView.onUrlLinkRequested = (args) => {
+                console.log('=== URL Link Click Event ===');
+                console.log('Step 1: Click occurred, capturing original URL:', args.url);
+                console.log('Step 2: Cell value from click:', args.cell ? args.cell.value() : 'N/A');
+                const newUrl = "https://demo.revealbi.io";
+                console.log('Step 3: Constructed new URL:', newUrl);
+                const linkMode = document.getElementById('linkHandleMode').value;
+                console.log('Step 4: Link handling mode:', linkMode);
+                if (linkMode === 'dialog') {
+                    console.log('Step 5: Opening in dialog box');
+                    document.getElementById('linkFrame').src = newUrl;
+                    document.getElementById('linkDialog').showModal();
+                    return "javascript:void(0)";
+                } else {
+                    console.log('Step 5: Opening in popup window');
+                    window.open(newUrl, 'popup', 'width=800,height=600,resizable=yes,scrollbars=yes');
+                    return "javascript:void(0)";
+                }
+            };
+        });
+
+        function openDialog(callback) {
+            // Show the dialog first with loading spinner
+            dialog.showModal();
+            
+            // Fetch dashboards with their info
+            fetch("http://localhost:5111/dashboards")
+                .then(resp => resp.json())
+                .then(data => {
+                    var container = document.querySelector("#thumbnails");
+                    container.innerHTML = "";
+
+                    data.forEach(dashboardData => {
+                        createThumbnailWithInfo(container, dashboardData, callback);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching dashboards:', error);
+                    var container = document.querySelector("#thumbnails");
+                    container.innerHTML = "<p>Error loading dashboards. Please try again.</p>";
+                });
+        }
+
+        function createThumbnailWithInfo(container, dashboardData, callback) {
+            const thumbnailBox = document.createElement("div");
+            thumbnailBox.className = "Reveal-Thumbnail-Box";
+            
+            // Create thumbnail image container
+            const thumbnailImageDiv = document.createElement("div");
+            thumbnailImageDiv.className = "thumbnail-image";
+            thumbnailImageDiv.id = `thumb-${dashboardData.name}`;
+            
+            // Create title container
+            const titleDiv = document.createElement("div");
+            titleDiv.className = "thumbnail-title";
+            titleDiv.textContent = dashboardData.title || dashboardData.name;
+            
+            // Add click event
+            thumbnailBox.addEventListener('click', () => {
+                callback(dashboardData.name);
+                closeDialog();
+            });
+            
+            // Assemble the thumbnail
+            thumbnailBox.appendChild(thumbnailImageDiv);
+            thumbnailBox.appendChild(titleDiv);
+            container.appendChild(thumbnailBox);
+            
+            // Generate the thumbnail using Reveal SDK
+            if (dashboardData.info) {
+                try {
+                    const thumbnailView = new $.ig.RevealDashboardThumbnailView(`#thumb-${dashboardData.name}`);
+                    thumbnailView.dashboardInfo = dashboardData.info;
+                } catch (error) {
+                    console.error('Error creating thumbnail for', dashboardData.name, error);
+                    thumbnailImageDiv.innerHTML = '<div style="color: #6c757d;">Preview not available</div>';
+                }
+            } else {
+                thumbnailImageDiv.innerHTML = '<div style="color: #6c757d;">No preview available</div>';
+            }
+        }
+
+        function closeDialog() {
+            dialog.close();
+        }
+
+        function closeLinkDialog() {
+            document.getElementById('linkDialog').close();
+            document.getElementById('linkFrame').src = '';
+        }
+
+    </script>
+</body>
+
+</html>
