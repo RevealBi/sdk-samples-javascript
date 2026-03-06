@@ -41,7 +41,7 @@
 		<dependency>
 			<groupId>com.infragistics.reveal.sdk</groupId>
 			<artifactId>reveal-sdk</artifactId>
-			<version>1.8.3</version>
+			<version>1.8.4</version>
 		</dependency>
 
 		<dependency>
