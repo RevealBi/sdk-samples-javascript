@@ -1,51 +1,43 @@
 import { useEffect, useState } from "react";
-import { dataToJson } from "../utilities/DataToJson";
+import { dataToJson, getRevealColumns, RevealMetadataColumn } from "../utilities/DataToJson";
 
 export default function TableVisualization() {
-
-    const [data, setData] = useState<any>([])
+    const [columns, setColumns] = useState<RevealMetadataColumn[]>([]);
+    const [data, setData] = useState<any[]>([]);
 
     useEffect(() => {
         window.revealBridgeListener = {
             dataReady: (incomingData: any) => {
-                setData(dataToJson(incomingData));
+                setColumns(getRevealColumns(incomingData));
+                setData(dataToJson(incomingData, { useFormattedValues: true }));
             }
         };
-        window.revealBridge.notifyExtensionIsReady();
+        window.revealBridge.notifyExtensionIsReady(true);
     }, []);
 
     const renderTableHeader = () => {
-        if (data !== null && data.length > 0) {
-            const tableHeadings: any = [];
-            Object.keys(data[0]).map((propertyName: string, index: number) => {
-                tableHeadings.push(<th key={index}>{propertyName}</th>)
-            })
-            return tableHeadings;
+        if (columns.length > 0) {
+            return columns.map((column) => <th key={column.name}>{column.name}</th>);
         }
-        else {
-            return <th>No Data</th>
-        }
+
+        return <th>No Data</th>;
     }
 
     const renderTableBody = () => {
-        if (data !== null && data.length > 0) {
-            const trItems: any = [];
-            data.map((item: any, index: any) => {
-                trItems.push(<tr key={index}>{renderTableData(item)}</tr>);
-            });
-            return trItems;
+        if (data.length > 0) {
+            return data.map((item: any, index: number) => (
+                <tr key={index}>{renderTableData(item)}</tr>
+            ));
         }
-        else {
-            return (<tr><td>No Data</td></tr>);
-        }
+
+        return (<tr><td>No Data</td></tr>);
     }
 
     const renderTableData = (row: any) => {
-        let tdItems = [];
-        for (let prop in row) {
-            tdItems.push(<td key={prop}>{row[prop]}</td>)
-        }
-        return tdItems;
+        const cells = columns.length > 0 ? columns.map((column) => column.name) : Object.keys(row);
+        return cells.map((propertyName) => (
+            <td key={propertyName}>{row[propertyName]}</td>
+        ));
     }
 
     return (
@@ -59,5 +51,5 @@ export default function TableVisualization() {
                 </tbody>
             </table>
         </div>
-    )
+    );
 }
