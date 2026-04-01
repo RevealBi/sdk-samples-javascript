@@ -1,0 +1,19 @@
+.table-visualization {
+    height: 100vh;
+    overflow: auto;
+}
+
+.table-visualization__table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-visualization__header-cell {
+    border: 2px solid black;
+    border-bottom: 1px solid black;
+}
+
+.table-visualization__cell {
+    text-align: center;
+    border: 2px solid black;
+}

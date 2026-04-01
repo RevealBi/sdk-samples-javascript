@@ -11,23 +11,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-
-.container {
-  height: 100vh;
-  overflow: scroll;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th {
-  border-bottom: 1px solid black;
-  border: 2px solid black;
-}
-
-td {
-  text-align: center;
-  border: 2px solid black;
-}

@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { dataToJson, getRevealColumns } from '../../utilities/data-utils';
 
 declare global {
   interface Window {
@@ -22,47 +23,16 @@ export class TableComponent implements OnInit {
   ngOnInit(): void {
     window.revealBridgeListener = {
       dataReady: (incomingData: any) => {
-        this.data = this.dataToJson(incomingData);
-        this.createTableHeaders(this.data);
+        const columns = getRevealColumns(incomingData);
+        this.data = dataToJson(incomingData, { useFormattedValues: true });
+        this.headers = columns.map(c => c.name);
+        if (this.headers.length === 0 && this.data.length > 0) {
+          this.headers = Object.keys(this.data[0]);
+        }
         this.ref.detectChanges();
       }
     };
-    window.revealBridge.notifyExtensionIsReady();
-  }
-
-  createTableHeaders(data: any) {
-    if (data.length === 0) {
-      return;
-    }
-
-    Object.keys(this.data[0]).map((propertyName: string) => {
-      this.headers.push(propertyName)
-    })
-  }
-
-  dataToJson(data: any) {
-    let propertyNames = [];
-
-    if (!data.metadata.columns) {
-      return [];
-    }
-
-    for (var c = 0; c < data.metadata.columns.length; c++) {
-      var column = data.metadata.columns[c];
-      propertyNames.push(column.name);
-    }
-
-    let dataObjects = [];
-    for (var i = 0; i < data.data.length; i++) {
-      var rowData = data.data[i];
-      let dataObject: any = {};
-      for (var j = 0; j < rowData.length; j++) {
-        dataObject[propertyNames[j]] = rowData[j];
-      }
-      dataObjects.push(dataObject);
-    }
-
-    return dataObjects;
+    window.revealBridge.notifyExtensionIsReady(true);
   }
 
 }

@@ -13,42 +13,21 @@ export interface RevealIncomingData {
     [key: string]: any;
 }
 
-export function getRevealColumns(data: RevealIncomingData) {
+export function getRevealColumns(data: RevealIncomingData): RevealMetadataColumn[] {
     return data.metadata?.columns ?? [];
 }
 
 const rawValueKeys = [
-    "value",
-    "Value",
-    "rawValue",
-    "RawValue",
-    "cellValue",
-    "CellValue",
-    "originalValue",
-    "OriginalValue",
-    "formattedValue",
-    "FormattedValue",
-    "displayValue",
-    "DisplayValue"
+    "value", "Value", "rawValue", "RawValue",
+    "cellValue", "CellValue", "originalValue", "OriginalValue",
+    "formattedValue", "FormattedValue", "displayValue", "DisplayValue"
 ];
 
 const displayValueKeys = [
-    "formattedValue",
-    "FormattedValue",
-    "displayValue",
-    "DisplayValue",
-    "text",
-    "Text",
-    "label",
-    "Label",
-    "value",
-    "Value",
-    "rawValue",
-    "RawValue",
-    "cellValue",
-    "CellValue",
-    "originalValue",
-    "OriginalValue"
+    "formattedValue", "FormattedValue", "displayValue", "DisplayValue",
+    "text", "Text", "label", "Label",
+    "value", "Value", "rawValue", "RawValue",
+    "cellValue", "CellValue", "originalValue", "OriginalValue"
 ];
 
 function extractCellValue(value: any, preferredKeys: string[]): any {
@@ -74,16 +53,16 @@ function extractCellValue(value: any, preferredKeys: string[]): any {
     return value;
 }
 
-export function extractRevealRawValue(value: any) {
+export function extractRevealRawValue(value: any): any {
     return extractCellValue(value, rawValueKeys);
 }
 
-export function extractRevealDisplayValue(value: any) {
+export function extractRevealDisplayValue(value: any): any {
     const displayValue = extractCellValue(value, displayValueKeys);
     return displayValue === undefined ? extractRevealRawValue(value) : displayValue;
 }
 
-export function dataToJson(data: RevealIncomingData, options?: { useFormattedValues?: boolean }) {
+export function dataToJson(data: RevealIncomingData, options?: { useFormattedValues?: boolean }): any[] {
     const propertyNames: string[] = [];
     const rows = data.data ?? [];
     const valueSelector = options?.useFormattedValues ? extractRevealDisplayValue : extractRevealRawValue;

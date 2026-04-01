@@ -24,6 +24,13 @@ export class DashboardViewerComponent implements AfterViewInit {
       icon: "https://help.revealbi.io/img/logo.png",
       groups: ["Custom Vizualizations"]
     });
+
+    revealView.chartTypes.push({
+      title: "Pivot Grid",
+      url: "http://localhost:4200/pivot-grid",
+      icon: "https://help.revealbi.io/img/logo.png",
+      groups: ["Custom Vizualizations"]
+    });
   }
 
 }
