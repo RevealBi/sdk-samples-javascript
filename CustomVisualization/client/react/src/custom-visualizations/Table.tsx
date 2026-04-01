@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { dataToJson, getRevealColumns, RevealMetadataColumn } from "../utilities/DataToJson";
+import "./Table.css";
 
 export default function TableVisualization() {
     const [columns, setColumns] = useState<RevealMetadataColumn[]>([]);
@@ -17,10 +18,14 @@ export default function TableVisualization() {
 
     const renderTableHeader = () => {
         if (columns.length > 0) {
-            return columns.map((column) => <th key={column.name}>{column.name}</th>);
+            return columns.map((column) => (
+                <th key={column.name} className="table-visualization__header-cell">
+                    {column.name}
+                </th>
+            ));
         }
 
-        return <th>No Data</th>;
+        return <th className="table-visualization__header-cell">No Data</th>;
     }
 
     const renderTableBody = () => {
@@ -30,19 +35,25 @@ export default function TableVisualization() {
             ));
         }
 
-        return (<tr><td>No Data</td></tr>);
+        return (
+            <tr>
+                <td className="table-visualization__cell">No Data</td>
+            </tr>
+        );
     }
 
     const renderTableData = (row: any) => {
         const cells = columns.length > 0 ? columns.map((column) => column.name) : Object.keys(row);
         return cells.map((propertyName) => (
-            <td key={propertyName}>{row[propertyName]}</td>
+            <td key={propertyName} className="table-visualization__cell">
+                {row[propertyName]}
+            </td>
         ));
     }
 
     return (
-        <div className="container">
-            <table>
+        <div className="table-visualization">
+            <table className="table-visualization__table">
                 <thead>
                     <tr>{renderTableHeader()}</tr>
                 </thead>
