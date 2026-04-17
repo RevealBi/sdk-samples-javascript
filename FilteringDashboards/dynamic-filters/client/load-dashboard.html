@@ -49,32 +49,31 @@
 
     <div id="revealView"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
-    <script>window.revealDisableKeyboardManagement = true;</script>   
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.0/infragistics.reveal.js"></script>
+    <script>window.revealDisableKeyboardManagement = true;</script>
 
-    <script type="text/javascript">        
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");          
+    <script type="module">
+        import { RevealSdkSettings, RVDashboard, RevealView } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
+
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
 
         // Initialize headers object
         const headers = {};
-        
+
         // Set the additional headers provider
-        $.ig.RevealSdkSettings.setAdditionalHeadersProvider(function (url) {
+        RevealSdkSettings.setAdditionalHeadersProvider(function (url) {
             return headers;
         });
-        
+
         let revealView;
-        
+
         // Load the specific dashboard
         function loadDashboard() {
             const loadingIndicator = document.getElementById('loadingIndicator');
             loadingIndicator.classList.add('show');
-            
-            $.ig.RVDashboard.loadDashboard("Customer Orders").then(dashboard => {
+
+            RVDashboard.loadDashboard("Customer Orders").then(dashboard => {
                 if (!revealView) {
-                    revealView = new $.ig.RevealView("#revealView");
+                    revealView = new RevealView("#revealView");
                     revealView.interactiveFilteringEnabled = true;
                 }
                 revealView.dashboard = dashboard;
@@ -87,34 +86,36 @@
         
         // Function to update headers and refresh dashboard
         function updateHeadersAndRefresh() {
-            const selectedCustomerId = $('#customerId').val();
-            
+            const selectedCustomerId = document.getElementById('customerId').value;
+
             // Update headers with customerId
             if (selectedCustomerId) {
                 headers["x-header-one"] = selectedCustomerId;
                 console.log('Updated headers:', headers);
-                
+
                 // Refresh the dashboard data if revealView exists
                 if (revealView) {
                     revealView.refreshDashboardData();
                 }
             }
         }
-        
+
         // Initialize when page loads
-        $(document).ready(function() {
+        document.addEventListener('DOMContentLoaded', () => {
+            const customerIdSelect = document.getElementById('customerId');
+
             // Set initial header with first customer
-            const initialCustomerId = $('#customerId').val();
+            const initialCustomerId = customerIdSelect.value;
             if (initialCustomerId) {
                 headers["x-header-one"] = initialCustomerId;
-                console.log('Initial headers:', headers);
+                console.log('Initial headers:', initialCustomerId);
             }
-            
+
             // Load the dashboard
             loadDashboard();
-            
+
             // Add change event listener to customerId select
-            $('#customerId').on('change', updateHeadersAndRefresh);
+            customerIdSelect.addEventListener('change', updateHeadersAndRefresh);
         });
     </script>
 </body>

@@ -1,7 +1,7 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { RevealSdkSettings, RVDashboard, RevealView } from 'reveal-sdk';
 
-declare let $: any;
-$.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/")
+RevealSdkSettings.setBaseUrl("http://localhost:5111/")
 
 @Component({
   selector: 'app-dashboard-viewer',
@@ -13,8 +13,8 @@ export class DashboardViewerComponent implements AfterViewInit {
   @ViewChild('revealView') el!: ElementRef;
 
   async ngAfterViewInit() {
-    let dashboard = await $.ig.RVDashboard.loadDashboard("Sales");
-    var revealView = new $.ig.RevealView(this.el.nativeElement);
+    let dashboard = await RVDashboard.loadDashboard("Sales");
+    var revealView = new RevealView(this.el.nativeElement);
     revealView.dashboard = dashboard;
 
     //add custom vizualization to chart types drop down

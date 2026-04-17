@@ -26,16 +26,13 @@
 <body>
     <div id="revealView"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.3/infragistics.reveal.js"></script>
-
-    <script type="text/javascript">
+    <script type="module">
+        import { RevealSdkSettings, RVDashboard, RevealView } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
         //set this to your server url
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
         //set this property to pass the credentials (cookies) from the browser to the reveal server
-        $.ig.RevealSdkSettings.requestWithCredentialsFlag = true;
+        RevealSdkSettings.requestWithCredentialsFlag = true;
 
         async function initialize() {
             //simiulate login which generates a cookie on the server
@@ -43,8 +40,8 @@
                 credentials: "include" // This is necessary for cookies to be sent and received
             });
 
-            $.ig.RVDashboard.loadDashboard("Sales", (dashboard) => {
-                var revealView = new $.ig.RevealView("#revealView");
+            RVDashboard.loadDashboard("Sales", (dashboard) => {
+                var revealView = new RevealView("#revealView");
                 revealView.dashboard = dashboard;
             });
         }

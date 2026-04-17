@@ -12,41 +12,38 @@
 <body>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVSqlServerDataSource, RVSqlServerDataSourceItem, RVMySqlDataSource, RVMySqlDataSourceItem, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.3/infragistics.reveal.js"></script>   
-
-    <script type="text/javascript">
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
-        $.ig.RevealSdkSettings.setAdditionalHeadersProvider(function (url) {
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+        RevealSdkSettings.setAdditionalHeadersProvider(function (url) {
             const headers = {};
             //set the x-sales-person-id header that identifies the sales person
             headers["x-sales-person-id"] = "279";
             return headers;
         });
-        
-        var revealView = new $.ig.RevealView("#revealView");
+
+        var revealView = new RevealView("#revealView");
         revealView.startInEditMode = true;
-        
+
         revealView.onDataSourcesRequested = (callback) => {
-            const sqlServerDataSource = new $.ig.RVSqlServerDataSource();
+            const sqlServerDataSource = new RVSqlServerDataSource();
             sqlServerDataSource.id = "MySqlServerDataSource";
             sqlServerDataSource.title = "My SQL Server";
 
-            const sqlServerDataSourceItem = new $.ig.RVSqlServerDataSourceItem(sqlServerDataSource);
+            const sqlServerDataSourceItem = new RVSqlServerDataSourceItem(sqlServerDataSource);
             sqlServerDataSourceItem.id = "MySqlServerDataSourceItem";
             sqlServerDataSourceItem.title = "John Orders";
 
-            const mySqlDataSource = new $.ig.RVMySqlDataSource();
+            const mySqlDataSource = new RVMySqlDataSource();
             mySqlDataSource.id = "MyMySqlDataSource";
             mySqlDataSource.title = "My MySQL Server";
 
-            const mySqlDataSourceItem = new $.ig.RVMySqlDataSourceItem(mySqlDataSource);
+            const mySqlDataSourceItem = new RVMySqlDataSourceItem(mySqlDataSource);
             mySqlDataSourceItem.id = "MyMySqlDataSourceItem";
             mySqlDataSourceItem.title = "Jane Orders";
 
-            callback(new $.ig.RevealDataSources([sqlServerDataSource, mySqlDataSource], [sqlServerDataSourceItem, mySqlDataSourceItem], true));
+            callback(new RevealDataSources([sqlServerDataSource, mySqlDataSource], [sqlServerDataSourceItem, mySqlDataSourceItem], true));
         };
    </script>
 </body>

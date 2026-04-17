@@ -1,7 +1,7 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { RevealSdkSettings, RevealView } from 'reveal-sdk';
 
-declare let $: any;
-$.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111");
+RevealSdkSettings.setBaseUrl("http://localhost:5111");
 
 @Component({
   selector: 'app-root',
@@ -9,11 +9,11 @@ $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111");
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit {
-  
+
   @ViewChild('revealView') el!: ElementRef;
 
   ngAfterViewInit(): void {
-      var revealView = new $.ig.RevealView(this.el.nativeElement);
+    new RevealView(this.el.nativeElement);
   }
-  
+
 }

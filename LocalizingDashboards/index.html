@@ -16,52 +16,48 @@
             <button class="dropbtn">Language
                 <i class="fa fa-caret-down"></i>
             </button>
-            <div class="dropdown-content">
-                <a href="#" onclick="changeLang('En')">English</a>
-                <a href="#" onclick="changeLang('Ja')">Japanese</a>
-                <a href="#" onclick="changeLang('Es')">Spanish</a>
-                <a href="#" onclick="changeLang('It')">Italian</a>
-                <a href="#" onclick="changeLang('Fr')">French</a>
+            <div class="dropdown-content" id="langMenu">
+                <a href="#" data-lang="En">English</a>
+                <a href="#" data-lang="Ja">Japanese</a>
+                <a href="#" data-lang="Es">Spanish</a>
+                <a href="#" data-lang="It">Italian</a>
+                <a href="#" data-lang="Fr">French</a>
             </div>
         </div>
     </div>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.3/infragistics.reveal.js"></script>
-
-    <script type="text/javascript">
+    <script type="module">
+        import { RevealSdkSettings, RVDashboard, RevealView, SupportedLocales, RVLocalizationElementType } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
         // set this to your server url
-        $.ig.RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
+        RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
 
         var sessionLang = sessionStorage.getItem('lang');
-        
+
         (async () => {
 
             // this line changes the static texts in the UI
             if (sessionLang !== null)
-                await $.ig.RevealSdkSettings.overrideLocale($.ig.SupportedLocales[sessionLang])
+                await RevealSdkSettings.overrideLocale(SupportedLocales[sessionLang])
 
             // check if the elements are inside the dictionary table, if so, the replacement is performed according to the language of the interface
-            $.ig.RevealSdkSettings.localizedStringsProvider = function (element, context) { 
+            RevealSdkSettings.localizedStringsProvider = function (element, context) {
                 var translation = translate(element);
 
                 // uppercase is performed for all the elements that are 'Titles' and lowercase for all those that are 'Field labels'
-                if (element.elementType === $.ig.RVLocalizationElementType.DashboardFilterTitle || element.elementType === $.ig.RVLocalizationElementType.DashboardTitle) {
+                if (element.elementType === RVLocalizationElementType.DashboardFilterTitle || element.elementType === RVLocalizationElementType.DashboardTitle) {
                     return translation.toUpperCase()
                 }
-                else if (element.elementType === $.ig.RVLocalizationElementType.FieldLabel || element.elementType === $.ig.RVLocalizationElementType.VisualizationFieldLabel) {
+                else if (element.elementType === RVLocalizationElementType.FieldLabel || element.elementType === RVLocalizationElementType.VisualizationFieldLabel) {
                     return translation.toLowerCase()
                 }
 
                 return translation;
             };
 
-            $.ig.RVDashboard.loadDashboard("Marketing").then(dashboard => {
-                var revealView = new $.ig.RevealView("#revealView");
+            RVDashboard.loadDashboard("Marketing").then(dashboard => {
+                var revealView = new RevealView("#revealView");
                 revealView.dashboard = dashboard;
             })
 
@@ -76,10 +72,13 @@
             return translation;
         }
 
-        function changeLang(lang) {
-            sessionStorage.setItem('lang', lang)
+        document.getElementById('langMenu').addEventListener('click', (event) => {
+            const target = event.target.closest('[data-lang]');
+            if (!target) return;
+            event.preventDefault();
+            sessionStorage.setItem('lang', target.dataset.lang);
             location.reload();
-        }
+        });
 
         var lang =
         {

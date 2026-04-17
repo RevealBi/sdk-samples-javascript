@@ -1,3 +1,5 @@
+import { RevealSdkSettings, RVDashboard, RevealView } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
+
 (function(window, document){
   'use strict';
 
@@ -171,7 +173,7 @@
     var viewSelector = cfg.viewSelector || '#revealView';
 
     if (baseUrl) {
-      $.ig.RevealSdkSettings.setBaseUrl(baseUrl);
+      RevealSdkSettings.setBaseUrl(baseUrl);
     }
 
     var context = {
@@ -192,7 +194,7 @@
 
     internal.runHook('beforeLoad', context);
 
-    return $.ig.RVDashboard.loadDashboard(dashboardName).then(function(dashboard){
+    return RVDashboard.loadDashboard(dashboardName).then(function(dashboard){
       context.dashboard = dashboard;
       internal.runHook('afterDashboardLoaded', context);
 
@@ -202,7 +204,7 @@
       }
 
       internal.runHook('beforeViewCreate', context);
-      var view = new $.ig.RevealView(viewSelector);
+      var view = new RevealView(viewSelector);
       context.view = view;
 
       internal.runHook('beforeBind', context);

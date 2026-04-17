@@ -27,65 +27,57 @@
 <body>
     <div class="container">
         <div class="menu">
-            <button onclick="setJapanFilter()">Set Japan Filter</button>
-            <button onclick="setMultipleFilters()">Set Multiple Filters</button>
-            <button onclick="listTerritoryFilterValues()">List Territory Filter Values</button>
-            <select id="filterValues" size="10" onchange="onSelectedFilterValueChanged(this.value)" style="width: 100px;">
+            <button id="japanFilterBtn">Set Japan Filter</button>
+            <button id="multipleFiltersBtn">Set Multiple Filters</button>
+            <button id="listValuesBtn">List Territory Filter Values</button>
+            <select id="filterValues" size="10" style="width: 100px;">
             </select>
-            <button onclick="clearFilter()">Clear Territory Filter</button>
+            <button id="clearFilterBtn">Clear Territory Filter</button>
         </div>
 
         <div id="revealView" class="revealView"></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.0/infragistics.reveal.js"></script>
+    <script type="module">
+        import { RevealSdkSettings, RVDashboard, RevealView } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script type="text/javascript">
         //set this to your server url
-        $.ig.RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
+        RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
 
         let revealView;
-        let territoryFilters = [];
+        let territoryFilterValues = [];
 
-        $.ig.RVDashboard.loadDashboard("Sales").then(dashboard => {
-            revealView = new $.ig.RevealView("#revealView");
+        RVDashboard.loadDashboard("Sales").then(dashboard => {
+            revealView = new RevealView("#revealView");
             revealView.dashboard = dashboard;
         });
 
-        function setJapanFilter() {
-            var territoryFilter = revealView.dashboard.filters.getByTitle("Territory");
-            territoryFilter.selectedValues = ["Japan"];
-        }
+        const getTerritoryFilter = () => revealView.dashboard.filters.getByTitle("Territory");
 
-        function setMultipleFilters() {
-            var territoryFilter = revealView.dashboard.filters.getByTitle("Territory");
-            territoryFilter.selectedValues = ["Japan", "India"];
-        }
+        document.getElementById("japanFilterBtn").addEventListener("click", () => {
+            getTerritoryFilter().selectedValues = ["Japan"];
+        });
 
-        function listTerritoryFilterValues() {
-            var territoryFilter = revealView.dashboard.filters.getByTitle("Territory");
-            territoryFilter.getFilterValues(filterValues => {
+        document.getElementById("multipleFiltersBtn").addEventListener("click", () => {
+            getTerritoryFilter().selectedValues = ["Japan", "India"];
+        });
+
+        document.getElementById("listValuesBtn").addEventListener("click", () => {
+            getTerritoryFilter().getFilterValues(filterValues => {
                 territoryFilterValues = filterValues;
-                let options = territoryFilterValues.map(filterValue => `<option value="${filterValue.label}">${filterValue.label}</option>`).join('\n');
-                var select = document.getElementById("filterValues");
-                select.innerHTML = options;
+                const options = territoryFilterValues.map(filterValue => `<option value="${filterValue.label}">${filterValue.label}</option>`).join('\n');
+                document.getElementById("filterValues").innerHTML = options;
             });
-        }
+        });
 
-        function onSelectedFilterValueChanged(filterLabel) {
-            var territoryFilter = revealView.dashboard.filters.getByTitle("Territory");
-            const filterValue = territoryFilterValues.find(x => x.label === filterLabel);
-            territoryFilter.selectedValues = [filterValue.value];
-        }
+        document.getElementById("filterValues").addEventListener("change", (event) => {
+            const filterValue = territoryFilterValues.find(x => x.label === event.target.value);
+            getTerritoryFilter().selectedValues = [filterValue.value];
+        });
 
-        function clearFilter() {
-            var territoryFilter = revealView.dashboard.filters.getByTitle("Territory");
-            territoryFilter.selectedValues = [];
-        }
-
+        document.getElementById("clearFilterBtn").addEventListener("click", () => {
+            getTerritoryFilter().selectedValues = [];
+        });
     </script>
 </body>
 

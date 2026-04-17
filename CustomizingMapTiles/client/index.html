@@ -11,40 +11,38 @@
 <body>
 <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-<script src="https://dl.revealbi.io/reveal/libs/1.8.3/infragistics.reveal.js"></script>
+<script type="module">
+    import { RevealSdkSettings, RVDashboard, RevealView, ScatterMapVisualizationsConfiguration, RVLocalFileDataSourceItem, RVCsvDataSourceItem, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-<script type="text/javascript">
     // set this to your server url
-    $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+    RevealSdkSettings.setBaseUrl("http://localhost:5111/");
 
     //Using OpenStreetMaps
     const url = 'https://tile.openstreetmap.org/{Z}/{X}/{Y}.png'
-    $.ig.RevealSdkSettings.visualizations.scatterMaps = $.ig.ScatterMapVisualizationsConfiguration.createOpenStreetMapConfiguration(url);
+    RevealSdkSettings.visualizations.scatterMaps = ScatterMapVisualizationsConfiguration.createOpenStreetMapConfiguration(url);
 
     //Using Bing
-    //$.ig.RevealSdkSettings.visualizations.scatterMaps = new $.ig.ScatterMapVisualizationsConfiguration("Bing", "your-key");
+    //RevealSdkSettings.visualizations.scatterMaps = new ScatterMapVisualizationsConfiguration("Bing", "your-key");
 
     //Using Esri
-    //$.ig.RevealSdkSettings.visualizations.scatterMaps = new $.ig.ScatterMapVisualizationsConfiguration("Esri", "your-token");
+    //RevealSdkSettings.visualizations.scatterMaps = new ScatterMapVisualizationsConfiguration("Esri", "your-token");
 
     //Using MapBox
-    //$.ig.RevealSdkSettings.visualizations.scatterMaps = new $.ig.ScatterMapVisualizationsConfiguration("MapBox", "your-token");
+    //RevealSdkSettings.visualizations.scatterMaps = new ScatterMapVisualizationsConfiguration("MapBox", "your-token");
 
-    $.ig.RVDashboard.loadDashboard("Traffic Volume", (dashboard) => {
-        const revealView = new $.ig.RevealView("#revealView");
+    RVDashboard.loadDashboard("Traffic Volume", (dashboard) => {
+        const revealView = new RevealView("#revealView");
         revealView.dashboard = dashboard;
 
         revealView.onDataSourcesRequested = (callback) => {
-            const localFileItem = new $.ig.RVLocalFileDataSourceItem();
+            const localFileItem = new RVLocalFileDataSourceItem();
             localFileItem.uri = "local:/Traffic_Volume.csv";
 
-            const csvDataSourceItem = new $.ig.RVCsvDataSourceItem(localFileItem);
+            const csvDataSourceItem = new RVCsvDataSourceItem(localFileItem);
             csvDataSourceItem.title = "CSV Data";
             csvDataSourceItem.subtitle = "CSV Data Subtitle";
 
-            callback(new $.ig.RevealDataSources([], [csvDataSourceItem], true));
+            callback(new RevealDataSources([], [csvDataSourceItem], true));
         };
     });
 </script>

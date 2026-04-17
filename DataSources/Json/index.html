@@ -12,37 +12,34 @@
 <body>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVWebResourceDataSource, RVWebResourceDataSourceItem, RVJsonDataSourceItem, RVJsonSchemaConfigBuilder, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.4/infragistics.reveal.js"></script>   
+        RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
 
-    <script type="text/javascript">
-        $.ig.RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
-
-        var revealView = new $.ig.RevealView("#revealView");
+        var revealView = new RevealView("#revealView");
         revealView.startInEditMode = true;
         revealView.onDataSourcesRequested = (callback) => {
-            
-            const webDS = new $.ig.RVWebResourceDataSource();
+
+            const webDS = new RVWebResourceDataSource();
             webDS.title = "Web Data Source";
             webDS.subtitle = "Web Data Source Subtitle";
             webDS.url = "https://excel2json.io/api/share/6e0f06b3-72d3-4fec-7984-08da43f56bb9";
             webDS.useAnonymousAuthentication = true;
 
             //to skip the "Set up your JSON" dialog and directly use the JSON data
-            const webDSI = new $.ig.RVWebResourceDataSourceItem(webDS);
-            const jsonDSI = new $.ig.RVJsonDataSourceItem(webDSI);
+            const webDSI = new RVWebResourceDataSourceItem(webDS);
+            const jsonDSI = new RVJsonDataSourceItem(webDSI);
             jsonDSI.title = "Sales by Category";
             jsonDSI.subtitle = "Excel2Json";
-            jsonDSI.config = new $.ig.RVJsonSchemaConfigBuilder()
+            jsonDSI.config = new RVJsonSchemaConfigBuilder()
                 .addNumericField("CategoryID")
                 .addStringField("CategoryName")
                 .addStringField("ProductName")
                 .addNumericField("ProductSales")
                 .build();
 
-            callback(new $.ig.RevealDataSources([webDS], [jsonDSI], false));
+            callback(new RevealDataSources([webDS], [jsonDSI], false));
         };
    </script>
 </body>

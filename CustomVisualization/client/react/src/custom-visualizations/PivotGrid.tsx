@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { IgrPivotGrid } from "igniteui-react-grids";
+import { RVDashboardDataType } from "reveal-sdk";
 import {
     dataToJson,
     getRevealColumns,
@@ -7,8 +8,6 @@ import {
     RevealMetadataColumn
 } from "../utilities/DataToJson";
 import "./PivotGrid.css";
-
-declare let $: any;
 
 type PivotFieldKind = "boolean" | "date" | "number" | "string";
 
@@ -34,25 +33,23 @@ interface PivotFieldBindings {
 }
 
 function detectColumnKind(column: RevealMetadataColumn, rows: any[]): PivotFieldKind {
-    const revealType = typeof $ !== "undefined" ? $.ig?.RVDashboardDataType : undefined;
+    const revealType = RVDashboardDataType as any;
 
-    if (revealType) {
-        if (column.type === revealType.Date || column.type === revealType.DateTime) {
-            return "date";
-        }
+    if (column.type === revealType.Date || column.type === revealType.DateTime) {
+        return "date";
+    }
 
-        if (
-            column.type === revealType.Number ||
-            column.type === revealType.Integer ||
-            column.type === revealType.Decimal ||
-            column.type === revealType.Currency
-        ) {
-            return "number";
-        }
+    if (
+        column.type === revealType.Number ||
+        column.type === revealType.Integer ||
+        column.type === revealType.Decimal ||
+        column.type === revealType.Currency
+    ) {
+        return "number";
+    }
 
-        if (column.type === revealType.Bool || column.type === revealType.Boolean) {
-            return "boolean";
-        }
+    if (column.type === revealType.Bool || column.type === revealType.Boolean) {
+        return "boolean";
     }
 
     const typeName = String(column.type ?? "").toLowerCase();

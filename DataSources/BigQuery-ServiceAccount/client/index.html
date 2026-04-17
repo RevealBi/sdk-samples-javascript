@@ -12,32 +12,29 @@
 <body>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVBigQueryDataSource, RVBigQueryDataSourceItem, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.4/infragistics.reveal.js"></script>   
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
 
-    <script type="text/javascript">
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
-        
-        var revealView = new $.ig.RevealView("#revealView");
+        var revealView = new RevealView("#revealView");
         revealView.startInEditMode = true;
-        
+
         revealView.onDataSourcesRequested = (callback) => {
-            
-            var bigQuery = new $.ig.RVBigQueryDataSource();
+
+            var bigQuery = new RVBigQueryDataSource();
             bigQuery.title = "My Big Query";
             bigQuery.subtitle = "My Big Query Subtitle";
             bigQuery.projectId = "bigquery-public-data";
 
-            var bigQueryItem = new $.ig.RVBigQueryDataSourceItem(bigQuery);
+            var bigQueryItem = new RVBigQueryDataSourceItem(bigQuery);
             bigQueryItem.title = "My Big Query Item";
-            bigQueryItem.subtitle = "My Big Query Item Subtitle";         
+            bigQueryItem.subtitle = "My Big Query Item Subtitle";
             bigQueryItem.projectId = "bigquery-public-data";
             bigQueryItem.datasetId = "austin_311";
             bigQueryItem.table = "311_service_requests";
 
-            callback(new $.ig.RevealDataSources([bigQuery], [bigQueryItem], false));
+            callback(new RevealDataSources([bigQuery], [bigQueryItem], false));
         };
    </script>
 </body>

@@ -12,28 +12,24 @@
 <body>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.4/infragistics.reveal.js"></script>
-
-    <script type="text/javascript">
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVLocalFileDataSourceItem, RVExcelDataSourceItem, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
         //set this to your server url
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
 
-        var revealView = new $.ig.RevealView("#revealView");
+        var revealView = new RevealView("#revealView");
         revealView.startInEditMode = true;
         revealView.onDataSourcesRequested = (callback) => {
-            var localFileItem = new $.ig.RVLocalFileDataSourceItem();
+            var localFileItem = new RVLocalFileDataSourceItem();
             localFileItem.id = "LocalFileDataSource"
             localFileItem.uri = "local:/Samples.xlsx";
 
-            var excelDataSourceItem  = new $.ig.RVExcelDataSourceItem(localFileItem);
+            var excelDataSourceItem  = new RVExcelDataSourceItem(localFileItem);
             excelDataSourceItem.id = "ExcelDataSourceItem";
             excelDataSourceItem .title = "Excel File";
 
-            callback(new $.ig.RevealDataSources([], [excelDataSourceItem], true));
+            callback(new RevealDataSources([], [excelDataSourceItem], true));
         };
     </script>
 </body>

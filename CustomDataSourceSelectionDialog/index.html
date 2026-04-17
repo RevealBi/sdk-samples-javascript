@@ -33,38 +33,36 @@
 
     <dialog id="dsSelector" style="height: 300px; width: 400px;">
         <div id="cards"></div>
-        <button onclick="cancel()">Cancel</button>
+        <button id="cancelBtn">Cancel</button>
     </dialog>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.3/infragistics.reveal.js"></script>   
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVWebResourceDataSource, RevealDataSources, RVDataSourceSelection } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script type="text/javascript">
-        $.ig.RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
+        RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
 
         let eventListenerAdded = false;
-        const dialog = document.getElementById("dsSelector"); 
-        const cards = document.getElementById("cards");     
-        const revealView = new $.ig.RevealView("#revealView");
+        const dialog = document.getElementById("dsSelector");
+        const cards = document.getElementById("cards");
+        const revealView = new RevealView("#revealView");
         revealView.startInEditMode = true;
 
         revealView.onDataSourcesRequested = (callback) => {
-            
-            const webDS = new $.ig.RVWebResourceDataSource();
+
+            const webDS = new RVWebResourceDataSource();
             webDS.title = "Web Data Source";
             webDS.subtitle = "Web Data Source Subtitle";
             webDS.url = "https://excel2json.io/api/share/6e0f06b3-72d3-4fec-7984-08da43f56bb9";
             webDS.useAnonymousAuthentication = true;
 
-            const webDS2 = new $.ig.RVWebResourceDataSource();
+            const webDS2 = new RVWebResourceDataSource();
             webDS2.title = "Web Data Source 2";
             webDS2.subtitle = "Web Data Source Subtitle 2";
             webDS2.url = "https://excel2json.io/api/share/6e0f06b3-72d3-4fec-7984-08da43f56bb9";
             webDS2.useAnonymousAuthentication = true;
 
             //data source and data source items returned in this callback will be available in the onDataSourceSelectionDialogShowing event
-            callback(new $.ig.RevealDataSources([webDS, webDS2], [], false));
+            callback(new RevealDataSources([webDS, webDS2], [], false));
         }
 
         revealView.onDataSourceSelectionDialogShowing = (args) => {            
@@ -93,11 +91,11 @@
 
             // Process data sources and data source items
             args.dataSources.dataSources.forEach(ds => {
-                cards.appendChild(createCard(ds, ds => args.callback($.ig.RVDataSourceSelection.withDataSource(ds))));
+                cards.appendChild(createCard(ds, ds => args.callback(RVDataSourceSelection.withDataSource(ds))));
             });
 
             args.dataSources.dataSourceItems.forEach(dsi => {
-                cards.appendChild(createCard(dsi, dsi => args.callback($.ig.RVDataSourceSelection.withDataSourceItem(dsi))));
+                cards.appendChild(createCard(dsi, dsi => args.callback(RVDataSourceSelection.withDataSourceItem(dsi))));
             });
 
             
@@ -114,9 +112,9 @@
             dialog.showModal();
         };
 
-        function cancel() {
+        document.getElementById("cancelBtn").addEventListener("click", () => {
             dialog.close("cancel");
-        }
+        });
    </script>
 </body>
 

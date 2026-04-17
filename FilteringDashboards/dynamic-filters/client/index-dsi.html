@@ -26,36 +26,34 @@
     </div>
     
     <div id="revealView"></div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.0/infragistics.reveal.js"></script>
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVPostgresDataSource, RVPostgresDataSourceItem, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script type="text/javascript">
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");     
-        $.ig.RevealSdkSettings.enableActionsOnHoverTooltip = true;
-        
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+        RevealSdkSettings.enableActionsOnHoverTooltip = true;
+
         // Set up headers provider to include User ID
-        $.ig.RevealSdkSettings.setAdditionalHeadersProvider(function (url) {
+        RevealSdkSettings.setAdditionalHeadersProvider(function (url) {
             return headers;
         });
 
         const headers = {};
 
-        var revealView = new $.ig.RevealView("#revealView");
+        var revealView = new RevealView("#revealView");
         revealView.interactiveFilteringEnabled = true;
-        revealView.startInEditMode = true;    
+        revealView.startInEditMode = true;
         revealView.onDataSourcesRequested = (callback) => {
-            
+
             // Pass the selected User ID as a header to the server
-            var selectedUserId = $('#userId').val();
+            var selectedUserId = document.getElementById('userId').value;
             headers["x-header-one"] = `${selectedUserId}`;
             console.log(headers["x-header-one"]);
 
-            var pgDs = new $.ig.RVPostgresDataSource();
+            var pgDs = new RVPostgresDataSource();
             pgDs.id="postgresServerDataSource";
             pgDs.title = "Postgres Data Source";
 
-            var pgDsi = new $.ig.RVPostgresDataSourceItem(pgDs);
+            var pgDsi = new RVPostgresDataSourceItem(pgDs);
             pgDsi.id="CustOrdersOrders";
             pgDsi.title = "Customer Orders Orders";
             pgDsi.subtitle = "Stored Procedure  (customerId)";
@@ -63,7 +61,7 @@
             //**********************************************
             // Note, this is the callback that loads everything above into the dialog.  If you don't want to show the entire
             // database, just remove pgDataSource from the array and leave it empty like this []
-            callback(new $.ig.RevealDataSources([], [pgDsi], false));
+            callback(new RevealDataSources([], [pgDsi], false));
             };
     </script>
 </body>
