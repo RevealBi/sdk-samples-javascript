@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <select onchange="onThemeSelected(this.value)">
+    <select id="themeSelect">
         <option value="ml">Mountain Light</option>
         <option value="md">Mountain Dark</option>
         <option value="ol">Ocean Light</option>
@@ -20,36 +20,33 @@
     </select>
     <div id="revealView" style="height: 95vh; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.3/infragistics.reveal.js"></script>   
+    <script type="module">
+        import { RevealSdkSettings, RVDashboard, RevealView, RevealTheme, MountainLightTheme, MountainDarkTheme, OceanLightTheme, OceanDarkTheme } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script type="text/javascript">        
         //set this to your server url
-        $.ig.RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");   
+        RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
 
         let revealView;
 
-        $.ig.RVDashboard.loadDashboard("Project Management").then( dashboard => {
-            revealView = new $.ig.RevealView("#revealView");
+        RVDashboard.loadDashboard("Project Management").then(dashboard => {
+            revealView = new RevealView("#revealView");
             revealView.dashboard = dashboard;
         })
 
-        function onThemeSelected(theme) {
+        document.getElementById("themeSelect").addEventListener("change", e => onThemeSelected(e.target.value));
+        function onThemeSelected(key) {
             clearVisualizationSeriesColor();
-            var theme;
-            switch(theme) {
-                case "ml":
-                    theme = new $.ig.MountainLightTheme();
-                    break;
+
+            let theme;
+            switch (key) {
                 case "md":
-                    theme = new $.ig.MountainDarkTheme();
+                    theme = new MountainDarkTheme();
                     break;
                 case "ol":
-                    theme = new $.ig.OceanLightTheme();
+                    theme = new OceanLightTheme();
                     break;
                 case "od":
-                    theme = new $.ig.OceanDarkTheme();
+                    theme = new OceanDarkTheme();
                     break;
                 case "c":
                     theme = cloneCurrentTheme();
@@ -58,20 +55,20 @@
                     theme = createCustomTheme();
                     break;
                 case "cs":
-                    theme = new $.ig.MountainLightTheme();
+                    theme = new MountainLightTheme();
                     setVisualizationSeriesColor();
                     break;
+                case "ml":
                 default:
-                    theme = new $.ig.MountainLightTheme();
+                    theme = new MountainLightTheme();
+                    break;
             }
 
-            $.ig.RevealSdkSettings.theme = theme;
-
-            revealView.refreshTheme();          
+            RevealSdkSettings.theme = theme;
         }
 
         function cloneCurrentTheme() {
-            var theme = $.ig.RevealSdkSettings.theme.clone();
+            var theme = RevealSdkSettings.theme.clone();
             theme.fontColor = "#0000cc";
             theme.accentColor = "#009900";
             theme.dashboardBackgroundColor = "#ffff66";
@@ -83,7 +80,7 @@
         }
 
         function createCustomTheme() {
-            var theme = new $.ig.RevealTheme();
+            var theme = new RevealTheme();
             theme.fontColor = "#ff0000";
             theme.accentColor = "rgb(192, 80, 77)";
             theme.dashboardBackgroundColor = "#000000";
@@ -93,7 +90,7 @@
 
             theme.mediumFont = "Gabriola";
             theme.boldFont = "Wingdings";
-            
+
             theme.useRoundedCorners = false;
 
             return theme;
@@ -103,7 +100,7 @@
             revealView.onVisualizationSeriesColorAssigning = null;
         }
 
-        function setVisualizationSeriesColor(){
+        function setVisualizationSeriesColor() {
             revealView.onVisualizationSeriesColorAssigning = function (visualization, defaultColor, fieldName, categoryName) {
                 if (visualization.title === "Task Status by Owner") {
                     console.log("Visualization is creating a series");
@@ -111,13 +108,13 @@
                     console.log("Field Name: " + fieldName);
                     console.log("Category Name: " + categoryName);
                     console.log("Default Color: " + defaultColor);
-                
+
 
                     if (categoryName === "not started") { return "Red"; }
                     else if (categoryName === "completed") { return "green"; }
                     else { return "LightGrey"; }
                 }
-            return defaultColor;
+                return defaultColor;
             };
         };
 
