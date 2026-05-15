@@ -6,14 +6,14 @@ This sample uses the new Reveal BI Java SDK through the `io.revealbi:reveal-sdk-
 
 **Windows (PowerShell):**
 ```powershell
-.\mvnw.cmd spring-boot:run
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.arguments=--server.port=5111"
 ```
 
 **macOS/Linux:**
 ```bash
-./mvnw spring-boot:run
+./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=5111
 ```
 
 The sample listens on `http://localhost:5111` and maps Reveal at the root path so the existing Getting Started clients can connect to it without changing `RevealSdkSettings.setBaseUrl`.
 
-Dashboards are loaded from `src/main/resources/dashboards`. Add at least one `.rdash` file there before starting the app. If the folder is empty, the client will not show any dashboards.
+Dashboards are loaded from the `Dashboards` folder in the server project.
