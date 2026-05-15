@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
@@ -8,7 +8,8 @@
 
 @section Scripts
 {
-    <script type="text/javascript">
-        var revealView = new $.ig.RevealView("#revealView");
+    <script type="module">
+        import { RevealView } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
+        var revealView = new RevealView("#revealView");
     </script>
 }

@@ -9,15 +9,15 @@
 </head>
 
 <body>
-    <div id="revealView" style="height: 920px; width: 100%;"></div>
+    <div id="revealView" style="height: 95vh; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/reveal-sdk/dist/reveal-sdk.js"></script>
+    <script type="module">
+        import { RevealSdkSettings, RevealView } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script type="text/javascript">
         //set this to your server url
-        Reveal.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
-		
-		var revealView = new $.ig.RevealView("#revealView");
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+
+        var revealView = new RevealView("#revealView");
     </script>
 </body>
 

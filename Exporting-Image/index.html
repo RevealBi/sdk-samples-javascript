@@ -17,22 +17,19 @@
 </head>
 
 <body>
-    <button onclick="exportToImage()">Export to Image</button>
+    <button id="exportBtn">Export to Image</button>
     <div id="revealView" class="revealView"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.3/infragistics.reveal.js"></script>
+    <script type="module">
+        import { RevealSdkSettings, RVDashboard, RevealView } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script type="text/javascript">
         //set this to your server url
-        $.ig.RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
+        RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
 
         let revealView;
 
-        $.ig.RVDashboard.loadDashboard("Sales").then(dashboard => {
-            revealView = new $.ig.RevealView("#revealView");
+        RVDashboard.loadDashboard("Sales").then(dashboard => {
+            revealView = new RevealView("#revealView");
             revealView.dashboard = dashboard;
 
             revealView.onImageExported = (image) => {
@@ -41,14 +38,13 @@
             };
         });
 
-        function exportToImage() {
+        document.getElementById("exportBtn").addEventListener("click", () => {
             revealView.toImage(image => {
                 console.log(image);
                 var body = window.open("about:blank").document.body;
                 body.appendChild(image);
             });
-        }
-
+        });
     </script>
 </body>
 

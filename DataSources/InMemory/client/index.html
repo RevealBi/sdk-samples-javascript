@@ -12,24 +12,20 @@
 <body>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVInMemoryDataSourceItem, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.4/infragistics.reveal.js"></script>   
-
-    <script type="text/javascript">
-        
         //set this to your server url
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
-    
-        var revealView = new $.ig.RevealView("#revealView");
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+
+        var revealView = new RevealView("#revealView");
         revealView.startInEditMode = true;
         revealView.onDataSourcesRequested = (callback) => {
 
-            var inMemoryDataSourceItem = new $.ig.RVInMemoryDataSourceItem("SalesRecords");
+            var inMemoryDataSourceItem = new RVInMemoryDataSourceItem("SalesRecords");
             inMemoryDataSourceItem.title = "Sales Records";
 
-            callback(new $.ig.RevealDataSources([], [inMemoryDataSourceItem], true));
+            callback(new RevealDataSources([], [inMemoryDataSourceItem], true));
         };
     </script>
 </body>

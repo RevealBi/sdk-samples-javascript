@@ -17,21 +17,19 @@
 
 <body>
     <div id="viewer"></div>    
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.0/infragistics.reveal.js"></script>
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVPostgresDataSource, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script type="text/javascript">
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");          
-        var revealView = new $.ig.RevealView("#viewer");               
-        revealView.startInEditMode = true;  
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+        var revealView = new RevealView("#viewer");
+        revealView.startInEditMode = true;
 
-        revealView.onDataSourcesRequested = (callback) => {        
-            var sqlServerDataSource = new $.ig.RVPostgresDataSource();
+        revealView.onDataSourcesRequested = (callback) => {
+            var sqlServerDataSource = new RVPostgresDataSource();
             sqlServerDataSource.id="sqlServer1";
             sqlServerDataSource.title = "Northwind SQL Data";
-                                    
-            callback(new $.ig.RevealDataSources([sqlServerDataSource], 
+
+            callback(new RevealDataSources([sqlServerDataSource],
                 [], false));
            };
     </script>

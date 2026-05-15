@@ -19,17 +19,14 @@
 <body>
     <div id="revealView" class="revealView"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.3/infragistics.reveal.js"></script>
+    <script type="module">
+        import { RevealSdkSettings, RVDashboard, RevealView } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script type="text/javascript">
         //set this to your server url
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
 
-        $.ig.RVDashboard.loadDashboard("Sales").then(dashboard => {
-            let revealView = new $.ig.RevealView("#revealView");
+        RVDashboard.loadDashboard("Sales").then(dashboard => {
+            let revealView = new RevealView("#revealView");
             revealView.dashboard = dashboard;
 
             revealView.onSave = (rv, args) => {

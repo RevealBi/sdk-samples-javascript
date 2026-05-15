@@ -12,32 +12,29 @@
 <body>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.4/infragistics.reveal.js"></script>
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVWebResourceDataSource, RVWebResourceDataSourceItem, RVCsvDataSourceItem, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script type="text/javascript">
-        $.ig.RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
+        RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
 
-        var revealView = new $.ig.RevealView("#revealView");
+        var revealView = new RevealView("#revealView");
         revealView.startInEditMode = true;
 
         revealView.onDataSourcesRequested = (callback) => {
 
-            const webDS = new $.ig.RVWebResourceDataSource();
+            const webDS = new RVWebResourceDataSource();
             webDS.title = "Web Data Source";
             webDS.subtitle = "Web Data Source Subtitle";
             webDS.url = "https://raw.githubusercontent.com/fivethirtyeight/data/master/airline-safety/airline-safety.csv";
             webDS.useAnonymousAuthentication = true;
 
             //to skip the "Set up your CSV" dialog and directly use the CSV data
-            const webDSI = new $.ig.RVWebResourceDataSourceItem(webDS);            
-            const csvDSI = new $.ig.RVCsvDataSourceItem(webDSI);
+            const webDSI = new RVWebResourceDataSourceItem(webDS);
+            const csvDSI = new RVCsvDataSourceItem(webDSI);
             csvDSI.title = "CSV Data";
             csvDSI.subtitle = "CSV Data Subtitle";
 
-            callback(new $.ig.RevealDataSources([webDS], [csvDSI], false));
+            callback(new RevealDataSources([webDS], [csvDSI], false));
         };
     </script>
 </body>

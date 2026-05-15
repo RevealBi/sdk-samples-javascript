@@ -12,25 +12,22 @@
 <body>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVS3DataSource, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.4/infragistics.reveal.js"></script>   
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
 
-    <script type="text/javascript">
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
-        
-        var revealView = new $.ig.RevealView("#revealView");
+        var revealView = new RevealView("#revealView");
         revealView.startInEditMode = true;
-        
+
         revealView.onDataSourcesRequested = (callback) => {
-            
-            var s3 = new $.ig.RVS3DataSource();
+
+            var s3 = new RVS3DataSource();
             s3.title = "My S3 Server";
             s3.subtitle = "Amazon S3";
             s3.region = "region";
 
-            callback(new $.ig.RevealDataSources([s3], [], true));
+            callback(new RevealDataSources([s3], [], true));
         };
    </script>
 </body>

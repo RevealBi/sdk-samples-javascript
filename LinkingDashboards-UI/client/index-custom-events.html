@@ -202,30 +202,27 @@ LINK HANDLING MODES (configurable via dropdown):
             <div class="loading-spinner"></div>
         </div>
         <div style="text-align: center; margin-top: 20px;">
-            <button onclick="closeDialog()" style="padding: 10px 20px; font-size: 16px;">Cancel</button>
+            <button id="dialogCancelBtn" style="padding: 10px 20px; font-size: 16px;">Cancel</button>
         </div>
     </dialog>
 
     <dialog id="linkDialog" class="modal">
         <div class="dialog-header">
             <h2>Link Content</h2>
-            <button class="close-btn" onclick="closeLinkDialog()">Close</button>
+            <button id="linkDialogCloseBtn" class="close-btn">Close</button>
         </div>
         <iframe id="linkFrame"></iframe>
     </dialog>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.2/infragistics.reveal.js"></script>
+    <script type="module">
+        import { RevealSdkSettings, RVDashboard, RevealView, RevealDashboardThumbnailView } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script type="text/javascript">
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
-        $.ig.RevealSdkSettings.betaFeatures.enable("newTooltip", "newPieChart");
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+        RevealSdkSettings.betaFeatures.enable("newTooltip", "newPieChart");
         const dialog = document.getElementById("dbSelector");
 
-        $.ig.RVDashboard.loadDashboard("Marketing").then(dashboard => {
-            revealView = new $.ig.RevealView("#revealView");
+        RVDashboard.loadDashboard("Marketing").then(dashboard => {
+            revealView = new RevealView("#revealView");
             revealView.interactiveFilteringEnabled = true;
             revealView.dashboard = dashboard;
 
@@ -304,7 +301,7 @@ LINK HANDLING MODES (configurable via dropdown):
             // Generate the thumbnail using Reveal SDK
             if (dashboardData.info) {
                 try {
-                    const thumbnailView = new $.ig.RevealDashboardThumbnailView(`#thumb-${dashboardData.name}`);
+                    const thumbnailView = new RevealDashboardThumbnailView(`#thumb-${dashboardData.name}`);
                     thumbnailView.dashboardInfo = dashboardData.info;
                 } catch (error) {
                     console.error('Error creating thumbnail for', dashboardData.name, error);
@@ -324,6 +321,8 @@ LINK HANDLING MODES (configurable via dropdown):
             document.getElementById('linkFrame').src = '';
         }
 
+        document.getElementById("dialogCancelBtn").addEventListener("click", closeDialog);
+        document.getElementById("linkDialogCloseBtn").addEventListener("click", closeLinkDialog);
     </script>
 </body>
 

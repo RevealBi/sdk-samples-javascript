@@ -12,25 +12,22 @@
 <body>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVGoogleDriveDataSource, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js" ></script>    
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.4/infragistics.reveal.js"></script>   
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
 
-    <script type="text/javascript">
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
-        
-        var revealView = new $.ig.RevealView("#revealView");
+        var revealView = new RevealView("#revealView");
         revealView.startInEditMode = true;
-        
+
         revealView.onDataSourcesRequested = (callback) => {
-            
+
             //list all file in google drive
-            var googleDrive = new $.ig.RVGoogleDriveDataSource();
+            var googleDrive = new RVGoogleDriveDataSource();
             googleDrive.title = "My Google Drive";
             googleDrive.subtitle = "Google Drive";
 
-            callback(new $.ig.RevealDataSources([googleDrive], [], false));
+            callback(new RevealDataSources([googleDrive], [], false));
         };
    </script>
 </body>

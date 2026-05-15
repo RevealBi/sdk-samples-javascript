@@ -27,53 +27,47 @@
 <body>
     <div class="container">
         <div class="menu">
-            <button onclick="setAllTime()">All Time</button>
-            <button onclick="setToday()">Today</button>
-            <button onclick="setLastYear()">Last Year</button>
-            <button onclick="setRange()">Range</button>
+            <button id="allTimeBtn">All Time</button>
+            <button id="todayBtn">Today</button>
+            <button id="lastYearBtn">Last Year</button>
+            <button id="rangeBtn">Range</button>
         </div>
 
         <div id="revealView" class="revealView"></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.3/infragistics.reveal.js"></script>
+    <script type="module">
+        import { RevealSdkSettings, RVDashboard, RevealView, RVDateDashboardFilter, RVDateFilterType, RVDateRange } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script type="text/javascript">
         //set this to your server url
-        $.ig.RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
+        RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
 
         let revealView;
 
-        $.ig.RVDashboard.loadDashboard("Sales").then(dashboard => {
-            revealView = new $.ig.RevealView("#revealView");
+        RVDashboard.loadDashboard("Sales").then(dashboard => {
+            revealView = new RevealView("#revealView");
             revealView.dashboard = dashboard;
         });
 
-        function setAllTime() {
-            revealView.dashboard.dateFilter = new $.ig.RVDateDashboardFilter($.ig.RVDateFilterType.AllTime);
-        }
+        document.getElementById("allTimeBtn").addEventListener("click", () => {
+            revealView.dashboard.dateFilter = new RVDateDashboardFilter(RVDateFilterType.AllTime);
+        });
 
-        function setToday() {
-            revealView.dashboard.dateFilter = new $.ig.RVDateDashboardFilter($.ig.RVDateFilterType.Today);
-        }
+        document.getElementById("todayBtn").addEventListener("click", () => {
+            revealView.dashboard.dateFilter = new RVDateDashboardFilter(RVDateFilterType.Today);
+        });
 
-        function setLastYear() {
-            revealView.dashboard.dateFilter = new $.ig.RVDateDashboardFilter($.ig.RVDateFilterType.LastYear);
-        }
+        document.getElementById("lastYearBtn").addEventListener("click", () => {
+            revealView.dashboard.dateFilter = new RVDateDashboardFilter(RVDateFilterType.LastYear);
+        });
 
-        function setRange() {
+        document.getElementById("rangeBtn").addEventListener("click", () => {
             var fromDate = new Date();
             fromDate.setDate(fromDate.getDate() - 100);
-            
-            var toDate = new Date();  
-            var dateRange = new $.ig.RVDateRange(fromDate, new Date);
 
-            revealView.dashboard.dateFilter = new $.ig.RVDateDashboardFilter($.ig.RVDateFilterType.CustomRange, dateRange);            
-        }
-
+            var dateRange = new RVDateRange(fromDate, new Date);
+            revealView.dashboard.dateFilter = new RVDateDashboardFilter(RVDateFilterType.CustomRange, dateRange);
+        });
     </script>
 </body>
 

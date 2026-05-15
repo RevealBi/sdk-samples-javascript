@@ -94,7 +94,7 @@
         <div class="dialog-content">
             <div class="dialog-header">
                 <h2 id="dialogTitle">Dashboard Grid View</h2>
-                <button class="dialog-close" onclick="closeDashboardDialog()">&times;</button>
+                <button id="dialogCloseBtn" class="dialog-close">&times;</button>
             </div>
             <div class="dialog-body">
                 <div id="dialogViewer" style="height: 100%; width: 100%; position: relative;"></div>
@@ -102,16 +102,13 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.3/infragistics.reveal.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@revealbi/dom@0.2.25/index.umd.min.js"></script>
 
+    <script type="module">
+        import { RevealSdkSettings, RVDashboard, RevealView, RVTooltipItem } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script type="text/javascript">
-
-        $.ig.RevealSdkSettings.setBaseUrl("https://acmeanalyticsserver.azurewebsites.net/");
-        $.ig.RevealSdkSettings.betaFeatures.enable("newTooltip");
+        RevealSdkSettings.setBaseUrl("https://acmeanalyticsserver.azurewebsites.net/");
+        RevealSdkSettings.betaFeatures.enable("newTooltip");
 
         const dashboardName = "Banking";
         let dialogRevealView = null;
@@ -119,8 +116,8 @@
         const loadDashboard = async () => {
             const viewer = document.getElementById('viewer');
             if (viewer) {
-                const dashboard = await $.ig.RVDashboard.loadDashboard(dashboardName);
-                const revealView = new $.ig.RevealView(viewer);
+                const dashboard = await RVDashboard.loadDashboard(dashboardName);
+                const revealView = new RevealView(viewer);
                 revealView.onTooltipShowing = (args) => {
                     handleTooltipShowing(args);
                 };
@@ -129,10 +126,10 @@
         }
 
         const handleTooltipShowing = (args) => {
-            const tooltip1 = new $.ig.RVTooltipItem("Show Data", `Show ${args.cell.formattedValue}`, "https://svgsilh.com/svg/26432.svg", async () => {
+            const tooltip1 = new RVTooltipItem("Show Data", `Show ${args.cell.formattedValue}`, "https://svgsilh.com/svg/26432.svg", async () => {
                 await showFilteredDataDialog(args);
             });
-            const tooltip2 = new $.ig.RVTooltipItem("Show Data", `Show All ${args.visualization.title}`, "https://svgsilh.com/svg/1879084.svg", async () => {
+            const tooltip2 = new RVTooltipItem("Show Data", `Show All ${args.visualization.title}`, "https://svgsilh.com/svg/1879084.svg", async () => {
                 await showAllDataDialog(args.visualization);
             });
 
@@ -216,7 +213,7 @@
 
         /**
          * Shows all data for a visualization by converting it to a grid and displaying in a dialog
-         * @param {$.ig.RVVisualization} visualization - The visualization to convert to grid
+         * @param {RVVisualization} visualization - The visualization to convert to grid
          */
         const showAllDataDialog = async (visualization) => {
             try {
@@ -246,7 +243,7 @@
 
         /**
          * Shows a dashboard in a reusable dialog
-         * @param {$.ig.RevealDashboard} dashboard - The dashboard to display
+         * @param {RevealDashboard} dashboard - The dashboard to display
          * @param {string} title - Optional title for the dialog
          */
         const showDashboardDialog = (dashboard, title = "Dashboard View") => {
@@ -254,7 +251,7 @@
 
             const dialogViewer = document.getElementById('dialogViewer');
             if (!dialogRevealView) {
-                dialogRevealView = new $.ig.RevealView(dialogViewer);
+                dialogRevealView = new RevealView(dialogViewer);
                 dialogRevealView.singleVisualizationMode = true;
             }
 
@@ -342,6 +339,8 @@
 
             return new dom.DateRange(fromDate, toDate);
         };
+
+        document.getElementById("dialogCloseBtn").addEventListener("click", closeDashboardDialog);
 
         loadDashboard();
 

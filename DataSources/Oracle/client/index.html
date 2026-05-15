@@ -12,37 +12,34 @@
 <body>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVOracleSIDDataSource, RVOracleServiceDataSource, RVOracleDataSourceItem, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.4/infragistics.reveal.js"></script>
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
 
-    <script type="text/javascript">
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
-
-        var revealView = new $.ig.RevealView("#revealView");
+        var revealView = new RevealView("#revealView");
         revealView.startInEditMode = true;
 
         revealView.onDataSourcesRequested = (callback) => {
             //if you are using SID
-            const oracleSIDDataSource = new $.ig.RVOracleSIDDataSource();        
+            const oracleSIDDataSource = new RVOracleSIDDataSource();
             oracleSIDDataSource.id = "MyOracleSIDDataSource";
             oracleSIDDataSource.title = "My Oracle SID";
 
             //if you are using Service Name
-            const oracleServiceDataSource = new $.ig.RVOracleServiceDataSource();  
+            const oracleServiceDataSource = new RVOracleServiceDataSource();
             oracleServiceDataSource.id = "MyOracleServiceDataSource";
             oracleServiceDataSource.title = "My Oracle Service";
 
-            const oracleSIDDataSourceItem = new $.ig.RVOracleDataSourceItem(oracleSIDDataSource);
+            const oracleSIDDataSourceItem = new RVOracleDataSourceItem(oracleSIDDataSource);
             oracleSIDDataSourceItem.id = "MyOracleSIDDataSourceItem";
             oracleSIDDataSourceItem.title = "My Oracle SID Item";
 
-            const oracleServiceDataSourceItem = new $.ig.RVOracleDataSourceItem(oracleServiceDataSource);
+            const oracleServiceDataSourceItem = new RVOracleDataSourceItem(oracleServiceDataSource);
             oracleServiceDataSourceItem.id = "MyOracleServiceDataSourceItem";
             oracleServiceDataSourceItem.title = "My Oracle Service Item";
 
-            callback(new $.ig.RevealDataSources([oracleSIDDataSource, oracleServiceDataSource], [oracleSIDDataSourceItem, oracleServiceDataSourceItem], true));
+            callback(new RevealDataSources([oracleSIDDataSource, oracleServiceDataSource], [oracleSIDDataSourceItem, oracleServiceDataSourceItem], true));
         };
     </script>
 </body>

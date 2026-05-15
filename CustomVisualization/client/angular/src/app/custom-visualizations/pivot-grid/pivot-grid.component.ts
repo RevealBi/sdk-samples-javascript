@@ -1,13 +1,12 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { IPivotConfiguration, IPivotDimension, IPivotValue } from 'igniteui-angular';
+import { RVDashboardDataType } from 'reveal-sdk';
 import {
     dataToJson,
     getRevealColumns,
     RevealIncomingData,
     RevealMetadataColumn
 } from '../../utilities/data-utils';
-
-declare let $: any;
 
 declare global {
     interface Window {
@@ -35,19 +34,17 @@ interface PivotFieldBindings {
 }
 
 function detectColumnKind(column: RevealMetadataColumn, rows: any[]): PivotFieldKind {
-    const revealType = typeof $ !== 'undefined' ? $.ig?.RVDashboardDataType : undefined;
+    const revealType = RVDashboardDataType as any;
 
-    if (revealType) {
-        if (column.type === revealType.Date || column.type === revealType.DateTime) {
-            return 'date';
-        }
-        if (column.type === revealType.Number || column.type === revealType.Integer ||
-            column.type === revealType.Decimal || column.type === revealType.Currency) {
-            return 'number';
-        }
-        if (column.type === revealType.Bool || column.type === revealType.Boolean) {
-            return 'boolean';
-        }
+    if (column.type === revealType.Date || column.type === revealType.DateTime) {
+        return 'date';
+    }
+    if (column.type === revealType.Number || column.type === revealType.Integer ||
+        column.type === revealType.Decimal || column.type === revealType.Currency) {
+        return 'number';
+    }
+    if (column.type === revealType.Bool || column.type === revealType.Boolean) {
+        return 'boolean';
     }
 
     const typeName = String(column.type ?? '').toLowerCase();

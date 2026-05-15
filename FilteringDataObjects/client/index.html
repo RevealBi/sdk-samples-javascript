@@ -12,21 +12,19 @@
 <body>
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>    
-    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
-    <script src="https://dl.revealbi.io/reveal/libs/1.8.3/infragistics.reveal.js"></script>
-    <script type="text/javascript">
+    <script type="module">
+        import { RevealSdkSettings, RevealView, RVSqlServerDataSource, RevealDataSources } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
         //set this to your server url
-        $.ig.RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
 
-        var revealView = new $.ig.RevealView("#revealView");
+        var revealView = new RevealView("#revealView");
         revealView.startInEditMode = true;
         revealView.onDataSourcesRequested = (callback) => {
-            var localSQLDataSource = new $.ig.RVSqlServerDataSource(); // indicate type of source
+            var localSQLDataSource = new RVSqlServerDataSource(); // indicate type of source
             localSQLDataSource.title = "Local SQL Server"; // enter name to display in selection menu
 
-            callback(new $.ig.RevealDataSources([localSQLDataSource], [], true));
+            callback(new RevealDataSources([localSQLDataSource], [], true));
         };
     </script>
 </body>
