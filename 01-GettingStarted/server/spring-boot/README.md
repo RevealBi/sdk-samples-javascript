@@ -4,8 +4,14 @@ This sample uses the new Reveal BI Java SDK through the `io.revealbi:reveal-sdk-
 
 ## Run
 
+**Windows (PowerShell):**
 ```powershell
 .\mvnw.cmd spring-boot:run
+```
+
+**macOS/Linux:**
+```bash
+./mvnw spring-boot:run
 ```
 
 The sample listens on `http://localhost:5111` and maps Reveal at the root path so the existing Getting Started clients can connect to it without changing `RevealSdkSettings.setBaseUrl`.
