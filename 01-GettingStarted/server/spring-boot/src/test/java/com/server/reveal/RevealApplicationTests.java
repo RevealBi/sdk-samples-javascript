@@ -9,5 +9,4 @@ class RevealApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
