@@ -5,14 +5,15 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.5</version>
+		<version>3.3.2</version>
 		<relativePath/>
 	</parent>
 
 	<groupId>com.server</groupId>
-	<artifactId>reveal-spring-boot</artifactId>
+	<artifactId>reveal</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>reveal-spring-boot</name>
+	<packaging>war</packaging>
+	<name>reveal</name>
 	<description>Reveal BI Spring Boot sample using the new Java SDK</description>
 
 	<properties>
