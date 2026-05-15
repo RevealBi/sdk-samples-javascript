@@ -43,13 +43,6 @@
 			<id>reveal.public</id>
 			<url>https://maven.revealbi.io/repository/public</url>
 		</repository>
-		<repository>
-			<id>reveal.release-stage</id>
-			<url>https://maven.revealbi.io/repository/release-stage</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
 	</repositories>
 
 	<build>
