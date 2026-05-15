@@ -6,52 +6,45 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.3.2</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
+
 	<groupId>com.server</groupId>
 	<artifactId>reveal</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>reveal</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Reveal BI Spring Boot sample using the new Java SDK</description>
+
 	<properties>
 		<java.version>17</java.version>
 	</properties>
+
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jersey</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-tomcat</artifactId>
-			<scope>provided</scope>
+			<groupId>io.revealbi</groupId>
+			<artifactId>reveal-sdk-servlet</artifactId>
+			<version>2.0.0</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>com.infragistics.reveal.sdk</groupId>
-			<artifactId>reveal-sdk</artifactId>
-			<version>1.8.3</version>
-		</dependency>
-		
 	</dependencies>
 
 	<repositories>
 		<repository>
 			<id>reveal.public</id>
 			<url>https://maven.revealbi.io/repository/public</url>
-		</repository>	
-	</repositories>	
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>
@@ -61,5 +54,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
