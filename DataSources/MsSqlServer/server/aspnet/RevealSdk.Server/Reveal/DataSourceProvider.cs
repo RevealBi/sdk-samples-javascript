@@ -30,6 +30,7 @@ namespace RevealSdk.Server.Reveal
                 sqlDatasource.Host = "10.0.0.20";
                 sqlDatasource.Database = "Northwind";
                 sqlDatasource.Schema = "dbo";
+                sqlDatasource.TrustServerCertificate = true; //required for debugging with self-signed certificates, should be false in production
             }
 
             return Task.FromResult(dataSource);

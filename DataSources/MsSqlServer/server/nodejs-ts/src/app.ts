@@ -41,6 +41,7 @@ const dataSourceProvider = async (userContext: IRVUserContext | null, dataSource
 		dataSource.host = "10.0.0.20";
 		dataSource.database = "Northwind";
 		dataSource.schema = "dbo";
+		dataSource.trustServerCertificate = true; //required for debugging with self-signed certificates, should be false in production
 	}
 	return dataSource;
 }
