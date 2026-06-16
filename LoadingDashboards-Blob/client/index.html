@@ -23,7 +23,7 @@
         import { RevealSdkSettings, RVDashboard, RevealView } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
 
         //set this to your server url
-        RevealSdkSettings.setBaseUrl("http://localhost:5111/");
+        RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
 
         loadDashboard("Sales").then(dashboard => {
             var revealView = new RevealView("#revealView");
@@ -31,7 +31,7 @@
         });
 
         function loadDashboard(name) {
-            return fetch(`http://localhost:5111/dashboards/${name}`)
+            return fetch(`https://samples.revealbi.io/upmedia-backend/reveal-api/dashboards/${name}`)
                 .then(r => r.blob())
                 .then(blob => {
                     return RVDashboard.loadDashboardFromContainer(blob);
