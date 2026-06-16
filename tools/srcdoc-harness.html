@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reveal Samples Srcdoc Harness</title>
+    <style>
+        :root {
+            --bg: #f3f4f6;
+            --panel: #ffffff;
+            --ink: #111827;
+            --muted: #4b5563;
+            --line: #d1d5db;
+            --accent: #1d4ed8;
+            --accent-ink: #ffffff;
+            --warn: #9a3412;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+            color: var(--ink);
+            background: linear-gradient(140deg, #e5e7eb 0%, #f9fafb 40%, #e0f2fe 100%);
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr;
+        }
+
+        .controls {
+            background: var(--panel);
+            border-bottom: 1px solid var(--line);
+            padding: 14px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .row {
+            display: grid;
+            gap: 8px;
+            grid-template-columns: 180px 1fr auto auto;
+            align-items: center;
+        }
+
+        .row label {
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        input,
+        select,
+        button {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 9px 10px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        button {
+            background: var(--accent);
+            color: var(--accent-ink);
+            border: 0;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button.secondary {
+            background: #475569;
+        }
+
+        .note {
+            color: var(--warn);
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .preview {
+            padding: 14px;
+            display: grid;
+            gap: 10px;
+        }
+
+        iframe {
+            width: 100%;
+            height: calc(100vh - 190px);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #fff;
+        }
+
+        .status {
+            margin: 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        @media (max-width: 900px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+
+            iframe {
+                height: calc(100vh - 280px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section class="controls">
+        <div class="row">
+            <label for="samplePath">Sample Path</label>
+            <input id="samplePath" value="LoadingDashboards/client/index.html" aria-label="Sample path">
+            <select id="samplePreset" aria-label="Sample presets">
+                <option value="">Pick a preset</option>
+                <option value="LoadingDashboards/client/index.html">LoadingDashboards</option>
+                <option value="LoadingDashboards-File/client/index.html">LoadingDashboards-File</option>
+                <option value="LoadingDashboards-FileStream/client/index.html">LoadingDashboards-FileStream</option>
+                <option value="LoadingDashboards-Json/client/index.html">LoadingDashboards-Json</option>
+                <option value="LoadingDashboards-Resource/client/index.html">LoadingDashboards-Resource</option>
+                <option value="LoadingDashboards-Blob/client/index.html">LoadingDashboards-Blob</option>
+            </select>
+            <button id="loadSample">Load</button>
+        </div>
+
+        <div class="row">
+            <label for="cspMode">Iframe CSP Mode</label>
+            <select id="cspMode" aria-label="CSP mode">
+                <option value="none">none (no CSP)</option>
+                <option value="allow">allow (jsdelivr + samples backend)</option>
+                <option value="block">block (simulate broken docs CSP)</option>
+            </select>
+            <button id="reloadSample" class="secondary">Reload</button>
+            <span></span>
+        </div>
+
+        <p class="note">Open DevTools Console + Network. In block mode, module load and/or fetch should fail. In allow mode, dashboard should load.</p>
+    </section>
+
+    <section class="preview">
+        <p id="status" class="status">Waiting to load sample...</p>
+        <iframe id="preview" title="Srcdoc preview"></iframe>
+    </section>
+
+    <script>
+        const samplePathInput = document.getElementById("samplePath");
+        const samplePreset = document.getElementById("samplePreset");
+        const cspMode = document.getElementById("cspMode");
+        const loadSampleBtn = document.getElementById("loadSample");
+        const reloadSampleBtn = document.getElementById("reloadSample");
+        const preview = document.getElementById("preview");
+        const statusEl = document.getElementById("status");
+
+        let lastHtml = "";
+
+        samplePreset.addEventListener("change", () => {
+            if (samplePreset.value) {
+                samplePathInput.value = samplePreset.value;
+            }
+        });
+
+        loadSampleBtn.addEventListener("click", loadSampleIntoFrame);
+        reloadSampleBtn.addEventListener("click", reloadWithCurrentCsp);
+
+        function buildCsp(mode) {
+            if (mode === "allow") {
+                return "default-src 'self' https: data: blob:; script-src 'unsafe-inline' https://cdn.jsdelivr.net; connect-src https://samples.revealbi.io; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:;";
+            }
+
+            if (mode === "block") {
+                return "default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;";
+            }
+
+            return "";
+        }
+
+        function injectMetaCsp(html, csp) {
+            if (!csp) {
+                return html;
+            }
+
+            const meta = `<meta http-equiv=\"Content-Security-Policy\" content=\"${csp}\">`;
+
+            if (/<head[^>]*>/i.test(html)) {
+                return html.replace(/<head[^>]*>/i, (headTag) => `${headTag}\n    ${meta}`);
+            }
+
+            return `${meta}\n${html}`;
+        }
+
+        async function loadSampleIntoFrame() {
+            const path = samplePathInput.value.trim();
+            if (!path) {
+                statusEl.textContent = "Enter a sample path first.";
+                return;
+            }
+
+            statusEl.textContent = `Loading ${path}...`;
+
+            try {
+                const response = await fetch(`/${path}`, { cache: "no-store" });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                lastHtml = await response.text();
+                renderWithCsp();
+            } catch (error) {
+                preview.srcdoc = "";
+                statusEl.textContent = `Failed to load ${path}: ${error.message}`;
+            }
+        }
+
+        function reloadWithCurrentCsp() {
+            if (!lastHtml) {
+                statusEl.textContent = "Load a sample first.";
+                return;
+            }
+
+            renderWithCsp();
+        }
+
+        function renderWithCsp() {
+            const mode = cspMode.value;
+            const csp = buildCsp(mode);
+            const html = injectMetaCsp(lastHtml, csp);
+
+            preview.srcdoc = html;
+            statusEl.textContent = `Rendered in srcdoc mode with CSP: ${mode}.`;
+        }
+    </script>
+</body>
+
+</html>
