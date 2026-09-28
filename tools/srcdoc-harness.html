@@ -212,8 +212,9 @@
                 lastHtml = await response.text();
                 renderWithCsp();
             } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
                 preview.srcdoc = "";
-                statusEl.textContent = `Failed to load ${path}: ${error.message}`;
+                statusEl.textContent = `Failed to load ${path}: ${message}`;
             }
         }
 
