@@ -16,11 +16,10 @@ From the repository root, start a static file server:
 python -m http.server 8080
 ```
 
-Then open sample pages at:
+Then open sample pages at either:
 
-```text
-http://localhost:8080/<sample-folder>/index.html
-```
+- http://localhost:8080/<sample-folder>/index.html
+- http://localhost:8080/<sample-folder>/client/index.html
 
 ## Official Local Validation Workflow
 
