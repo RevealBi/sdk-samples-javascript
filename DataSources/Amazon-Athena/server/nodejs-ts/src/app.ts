@@ -1,5 +1,5 @@
 import express, { Application } from 'express';
-import reveal, { IRVUserContext, RevealOptions, RVDashboardDataSource, RVDataSourceItem, RVAmazonWebServicesCredentials, RVAthenaDataSource } from 'reveal-sdk-node';
+import reveal, { IRVUserContext, RevealOptions, RVDashboardDataSource, RVDataSourceItem, RVAmazonWebServicesCredentials, RVAthenaDataSource, RVAthenaDataSourceItem } from 'reveal-sdk-node';
 import cors from "cors";
 
 const app: Application = express();
@@ -16,7 +16,7 @@ const authenticationProvider = async (userContext: IRVUserContext | null, dataSo
 const dataSourceItemProvider = async (userContext: IRVUserContext | null, dataSourceItem: RVDataSourceItem) => {
 	await dataSourceProvider(userContext, dataSourceItem.dataSource);
 
-	if (dataSourceItem instanceof reveal.RVAthenaDataSourceItem) {
+	if (dataSourceItem instanceof RVAthenaDataSourceItem) {
 		if (dataSourceItem.id === "my-data-source-item") {
 			dataSourceItem.table = "your_table_name";
 		}		
@@ -25,7 +25,7 @@ const dataSourceItemProvider = async (userContext: IRVUserContext | null, dataSo
 }
 
 const dataSourceProvider = async (userContext: IRVUserContext | null, dataSource: RVDashboardDataSource) => {
-	if (dataSource instanceof reveal.RVAthenaDataSource) {
+	if (dataSource instanceof RVAthenaDataSource) {
 		dataSource.region = "your_region";
         dataSource.database = "your_database_name";
 	}
