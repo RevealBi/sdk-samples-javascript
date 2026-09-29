@@ -10,7 +10,7 @@ namespace RevealSdk.Server.Reveal
         string _token = string.Empty;
         public async Task<IRVDataSourceCredential> ResolveCredentialsAsync(IRVUserContext userContext, RVDashboardDataSource dataSource)
         {
-            IRVDataSourceCredential userCredential = new RVUsernamePasswordDataSourceCredential();
+            IRVDataSourceCredential userCredential = new RVIntegratedAuthenticationCredential();
             if (dataSource is RVGoogleDriveDataSource)
             {
                 if (string.IsNullOrEmpty(_token))
