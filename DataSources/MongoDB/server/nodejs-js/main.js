@@ -36,7 +36,6 @@ const dataSourceProvider = async (userContext, dataSource) => {
 }
 
 const revealOptions = {
-	license: "your-license-key",
     authenticationProvider: authenticationProvider,
     dataSourceProvider: dataSourceProvider,
 	dataSourceItemProvider: dataSourceItemProvider,
