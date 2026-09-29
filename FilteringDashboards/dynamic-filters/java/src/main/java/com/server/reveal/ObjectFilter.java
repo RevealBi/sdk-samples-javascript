@@ -1,22 +1,15 @@
 package com.server.reveal;
 
 import java.util.Arrays;
-import com.infragistics.reveal.sdk.api.IRVObjectFilter;
-import com.infragistics.reveal.sdk.api.IRVUserContext;
-import com.infragistics.reveal.sdk.api.model.RVDashboardDataSource;
-import com.infragistics.reveal.sdk.api.model.RVDataSourceItem;
-import com.infragistics.reveal.sdk.api.model.RVPostgresDataSource;
-import com.infragistics.reveal.sdk.api.model.RVPostgresDataSourceItem;
+import io.revealbi.core.data.IRVObjectFilter;
+import io.revealbi.core.IRVUserContext;
+import io.revealbi.core.data.RVDataSourceItem;
+import io.revealbi.core.data.RVPostgresDataSource;
+import io.revealbi.core.data.RVPostgresDataSourceItem;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ObjectFilter implements IRVObjectFilter {
-
-    @Override
-    public boolean filter(IRVUserContext userContext, RVDashboardDataSource dataSource) {
-        // Not implemented - matches C# version
-        throw new UnsupportedOperationException("Not implemented");
-    }
 
     @Override
     public boolean filter(IRVUserContext userContext, RVDataSourceItem dataSourceItem) {

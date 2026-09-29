@@ -7,8 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-import com.infragistics.reveal.sdk.api.IRVUserContext;
-import com.infragistics.reveal.sdk.api.IRVDashboardProvider;
+import io.revealbi.core.IRVUserContext;
+import io.revealbi.core.IRVDashboardProvider;
 import org.springframework.stereotype.Component;
 
 @Component

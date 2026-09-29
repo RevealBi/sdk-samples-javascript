@@ -1,8 +1,8 @@
 package com.server.reveal;
 
-import com.infragistics.reveal.sdk.api.IRVDataSourceProvider;
-import com.infragistics.reveal.sdk.api.IRVUserContext;
-import com.infragistics.reveal.sdk.api.model.*;
+import io.revealbi.core.data.IRVDataSourceProvider;
+import io.revealbi.core.IRVUserContext;
+import io.revealbi.core.data.*;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
 
