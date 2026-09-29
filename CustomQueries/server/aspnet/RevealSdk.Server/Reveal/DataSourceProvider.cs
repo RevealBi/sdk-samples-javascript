@@ -49,6 +49,7 @@ namespace RevealSdk.Server.Reveal
             {
                 sqlDataSource.Host = "your-host";
                 sqlDataSource.Database = "your-database";
+                sqlDataSource.TrustServerCertificate = true; //required for debugging with self-signed certificates, should be false in production
             }
 
             if (dataSource is RVMySqlDataSource mySqlDataSource)

@@ -18,6 +18,7 @@ namespace RevealSdk.Server.SDK
             {
                 sqlServer.Host = "localhost";
                 sqlServer.Database = "Northwind";
+                sqlServer.TrustServerCertificate = true; //required for debugging with self-signed certificates, should be false in production
             }
 
             return Task.FromResult(dataSource);
