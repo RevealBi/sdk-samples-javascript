@@ -77,6 +77,7 @@ const dataSourceProvider = async (userContext: IRVUserContext | null, dataSource
 	if (dataSource instanceof RVSqlServerDataSource) {
 		dataSource.host = "your-host";
 		dataSource.database = "your-database";
+		dataSource.trustServerCertificate = true; //required for debugging with self-signed certificates, should be false in production
 	}
 
 	if (dataSource instanceof RVMySqlDataSource) {

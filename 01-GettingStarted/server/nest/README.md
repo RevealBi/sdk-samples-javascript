@@ -26,6 +26,11 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Requirements
+
+- Node.js 22.22.3+ or 24.15+ (required by the Nest 12 CLI). Running the tests needs Node.js 24.9+, because Jest loads the ESM-only Nest 12 packages.
+- `reveal-sdk-node` 2.2.1. The app serves Reveal on `http://localhost:5111` and loads dashboards from a `dashboards` folder next to `package.json`.
+
 ## Project setup
 
 ```bash

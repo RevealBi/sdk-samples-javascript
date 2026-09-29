@@ -2,7 +2,7 @@ import express, { Application } from 'express';
 import reveal, { IRVUserContext, RevealOptions } from 'reveal-sdk-node';
 import cors from "cors";
 import fs from "fs";
-import { pipeline } from 'stream';
+import { pipeline, Readable } from 'stream';
 import { promisify } from 'util';
 
 const app: Application = express();
@@ -24,7 +24,7 @@ const dashboardProvider = async (userContext:IRVUserContext | null, dashboardId:
 	return fs.createReadStream(`${dashboardDirectory}/${dashboardId}.rdash`);
 }
 
-const dashboardStorageProvider = async (userContext: IRVUserContext | null, dashboardId: string, stream: fs.ReadStream) => {
+const dashboardStorageProvider = async (userContext: IRVUserContext | null, dashboardId: string, stream: Readable) => {
 	await pipelineAsync(stream, fs.createWriteStream(`${dashboardDirectory}/${dashboardId}.rdash`));
 }
 
