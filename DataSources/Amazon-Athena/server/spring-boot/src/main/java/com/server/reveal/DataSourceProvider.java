@@ -1,11 +1,11 @@
 package com.server.reveal;
 
-import com.infragistics.reveal.sdk.api.IRVDataSourceProvider;
-import com.infragistics.reveal.sdk.api.IRVUserContext;
-import com.infragistics.reveal.sdk.api.model.RVDashboardDataSource;
-import com.infragistics.reveal.sdk.api.model.RVDataSourceItem;
-import com.infragistics.reveal.sdk.api.model.RVAthenaDataSource;
-import com.infragistics.reveal.sdk.api.model.RVAthenaDataSourceItem;
+import io.revealbi.core.data.IRVDataSourceProvider;
+import io.revealbi.core.IRVUserContext;
+import io.revealbi.core.data.RVDashboardDataSource;
+import io.revealbi.core.data.RVDataSourceItem;
+import io.revealbi.core.data.RVAthenaDataSource;
+import io.revealbi.core.data.RVAthenaDataSourceItem;
 
 public class DataSourceProvider implements IRVDataSourceProvider {
     public RVDataSourceItem changeDataSourceItem(IRVUserContext userContext, String dashboardsID, RVDataSourceItem dataSourceItem) {
