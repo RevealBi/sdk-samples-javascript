@@ -1,4 +1,4 @@
-import { RevealSdkSettings, RVDashboard, RevealView } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
+import { RevealSdkSettings, RVDashboard, RevealView } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.2.1/dist/reveal-sdk.esm.js";
 
 (function(window, document){
   'use strict';

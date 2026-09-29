@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { IPivotConfiguration, IPivotDimension, IPivotValue } from 'igniteui-angular';
+import { IGX_PIVOT_GRID_DIRECTIVES, IPivotConfiguration, IPivotDimension, IPivotValue } from 'igniteui-angular';
 import { RVDashboardDataType } from 'reveal-sdk';
 import {
     dataToJson,
@@ -288,8 +288,9 @@ function extractPivotBindings(incomingData: RevealIncomingData, columns: PivotCo
 
 @Component({
     selector: 'app-pivot-grid',
+    imports: [IGX_PIVOT_GRID_DIRECTIVES],
     templateUrl: './pivot-grid.component.html',
-    styleUrls: ['./pivot-grid.component.scss']
+    styleUrl: './pivot-grid.component.scss'
 })
 export class PivotGridComponent implements OnInit {
 

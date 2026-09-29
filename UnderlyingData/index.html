@@ -102,10 +102,11 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@revealbi/dom@0.2.25/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@revealbi/dom@0.3.0/index.iife.js"></script>
 
     <script type="module">
-        import { RevealSdkSettings, RVDashboard, RevealView, RVTooltipItem } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
+        import { RevealSdkSettings, RVDashboard, RevealView, RVTooltipItem } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.2.1/dist/reveal-sdk.esm.js";
+        const dom = window.RevealDom;
 
         RevealSdkSettings.setBaseUrl("https://acmeanalyticsserver.azurewebsites.net/");
         RevealSdkSettings.betaFeatures.enable("newTooltip");

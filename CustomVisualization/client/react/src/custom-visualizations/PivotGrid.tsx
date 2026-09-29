@@ -4,8 +4,8 @@ import { RVDashboardDataType } from "reveal-sdk";
 import {
     dataToJson,
     getRevealColumns,
-    RevealIncomingData,
-    RevealMetadataColumn
+    type RevealIncomingData,
+    type RevealMetadataColumn
 } from "../utilities/DataToJson";
 import "./PivotGrid.css";
 

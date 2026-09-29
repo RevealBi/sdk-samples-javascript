@@ -1,12 +1,12 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { RevealSdkSettings, RVDashboard, RevealView } from 'reveal-sdk';
+import { RevealSdkSettings, RVChartTypeItem, RVDashboard, RevealView } from 'reveal-sdk';
 
 RevealSdkSettings.setBaseUrl("http://localhost:5111/")
 
 @Component({
   selector: 'app-dashboard-viewer',
   templateUrl: './dashboard-viewer.component.html',
-  styleUrls: ['./dashboard-viewer.component.scss']
+  styleUrl: './dashboard-viewer.component.scss'
 })
 export class DashboardViewerComponent implements AfterViewInit {
 
@@ -23,14 +23,14 @@ export class DashboardViewerComponent implements AfterViewInit {
       url: "http://localhost:4200/table", //provide the url to your custom vizualization
       icon: "https://help.revealbi.io/img/logo.png",
       groups: ["Custom Vizualizations"]
-    });
+    } as unknown as RVChartTypeItem); // custom visualization items are not part of the RVChartTypeItem typings
 
     revealView.chartTypes.push({
       title: "Pivot Grid",
       url: "http://localhost:4200/pivot-grid",
       icon: "https://help.revealbi.io/img/logo.png",
       groups: ["Custom Vizualizations"]
-    });
+    } as unknown as RVChartTypeItem); // custom visualization items are not part of the RVChartTypeItem typings
   }
 
 }

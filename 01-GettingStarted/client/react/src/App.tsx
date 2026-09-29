@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { RevealSdkSettings, RevealView } from 'reveal-sdk';
-import './App.css';
 
 RevealSdkSettings.setBaseUrl("http://localhost:5111/");
 

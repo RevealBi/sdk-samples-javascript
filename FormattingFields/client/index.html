@@ -26,7 +26,7 @@
     <div id="revealView" class="revealView"></div>
 
     <script type="module">
-        import { RevealSdkSettings, RVDashboard, RevealView, SupportedLocales, RVDashboardDataType, RVNumberFormattingSpec, RVDashboardNumberFormattingType, RVDateFormattingSpec, RVDashboardDateAggregationType } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
+        import { RevealSdkSettings, RVDashboard, RevealView, BuiltInLocales, RVDashboardDataType, RVNumberFormattingSpec, RVDashboardNumberFormattingType, RVDateFormattingSpec, RVDashboardDateAggregationType } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.2.1/dist/reveal-sdk.esm.js";
 
         document.body.style.margin = "0px";
         document.body.style.display = "block";
@@ -56,7 +56,7 @@
         (async () => {
             // this line changes the static texts in the UI
             if (locationSelected.langCode !== null) {
-                await RevealSdkSettings.overrideLocale(SupportedLocales[locationSelected.langCode]);
+                await RevealSdkSettings.overrideLocale(BuiltInLocales[locationSelected.langCode]);
             }
 
             //set this to your server url
