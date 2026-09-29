@@ -36,7 +36,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapGet("dashboards", async () =>
+app.MapGet("dashboards", () =>
 {
     try
     {
@@ -51,7 +51,7 @@ app.MapGet("dashboards", async () =>
             try
             {
                 var dashboard = new Dashboard(file);
-                var info = await dashboard.GetInfoAsync(dashboardName);
+                var info = dashboard.GetInfo(dashboardName);
 
                 dashboardsWithInfo.Add(new
                 {

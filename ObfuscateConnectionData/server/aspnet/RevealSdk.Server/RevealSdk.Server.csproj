@@ -7,7 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Reveal.Sdk.AspNetCore" Version="1.8.3" />
+    <PackageReference Include="Reveal.Sdk.AspNetCore" Version="2.2.1" />
+    <PackageReference Include="Reveal.Sdk.Data.Microsoft.SqlServer" Version="2.2.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
