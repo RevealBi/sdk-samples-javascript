@@ -2,13 +2,19 @@
     <table>
         <thead>
             <tr>
-                <th *ngFor="let header of headers">{{header}}</th>
+                @for (header of headers; track $index) {
+                    <th>{{header}}</th>
+                }
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let row of data">
-                <th *ngFor="let header of headers">{{ row[header] }} </th>
-            </tr>
+            @for (row of data; track $index) {
+                <tr>
+                    @for (header of headers; track $index) {
+                        <th>{{ row[header] }} </th>
+                    }
+                </tr>
+            }
         </tbody>
     </table>
 </div>

@@ -28,7 +28,7 @@
     <div id="revealView" style="height: 920px; width: 100%;"></div>
 
     <script type="module">
-        import { RevealSdkSettings, RVDashboard, RevealView, SupportedLocales, RVLocalizationElementType } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.0.0-alpha.6/dist/reveal-sdk.esm.js";
+        import { RevealSdkSettings, RVDashboard, RevealView, BuiltInLocales, RVLocalizationElementType } from "https://cdn.jsdelivr.net/npm/reveal-sdk@2.2.1/dist/reveal-sdk.esm.js";
 
         // set this to your server url
         RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
@@ -39,7 +39,7 @@
 
             // this line changes the static texts in the UI
             if (sessionLang !== null)
-                await RevealSdkSettings.overrideLocale(SupportedLocales[sessionLang])
+                await RevealSdkSettings.overrideLocale(BuiltInLocales[sessionLang])
 
             // check if the elements are inside the dictionary table, if so, the replacement is performed according to the language of the interface
             RevealSdkSettings.localizedStringsProvider = function (element, context) {

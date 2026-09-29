@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
-import { RevealSdkSettings, RVDashboard, RevealView } from 'reveal-sdk';
-import './App.css';
+import { useEffect } from 'react';
+import { RevealSdkSettings, RVDashboard, RevealView, type RVChartTypeItem } from 'reveal-sdk';
 
 RevealSdkSettings.setBaseUrl("https://samples.revealbi.io/upmedia-backend/reveal-api/");
 
@@ -35,7 +34,7 @@ function App() {
         url: new URL(visualization.path, window.location.origin).toString(),
         icon: visualization.icon,
         groups: ["Custom Visualizations"]
-      });
+      } as unknown as RVChartTypeItem); // custom visualization items are not part of the RVChartTypeItem typings
     });
   }
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { dataToJson, getRevealColumns, RevealMetadataColumn } from "../utilities/DataToJson";
+import { dataToJson, getRevealColumns, type RevealMetadataColumn } from "../utilities/DataToJson";
 import "./Table.css";
 
 export default function TableVisualization() {
