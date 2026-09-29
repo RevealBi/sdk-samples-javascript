@@ -9,7 +9,7 @@ namespace RevealSdk.Server.Reveal
     {
         public async Task<IRVDataSourceCredential> ResolveCredentialsAsync(IRVUserContext userContext, RVDashboardDataSource dataSource)
         {
-            IRVDataSourceCredential userCredential = new RVUsernamePasswordDataSourceCredential();
+            IRVDataSourceCredential userCredential = new RVIntegratedAuthenticationCredential();
             if (dataSource is RVBigQueryDataSource)
             {
                 var token = await CreateJwtToken();

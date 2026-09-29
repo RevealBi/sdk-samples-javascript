@@ -9,7 +9,7 @@ namespace RevealSdk.Server.Reveal
         public Task<IRVDataSourceCredential> ResolveCredentialsAsync(IRVUserContext userContext,
             RVDashboardDataSource dataSource)
         {
-            IRVDataSourceCredential userCredential = new RVUsernamePasswordDataSourceCredential();
+            IRVDataSourceCredential userCredential = new RVIntegratedAuthenticationCredential();
             if (dataSource is RVSnowflakeDataSource)
             {
                 userCredential = new RVUsernamePasswordDataSourceCredential("username", "password");
