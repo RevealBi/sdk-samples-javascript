@@ -23,6 +23,7 @@ const dataSourceProvider = async (userContext, dataSource) => {
 		dataSource.host = "localhost";
 		dataSource.database = "Northwind";
 		dataSource.schema = "dbo";
+		dataSource.trustServerCertificate = true; //required for debugging with self-signed certificates, should be false in production
 	}
 	return dataSource;
 }

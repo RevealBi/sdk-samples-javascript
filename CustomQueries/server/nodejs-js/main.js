@@ -61,6 +61,7 @@ const dataSourceProvider = async (userContext, dataSource) => {
     if (dataSource instanceof reveal.RVSqlServerDataSource) {
         dataSource.host = "your-host";
         dataSource.database = "your-database";
+        dataSource.trustServerCertificate = true; //required for debugging with self-signed certificates, should be false in production
     }
 
     if (dataSource instanceof reveal.RVMySqlDataSource) {
