@@ -12,17 +12,14 @@ import java.util.zip.ZipFile;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Path("/dashboards")
+// Served under /dashboards (spring.mvc.servlet.path), so these map to /dashboards/visualizations and /dashboards/names.
+@RestController
 public class DomController {
 
-    @GET
-    @Path("/visualizations")
-    @Produces(MediaType.APPLICATION_JSON)
+    @GetMapping("/visualizations")
     public List<VisualizationChartInfo> getRdashData() {        
         String dashboardsFolderPath = "dashboards"; 
         List<VisualizationChartInfo> visualizationChartInfoList = new ArrayList<>();
@@ -56,9 +53,7 @@ public class DomController {
         return visualizationChartInfoList;
     }
 
-    @GET
-    @Path("/names")
-    @Produces(MediaType.APPLICATION_JSON)
+    @GetMapping("/names")
     public List<DashboardInfo> getDashboardNames() {
         String dashboardsFolderPath = "dashboards";
         List<DashboardInfo> dashboardNamesList = new ArrayList<>();
@@ -193,7 +188,7 @@ public class DomController {
         if (input.toLowerCase().endsWith(visualizationSuffix.toLowerCase())) {
             input = input.substring(0, input.length() - visualizationSuffix.length()).trim();
         }
-        String dashboardImagePath = "/images/";
+        String dashboardImagePath = "/dashboards/images/";
         return dashboardImagePath + input + ".png";
     }
 

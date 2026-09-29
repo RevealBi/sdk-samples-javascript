@@ -1,12 +1,12 @@
 package com.server.reveal;
 
-import com.infragistics.reveal.sdk.api.IRVAuthenticationProvider;
-import com.infragistics.reveal.sdk.api.IRVDataSourceCredential;
-import com.infragistics.reveal.sdk.api.IRVUserContext;
-import com.infragistics.reveal.sdk.api.RVUsernamePasswordDataSourceCredential;
-import com.infragistics.reveal.sdk.api.model.RVDashboardDataSource;
-import com.infragistics.reveal.sdk.api.model.RVMySqlDataSource;
-import com.infragistics.reveal.sdk.api.model.RVSqlServerDataSource;
+import io.revealbi.core.data.IRVAuthenticationProvider;
+import io.revealbi.core.data.IRVDataSourceCredential;
+import io.revealbi.core.IRVUserContext;
+import io.revealbi.core.data.RVUsernamePasswordDataSourceCredential;
+import io.revealbi.core.data.RVDashboardDataSource;
+import io.revealbi.core.data.RVMySqlDataSource;
+import io.revealbi.core.data.RVSqlServerDataSource;
 
 public class AuthenticationProvider implements IRVAuthenticationProvider {
     @Override

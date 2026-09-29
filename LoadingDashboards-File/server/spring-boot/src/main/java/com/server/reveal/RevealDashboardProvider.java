@@ -1,12 +1,12 @@
 package com.server.reveal;
 
-import com.infragistics.reveal.sdk.api.IRVUserContext;
+import io.revealbi.core.IRVUserContext;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.infragistics.reveal.sdk.api.IRVDashboardProvider;
+import io.revealbi.core.IRVDashboardProvider;
 
 public class RevealDashboardProvider implements IRVDashboardProvider {
 

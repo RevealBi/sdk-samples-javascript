@@ -1,15 +1,15 @@
 package com.server.reveal;
 
-import com.infragistics.reveal.sdk.api.IRVUserContext;
-import com.infragistics.reveal.sdk.base.RVUserContext;
-import com.infragistics.reveal.sdk.rest.RVContainerRequestAwareUserContextProvider;
+import io.revealbi.core.IRVUserContext;
+import io.revealbi.core.RVUserContext;
+import io.revealbi.servlet.IRVServletUserContextProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
-import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
-public class UserContextProvider extends RVContainerRequestAwareUserContextProvider {
+public class UserContextProvider implements IRVServletUserContextProvider {
 
     @Value("${POSTGRES_HOST}")
     private String postgresHost;
@@ -27,8 +27,8 @@ public class UserContextProvider extends RVContainerRequestAwareUserContextProvi
     private String postgresSchema;
 
     @Override
-    protected IRVUserContext getUserContext(ContainerRequestContext requestContext) {
-        String userId = requestContext.getHeaderString("x-header-one");
+    public IRVUserContext getUserContext(HttpServletRequest request) {
+        String userId = request.getHeader("x-header-one");
         
         if (userId != null) {
             userId = userId.trim();

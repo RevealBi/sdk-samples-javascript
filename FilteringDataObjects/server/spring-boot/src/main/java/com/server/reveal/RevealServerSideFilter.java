@@ -2,17 +2,17 @@ package com.server.reveal;
 
 import java.util.Arrays;
 
-import com.infragistics.reveal.sdk.api.IRVObjectFilter;
-import com.infragistics.reveal.sdk.api.IRVUserContext;
-import com.infragistics.reveal.sdk.api.model.RVDashboardDataSource;
-import com.infragistics.reveal.sdk.api.model.RVDataSourceItem;
-import com.infragistics.reveal.sdk.api.model.RVSqlServerDataSource;
-import com.infragistics.reveal.sdk.api.model.RVSqlServerDataSourceItem;
+import io.revealbi.core.data.IRVObjectFilter;
+import io.revealbi.core.IRVUserContext;
+import io.revealbi.core.data.RVDashboardDataSource;
+import io.revealbi.core.data.RVDataSourceItem;
+import io.revealbi.core.data.RVSqlServerDataSource;
+import io.revealbi.core.data.RVSqlServerDataSourceItem;
 
 public class RevealServerSideFilter implements IRVObjectFilter {
 
-    @Override
-    public boolean filter(IRVUserContext userContext, RVDashboardDataSource dataSource) {
+    // IRVObjectFilter only filters data source items in 2.x, so the data source check runs for each item.
+    private boolean isAllowedDataSource(RVDashboardDataSource dataSource) {
         String[] allowedList = { "Northwind" }; //here we indicate a list of databases with which we want to work
 
         if (dataSource != null)
@@ -33,6 +33,10 @@ public class RevealServerSideFilter implements IRVObjectFilter {
 
         if (dataSourceItem != null)
         {
+            if (!isAllowedDataSource(dataSourceItem.getDataSource())) {
+                return false;
+            }
+
             if (dataSourceItem instanceof RVSqlServerDataSourceItem dataSQLItem) // we consult if it is a SQL DB item and cast the generic data source item to SQL item to be able to access its attributes
             {
                 if (Arrays.asList(excludedsList).contains(dataSQLItem.getTable())) {

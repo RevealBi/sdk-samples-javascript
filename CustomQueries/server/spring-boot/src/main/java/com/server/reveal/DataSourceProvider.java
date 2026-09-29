@@ -1,8 +1,8 @@
 package com.server.reveal;
 
-import com.infragistics.reveal.sdk.api.IRVDataSourceProvider;
-import com.infragistics.reveal.sdk.api.IRVUserContext;
-import com.infragistics.reveal.sdk.api.model.*;
+import io.revealbi.core.data.IRVDataSourceProvider;
+import io.revealbi.core.IRVUserContext;
+import io.revealbi.core.data.*;
 
 import java.util.Objects;
 
@@ -41,6 +41,7 @@ public class DataSourceProvider implements IRVDataSourceProvider {
         if (dataSource instanceof RVSqlServerDataSource sqlDatasource) {
             sqlDatasource.setHost("your-host");
             sqlDatasource.setDatabase("your-database");
+            sqlDatasource.setTrustServerCertificate(true); //required for debugging with self-signed certificates, should be false in production
         }
 
         if (dataSource instanceof RVMySqlDataSource mySqlDataSource) {

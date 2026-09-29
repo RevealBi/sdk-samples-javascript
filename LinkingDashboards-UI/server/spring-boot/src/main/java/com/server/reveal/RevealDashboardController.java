@@ -4,19 +4,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import org.springframework.stereotype.Component;
-
-@Component
-@Path("dashboards/")
+// Served under /dashboards (spring.mvc.servlet.path), so this maps to /dashboards and /dashboards/.
+@RestController
 public class RevealDashboardController {
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @GetMapping({"", "/"})
     public List<String> getFileNamesWithoutExtension() {
         List<String> filenames = new ArrayList<String>();
         File directory = new File("dashboards");

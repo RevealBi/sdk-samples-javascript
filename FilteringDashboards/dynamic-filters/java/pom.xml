@@ -18,20 +18,10 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jersey</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-tomcat</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -40,9 +30,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.infragistics.reveal.sdk</groupId>
-			<artifactId>reveal-sdk</artifactId>
-			<version>1.8.0</version>
+			<groupId>io.revealbi</groupId>
+			<artifactId>reveal-sdk-servlet</artifactId>
+			<version>2.2.0</version>
 		</dependency>
 		
 		<dependency>
